@@ -25,6 +25,7 @@ import { QuickAdjustModal } from './QuickAdjustModal';
 import { BatchDetailsModal } from './BatchDetailsModal';
 import { BarcodeScannerModal } from '../pos/BarcodeScannerModal';
 import { ImportModal } from './ImportModal';
+import { formatINR } from '@/lib/currency';
 
 export const InventoryView: React.FC = () => {
   const {
@@ -350,9 +351,9 @@ export const InventoryView: React.FC = () => {
 
                         {/* Price */}
                         <td className="py-3 px-4">
-                          <div className="font-mono text-white text-xs">${item.sellingPrice.toFixed(2)}</div>
+                          <div className="font-mono text-white text-xs">{formatINR(item.sellingPrice)}</div>
                           <div className="text-[10px] text-zinc-500 font-mono">
-                            Cost ${item.costPrice.toFixed(2)} • {margin}% margin
+                            Cost {formatINR(item.costPrice)} • {margin}% margin
                           </div>
                         </td>
 

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { StatCard } from '../common/StatCard';
 import { StockStatusBadge } from '../common/Badge';
+import { formatINR } from '@/lib/currency';
 
 interface DashboardViewProps {
   onNavigate: (tab: 'inventory' | 'expiry' | 'reorder' | 'audit') => void;
@@ -77,8 +78,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatCard
           title="Total Inventory Value"
-          value={`$${summary.totalRetailValuation.toLocaleString()}`}
-          subtitle={`Cost Basis: $${summary.totalCostValuation.toLocaleString()}`}
+          value={formatINR(summary.totalRetailValuation, false)}
+          subtitle={`Cost Basis: ${formatINR(summary.totalCostValuation, false)}`}
           trend={{ value: `${summary.averageMarginPercent}% Margin`, isPositive: true }}
           onClick={() => onNavigate('inventory')}
         />
@@ -93,7 +94,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <StatCard
           title="At-Risk Perishable Loss"
-          value={`$${summary.atRiskLossValue.toFixed(2)}`}
+          value={formatINR(summary.atRiskLossValue)}
           subtitle={`${summary.expiringSoonCount + summary.expiredCount} batches near expiration`}
           trend={summary.expiringSoonCount > 0 ? { value: 'Markdown Recommended', isNeutral: true } : undefined}
           onClick={() => onNavigate('expiry')}
@@ -159,7 +160,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           )}
                         </div>
                         <div className="text-[11px] text-zinc-500">
-                          Batch #{batch.batchNumber} • {batch.quantity} {item.unit} • ${item.sellingPrice.toFixed(2)}
+                          Batch #{batch.batchNumber} • {batch.quantity} {item.unit} • {formatINR(item.sellingPrice)}
                         </div>
                       </div>
 
@@ -282,7 +283,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div key={catName} className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="text-zinc-400 truncate pr-2">{catName}</span>
-                    <span className="font-medium text-zinc-200 font-mono">${Math.round(data.value)}</span>
+                    <span className="font-medium text-zinc-200 font-mono">{formatINR(data.value, false)}</span>
                   </div>
                   <div className="h-1 w-full rounded-full bg-zinc-800 overflow-hidden">
                     <div

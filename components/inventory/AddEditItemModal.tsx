@@ -6,6 +6,7 @@ import { InventoryItem, CategoryType, UnitType, TempZone } from '@/types/invento
 import { getRelativeDate } from '@/lib/dateUtils';
 import { Package, X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatINR, CURRENCY_SYMBOL } from '@/lib/currency';
 
 interface AddEditItemModalProps {
   isOpen: boolean;
@@ -374,7 +375,7 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                 <div>
-                  <label className="text-[11px] text-zinc-400 block mb-1">Supplier Cost ($)</label>
+                  <label className="text-[11px] text-zinc-400 block mb-1">Supplier Cost (₹)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -386,7 +387,7 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-[11px] text-zinc-400 block mb-1">Retail Selling Price ($)</label>
+                  <label className="text-[11px] text-zinc-400 block mb-1">Retail Selling Price (₹)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -400,7 +401,7 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
                 <div>
                   <label className="text-[11px] text-zinc-400 block mb-1">Gross Margin</label>
                   <div className="flex h-[32px] items-center justify-between rounded-lg border border-white/[0.06] bg-zinc-900/50 px-2.5 text-xs">
-                    <span className="text-zinc-500 font-mono">+${marginDollar.toFixed(2)}</span>
+                    <span className="text-zinc-500 font-mono">+{formatINR(marginDollar)}</span>
                     <span className="font-mono text-emerald-400 font-medium">{marginPercent}% Margin</span>
                   </div>
                 </div>

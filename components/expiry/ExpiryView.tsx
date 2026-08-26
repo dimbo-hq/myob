@@ -16,6 +16,7 @@ import { MarkdownLabelModal } from './MarkdownLabelModal';
 import { WasteLogModal } from './WasteLogModal';
 import { TempZoneBadge } from '../common/Badge';
 import { StatCard } from '../common/StatCard';
+import { formatINR } from '@/lib/currency';
 
 export const ExpiryView: React.FC = () => {
   const {
@@ -119,12 +120,12 @@ export const ExpiryView: React.FC = () => {
         />
         <StatCard
           title="At-Risk Loss Value"
-          value={`$${summary.atRiskLossValue.toFixed(2)}`}
+          value={formatINR(summary.atRiskLossValue)}
           subtitle="Inventory cost basis"
         />
         <StatCard
           title="Logged Wastage"
-          value={`$${totalWastageCost.toFixed(2)}`}
+          value={formatINR(totalWastageCost)}
           subtitle={`${wastageLogs.length} disposal logs`}
         />
       </div>
@@ -195,7 +196,7 @@ export const ExpiryView: React.FC = () => {
                     <td className="py-2.5 px-4 text-zinc-400 capitalize">{w.reason.replace('_', ' ')}</td>
                     <td className="py-2.5 px-4 text-zinc-500 capitalize">{w.disposalMethod.replace('_', ' ')}</td>
                     <td className="py-2.5 px-4 text-right font-mono font-medium text-rose-400">
-                      -${w.totalLoss.toFixed(2)}
+                      -{formatINR(w.totalLoss)}
                     </td>
                   </tr>
                 ))}
@@ -259,7 +260,7 @@ export const ExpiryView: React.FC = () => {
                       <div>
                         <span className="text-[10px] text-zinc-500">Price</span>
                         <div className={`font-mono ${hasMarkdown ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>
-                          ${originalPrice.toFixed(2)}
+                          {formatINR(originalPrice)}
                         </div>
                       </div>
 
@@ -267,7 +268,7 @@ export const ExpiryView: React.FC = () => {
                         <div className="text-right">
                           <span className="text-[10px] text-amber-400 font-medium">-{batch.markdownPercentage}% Markdown</span>
                           <div className="font-mono font-medium text-emerald-400">
-                            ${markdownPrice.toFixed(2)}
+                            {formatINR(markdownPrice)}
                           </div>
                         </div>
                       )}

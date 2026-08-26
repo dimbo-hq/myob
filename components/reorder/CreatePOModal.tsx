@@ -6,6 +6,7 @@ import { POLineItem } from '@/types/inventory';
 import { getRelativeDate } from '@/lib/dateUtils';
 import { FileText, Plus, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatINR } from '@/lib/currency';
 
 interface CreatePOModalProps {
   isOpen: boolean;
@@ -168,7 +169,7 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({ isOpen, onClose })
                   <option value="">Select product...</option>
                   {(supplierProducts.length > 0 ? supplierProducts : items).map((it) => (
                     <option key={it.id} value={it.id}>
-                      {it.name} (${it.costPrice.toFixed(2)}/{it.unit}) • Stock: {it.currentStock}
+                      {it.name} ({formatINR(it.costPrice)}/{it.unit}) • Stock: {it.currentStock}
                     </option>
                   ))}
                 </select>
@@ -206,7 +207,7 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({ isOpen, onClose })
                   >
                     <div className="flex-1 pr-2 truncate">
                       <div className="font-medium text-white truncate">{line.name}</div>
-                      <div className="text-[10px] text-zinc-500 font-mono">${line.unitCost.toFixed(2)} / {line.unit}</div>
+                      <div className="text-[10px] text-zinc-500 font-mono">{formatINR(line.unitCost)} / {line.unit}</div>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -217,8 +218,8 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({ isOpen, onClose })
                         onChange={(e) => handleUpdateLineQty(line.itemId, Number(e.target.value) || 1)}
                         className="w-14 rounded border border-white/[0.06] bg-zinc-950 px-1.5 py-0.5 text-xs font-mono text-center text-white"
                       />
-                      <span className="font-mono text-white text-xs w-16 text-right font-medium">
-                        ${line.totalCost.toFixed(2)}
+                      <span className="font-mono text-white text-xs w-20 text-right font-medium">
+                        {formatINR(line.totalCost)}
                       </span>
                       <button
                         type="button"
@@ -237,15 +238,15 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({ isOpen, onClose })
             <div className="rounded-lg border border-white/[0.04] bg-zinc-900/40 p-3 space-y-1 text-xs">
               <div className="flex justify-between text-zinc-400">
                 <span>Subtotal ({lineItems.length} lines)</span>
-                <span className="font-mono text-zinc-200">${subtotal.toFixed(2)}</span>
+                <span className="font-mono text-zinc-200">{formatINR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-zinc-400">
                 <span>Freight</span>
-                <span className="font-mono text-zinc-200">${shippingFee.toFixed(2)}</span>
+                <span className="font-mono text-zinc-200">{formatINR(shippingFee)}</span>
               </div>
               <div className="flex justify-between border-t border-white/[0.06] pt-1.5 font-medium text-white">
                 <span>Total PO</span>
-                <span className="font-mono text-emerald-400 font-semibold">${totalAmount.toFixed(2)}</span>
+                <span className="font-mono text-emerald-400 font-semibold">{formatINR(totalAmount)}</span>
               </div>
             </div>
 

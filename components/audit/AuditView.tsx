@@ -9,6 +9,7 @@ import {
   Download, 
   Search
 } from 'lucide-react';
+import { formatINR } from '@/lib/currency';
 
 export const AuditView: React.FC = () => {
   const { stockMovements, addToast } = useInventory();
@@ -37,7 +38,7 @@ export const AuditView: React.FC = () => {
   });
 
   const handleExportCSV = () => {
-    const headers = ['Timestamp', 'Product Name', 'SKU', 'Type', 'Delta Qty', 'Previous Stock', 'New Stock', 'Batch #', 'Reason', 'Performed By', 'Financial Impact ($)'];
+    const headers = ['Timestamp', 'Product Name', 'SKU', 'Type', 'Delta Qty', 'Previous Stock', 'New Stock', 'Batch #', 'Reason', 'Performed By', 'Financial Impact (₹)'];
     const rows = filteredMovements.map((m) => [
       `"${m.timestamp}"`,
       `"${m.itemName}"`,
@@ -144,20 +145,20 @@ export const AuditView: React.FC = () => {
             <thead className="border-b border-white/[0.06] bg-zinc-950/40 text-zinc-400 font-medium text-[11px]">
               <tr>
                 <th className="py-2.5 px-4">Timestamp</th>
-                <th className="py-2.5 px-4">Event</th>
-                <th className="py-2.5 px-4">Product</th>
-                <th className="py-2.5 px-4">Quantity</th>
-                <th className="py-2.5 px-4">Stock Change</th>
-                <th className="py-2.5 px-4">Source / Memo</th>
+                <th className="py-2.5 px-4">Action</th>
+                <th className="py-2.5 px-4">Product / SKU</th>
+                <th className="py-2.5 px-4">Qty Change</th>
+                <th className="py-2.5 px-4">Stock Ledger</th>
+                <th className="py-2.5 px-4">Reason</th>
                 <th className="py-2.5 px-4">Operator</th>
-                <th className="py-2.5 px-4 text-right">Flow ($)</th>
+                <th className="py-2.5 px-4 text-right">Flow (₹)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04] text-zinc-300">
               {filteredMovements.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-zinc-500">
-                    No activity logs match your filter.
+                    No activity movements found.
                   </td>
                 </tr>
               ) : (
@@ -167,21 +168,22 @@ export const AuditView: React.FC = () => {
 
                   return (
                     <tr key={mov.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="py-2.5 px-4 font-mono text-[11px] text-zinc-500 whitespace-nowrap">
-                        {mov.timestamp}
+                      <td className="py-2.5 px-4">
+                        <span className="font-mono text-zinc-500 text-[11px] block">{mov.timestamp}</span>
+                        <span className="text-[10px] text-zinc-400 font-mono font-medium">{mov.type}</span>
                       </td>
                       <td className="py-2.5 px-4">
                         {getTypeBadge(mov.type)}
                       </td>
                       <td className="py-2.5 px-4">
-                        <div className="font-medium text-white">{mov.itemName}</div>
-                        <div className="font-mono text-[10px] text-zinc-500">
+                        <div className="font-medium text-white text-xs">{mov.itemName}</div>
+                        <div className="text-[10px] text-zinc-500 font-mono">
                           {mov.sku} {mov.batchNumber && `• Batch #${mov.batchNumber}`}
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 font-mono font-medium">
-                        <span className={`inline-flex items-center gap-0.5 ${
-                          isPositive ? 'text-emerald-400' : isNegative ? 'text-rose-400' : 'text-zinc-400'
+                      <td className="py-2.5 px-4">
+                        <span className={`inline-flex items-center gap-0.5 font-mono font-semibold text-xs ${
+                          isPositive ? 'text-emerald-400' : isNegative ? 'text-rose-400' : 'text-amber-400'
                         }`}>
                           {isPositive && <ArrowUpRight className="h-3 w-3" />}
                           {isNegative && <ArrowDownRight className="h-3 w-3" />}
@@ -202,7 +204,7 @@ export const AuditView: React.FC = () => {
                       <td className="py-2.5 px-4 text-right font-mono font-medium">
                         {mov.financialImpact !== 0 ? (
                           <span className={mov.type === 'SALE' ? 'text-emerald-400' : mov.financialImpact < 0 ? 'text-rose-400' : 'text-zinc-300'}>
-                            {mov.type === 'SALE' ? `+$${mov.financialImpact.toFixed(2)}` : mov.financialImpact < 0 ? `-$${Math.abs(mov.financialImpact).toFixed(2)}` : `$${mov.financialImpact.toFixed(2)}`}
+                            {mov.type === 'SALE' ? `+${formatINR(mov.financialImpact)}` : mov.financialImpact < 0 ? `-${formatINR(Math.abs(mov.financialImpact))}` : formatINR(mov.financialImpact)}
                           </span>
                         ) : (
                           <span className="text-zinc-600">—</span>

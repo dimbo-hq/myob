@@ -20,6 +20,7 @@ import { POStatusBadge } from '../common/Badge';
 import { StatCard } from '../common/StatCard';
 import { CreatePOModal } from './CreatePOModal';
 import { GoodsReceiptModal } from './GoodsReceiptModal';
+import { formatINR } from '@/lib/currency';
 
 export const ReorderView: React.FC = () => {
   const {
@@ -297,7 +298,7 @@ export const ReorderView: React.FC = () => {
 
                   <div className="flex justify-between border-t border-white/[0.04] pt-2 text-xs">
                     <span className="text-zinc-500">Total PO Value:</span>
-                    <span className="font-mono font-medium text-white">${po.totalAmount.toFixed(2)}</span>
+                    <span className="font-mono font-medium text-white">{formatINR(po.totalAmount)}</span>
                   </div>
                 </div>
 
@@ -386,7 +387,7 @@ export const ReorderView: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-zinc-500">Min Order:</span>
-                  <div className="text-zinc-200 font-medium font-mono">${sup.minOrderValue}</div>
+                  <div className="text-zinc-200 font-medium font-mono">{formatINR(sup.minOrderValue, false)}</div>
                 </div>
               </div>
             </div>

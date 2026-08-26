@@ -5,6 +5,7 @@ import { useInventory } from '@/context/InventoryContext';
 import { POSCartItem } from '@/types/inventory';
 import { Printer, CheckCircle2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatINR } from '@/lib/currency';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -104,11 +105,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <div key={idx} className="space-y-0.5">
                   <div className="flex justify-between font-bold text-slate-800">
                     <span className="truncate pr-2">{cartItem.item.name}</span>
-                    <span>${cartItem.total.toFixed(2)}</span>
+                    <span>{formatINR(cartItem.total)}</span>
                   </div>
                   <div className="flex justify-between text-[11px] text-slate-500">
                     <span>
-                      {cartItem.quantity} x ${cartItem.unitPrice.toFixed(2)}
+                      {cartItem.quantity} x {formatINR(cartItem.unitPrice)}
                       {cartItem.appliedDiscountPercentage > 0 && (
                         <span className="text-amber-600 font-bold ml-1">
                           (-{cartItem.appliedDiscountPercentage}% OFF)
@@ -117,7 +118,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                     </span>
                     {cartItem.appliedDiscountPercentage > 0 && (
                       <span className="line-through">
-                        ${(cartItem.quantity * cartItem.item.sellingPrice).toFixed(2)}
+                        {formatINR(cartItem.quantity * cartItem.item.sellingPrice)}
                       </span>
                     )}
                   </div>
@@ -129,21 +130,21 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             <div className="space-y-1 text-slate-700">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{formatINR(subtotal)}</span>
               </div>
               {discountTotal > 0 && (
                 <div className="flex justify-between text-amber-700 font-bold">
                   <span>Total Savings:</span>
-                  <span>-${discountTotal.toFixed(2)}</span>
+                  <span>-{formatINR(discountTotal)}</span>
                 </div>
               )}
               <div className="flex justify-between text-[11px] text-slate-500">
-                <span>Sales Tax / VAT:</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>GST (5%):</span>
+                <span>{formatINR(tax)}</span>
               </div>
               <div className="flex justify-between text-base font-extrabold text-slate-950 border-t border-slate-800 pt-2 mt-2">
                 <span>TOTAL PAID:</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatINR(total)}</span>
               </div>
             </div>
 

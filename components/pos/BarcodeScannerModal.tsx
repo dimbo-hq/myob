@@ -5,6 +5,7 @@ import { useInventory } from '@/context/InventoryContext';
 import { InventoryItem } from '@/types/inventory';
 import { Scan, X, Search, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatINR } from '@/lib/currency';
 
 interface BarcodeScannerModalProps {
   isOpen: boolean;
@@ -99,7 +100,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                     {scannedItem.name}
                   </span>
                   <span className="font-mono text-[10px] text-zinc-500 mt-0.5">
-                    {scannedItem.barcode} • ${scannedItem.sellingPrice.toFixed(2)}
+                    {scannedItem.barcode} • {formatINR(scannedItem.sellingPrice)}
                   </span>
                 </div>
               ) : (
@@ -141,7 +142,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                     <div className="font-medium text-white">{scannedItem.name}</div>
                     <div className="text-[11px] text-zinc-500">{scannedItem.category} • {scannedItem.location.aisle}</div>
                   </div>
-                  <div className="font-mono font-medium text-white">${scannedItem.sellingPrice.toFixed(2)}</div>
+                  <div className="font-mono font-medium text-white">{formatINR(scannedItem.sellingPrice)}</div>
                 </div>
 
                 <button

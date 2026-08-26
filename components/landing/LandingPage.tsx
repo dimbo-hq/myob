@@ -164,11 +164,11 @@ export const LandingPage: React.FC = () => {
                 <div className="rounded-lg bg-zinc-900/60 p-2.5 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-[10px] text-zinc-500">Retail Was:</span>
-                    <div className="line-through text-zinc-500 font-mono">$2.49</div>
+                    <div className="line-through text-zinc-500 font-mono">₹180.00</div>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-amber-400 font-medium">-50% Clearance</span>
-                    <div className="text-emerald-400 font-mono font-semibold">$1.25</div>
+                    <div className="text-emerald-400 font-mono font-semibold">₹90.00</div>
                   </div>
                 </div>
                 <div className="text-[10px] text-zinc-400 bg-zinc-950/50 p-2 rounded border border-white/[0.04]">
@@ -188,11 +188,11 @@ export const LandingPage: React.FC = () => {
                 <div className="rounded-lg bg-zinc-900/60 p-2.5 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-[10px] text-zinc-500">Retail Was:</span>
-                    <div className="line-through text-zinc-500 font-mono">$5.49</div>
+                    <div className="line-through text-zinc-500 font-mono">₹240.00</div>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-amber-400 font-medium">-30% Early Bird</span>
-                    <div className="text-emerald-400 font-mono font-semibold">$3.84</div>
+                    <div className="text-emerald-400 font-mono font-semibold">₹168.00</div>
                   </div>
                 </div>
                 <div className="text-[10px] text-zinc-400 bg-zinc-950/50 p-2 rounded border border-white/[0.04]">
@@ -212,7 +212,7 @@ export const LandingPage: React.FC = () => {
                 <div className="rounded-lg bg-zinc-900/60 p-2.5 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-[10px] text-zinc-500">Standard Price:</span>
-                    <div className="text-zinc-200 font-mono">$4.29</div>
+                    <div className="text-zinc-200 font-mono">₹145.00</div>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-zinc-500">Status</span>

@@ -5,6 +5,7 @@ import { useInventory } from '@/context/InventoryContext';
 import { getRelativeDate } from '@/lib/dateUtils';
 import { Clock, FastForward, RotateCcw, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatINR } from '@/lib/currency';
 
 interface TimeSimulatorModalProps {
   isOpen: boolean;
@@ -88,7 +89,7 @@ export const TimeSimulatorModal: React.FC<TimeSimulatorModalProps> = ({ isOpen, 
               </div>
               <div>
                 <div className="text-[10px] text-zinc-500">At-Risk Value</div>
-                <div className="font-mono font-medium text-zinc-200 mt-0.5">${summary.atRiskLossValue.toFixed(2)}</div>
+                <div className="font-mono font-medium text-zinc-200 mt-0.5">{formatINR(summary.atRiskLossValue)}</div>
               </div>
             </div>
           </div>

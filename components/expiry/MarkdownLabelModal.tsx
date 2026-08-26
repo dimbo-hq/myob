@@ -4,6 +4,7 @@ import React from 'react';
 import { InventoryItem, BatchInfo } from '@/types/inventory';
 import { Printer, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatINR } from '@/lib/currency';
 
 interface MarkdownLabelModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const MarkdownLabelModal: React.FC<MarkdownLabelModalProps> = ({
   if (!isOpen) return null;
 
   const originalPrice = item.sellingPrice;
-  const markdownPercent = batch.markdownPercentage || 30;
+  const markdownPercent = batch.markdownPercentage || 25;
   const markdownPrice = batch.markdownPrice || (originalPrice * (1 - markdownPercent / 100));
 
   const handlePrint = () => {
@@ -47,16 +48,16 @@ export const MarkdownLabelModal: React.FC<MarkdownLabelModalProps> = ({
           initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.98, y: 10 }}
-          className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d0d10] p-5 shadow-2xl z-10"
+          className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d0d10] p-6 shadow-2xl z-10"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
             <div>
               <h3 className="text-xs font-semibold text-white tracking-tight">
-                Clearance Shelf Tag
+                Clearance Price Sticker
               </h3>
               <p className="text-[11px] text-zinc-500">
-                Printable dynamic markdown barcode label
+                Yellow reduction label for near-expiry item
               </p>
             </div>
             <button
@@ -81,12 +82,12 @@ export const MarkdownLabelModal: React.FC<MarkdownLabelModalProps> = ({
               <div className="my-2.5 flex items-baseline justify-between rounded-lg bg-zinc-950 p-2.5 text-white">
                 <div>
                   <div className="text-[9px] text-zinc-400">WAS:</div>
-                  <div className="text-sm font-mono text-zinc-500 line-through">${originalPrice.toFixed(2)}</div>
+                  <div className="text-sm font-mono text-zinc-500 line-through">{formatINR(originalPrice)}</div>
                 </div>
 
                 <div className="text-right">
                   <div className="text-[10px] font-bold text-amber-300">-{markdownPercent}% NOW</div>
-                  <div className="text-xl font-mono font-black text-emerald-400">${markdownPrice.toFixed(2)}</div>
+                  <div className="text-xl font-mono font-black text-emerald-400">{formatINR(markdownPrice)}</div>
                 </div>
               </div>
 
