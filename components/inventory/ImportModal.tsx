@@ -86,8 +86,12 @@ export const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose }) => 
         const aisle = getVal(['aisle', 'location', 'shelf']) || 'Aisle 01';
         const tempZone = (getVal(['tempzone', 'storage', 'temperature']) || 'ambient') as TempZone;
 
+        const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID 
+          ? crypto.randomUUID() 
+          : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
         const batch = {
-          id: 'b-imp-' + idx + '-' + Date.now(),
+          id: `b-imp-${idx}-${uniqueId}`,
           batchNumber: `BAT-${Math.floor(100 + Math.random() * 900)}`,
           quantity: currentStock,
           expiryDate: String(expiryDate).split('T')[0],
@@ -97,7 +101,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose }) => 
         };
 
         items.push({
-          id: 'item-imp-' + idx + '-' + Date.now(),
+          id: `item-imp-${idx}-${uniqueId}`,
           name: String(name),
           brand: String(brand),
           sku: String(sku),

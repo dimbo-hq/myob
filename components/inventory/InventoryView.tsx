@@ -291,14 +291,14 @@ export const InventoryView: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredItems.map((item) => {
+                  filteredItems.map((item, idx) => {
                     const status = getItemStatus(item);
                     const margin = item.sellingPrice > 0
                       ? Math.round(((item.sellingPrice - item.costPrice) / item.sellingPrice) * 100)
                       : 0;
 
                     return (
-                      <tr key={item.id} className="hover:bg-white/[0.02] transition-colors group">
+                      <tr key={`${item.id}-${idx}`} className="hover:bg-white/[0.02] transition-colors group">
                         {/* Product */}
                         <td className="py-3 px-4">
                           <div className="font-medium text-white text-xs">{item.name}</div>
@@ -405,12 +405,12 @@ export const InventoryView: React.FC = () => {
       ) : (
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {filteredItems.map((item) => {
+          {filteredItems.map((item, idx) => {
             const status = getItemStatus(item);
 
             return (
               <div
-                key={item.id}
+                key={`${item.id}-${idx}`}
                 className="surface-card rounded-xl p-4 flex flex-col justify-between"
               >
                 <div className="space-y-2.5">

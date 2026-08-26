@@ -210,14 +210,14 @@ export const ExpiryView: React.FC = () => {
               No batches match the selected filter.
             </div>
           ) : (
-            filteredBatches.map(({ item, batch, daysLeft, status }) => {
+            filteredBatches.map(({ item, batch, daysLeft, status }, index) => {
               const originalPrice = item.sellingPrice;
               const hasMarkdown = batch.markdownPercentage > 0;
               const markdownPrice = batch.markdownPrice || (originalPrice * (1 - (batch.markdownPercentage || 0) / 100));
 
               return (
                 <div
-                  key={batch.id}
+                  key={`${item.id}-${batch.id}-${index}`}
                   className="surface-card rounded-xl p-4 flex flex-col justify-between"
                 >
                   <div className="space-y-3">

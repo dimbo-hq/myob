@@ -140,13 +140,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="text-zinc-500 text-[11px] mt-0.5">No products expiring in the next 3 days.</div>
                 </div>
               ) : (
-                urgentExpiringItems.slice(0, 4).map(({ item, batch, days }) => {
+                urgentExpiringItems.slice(0, 4).map(({ item, batch, days }, index) => {
                   const isExp = days < 0;
                   const isToday = days === 0;
 
                   return (
                     <div
-                      key={batch.id}
+                      key={`${item.id}-${batch.id}-${index}`}
                       className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-zinc-900/40 p-3 hover:border-white/[0.08] transition-all"
                     >
                       <div className="space-y-0.5 pr-2">
