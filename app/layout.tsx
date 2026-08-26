@@ -7,11 +7,17 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  fallback: ["ui-monospace", "monospace"],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -34,7 +40,7 @@ export default function RootLayout({
         lang="en"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       >
-        <body className="min-h-full flex flex-col bg-[#09090b] text-zinc-100">
+        <body className="min-h-full flex flex-col bg-[#09090b] text-zinc-100 font-sans">
           {children}
         </body>
       </html>

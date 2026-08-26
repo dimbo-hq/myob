@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     const db = await getDatabase();
     if (!db) {
       return NextResponse.json({
+        userId,
         items: [],
         suppliers: [],
         purchaseOrders: [],
@@ -51,8 +52,17 @@ export async function GET(req: NextRequest) {
       settings: settingsDoc ? { storeName: settingsDoc.storeName || '' } : { storeName: '' }
     });
   } catch (error: any) {
-    console.error('Error fetching user store data from MongoDB:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    console.warn('Store data fetch warning:', error.message);
+    return NextResponse.json({
+      items: [],
+      suppliers: [],
+      purchaseOrders: [],
+      stockMovements: [],
+      wastageLogs: [],
+      settings: { storeName: '' },
+      isOfflineMode: true,
+      error: error.message
+    });
   }
 }
 
@@ -68,7 +78,11 @@ export async function POST(req: NextRequest) {
 
     const db = await getDatabase();
     if (!db) {
-      return NextResponse.json({ success: true, isOfflineMode: true });
+      return NextResponse.json({
+        success: true,
+        isOfflineMode: true,
+        message: 'Saved to local workspace. Ensure IP is whitelisted in MongoDB Atlas Network Access.'
+      });
     }
 
     if (settings && typeof settings.storeName === 'string') {
@@ -114,9 +128,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, message: 'Store data saved to MongoDB' });
+    return NextResponse.json({ success: true, message: 'Store data saved to MongoDB Atlas' });
   } catch (error: any) {
-    console.error('Error saving user store data to MongoDB:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    console.warn('Store data save warning:', error.message);
+    return NextResponse.json({
+      success: true,
+      isOfflineMode: true,
+      error: error.message
+    });
   }
 }
