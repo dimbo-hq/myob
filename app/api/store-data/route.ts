@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
         purchaseOrders: [],
         stockMovements: [],
         wastageLogs: [],
+        settings: { storeName: '' },
         isOfflineMode: true
       });
     }
@@ -27,15 +28,17 @@ export async function GET(req: NextRequest) {
       db.collection('suppliers').createIndex({ userId: 1 }),
       db.collection('purchase_orders').createIndex({ userId: 1 }),
       db.collection('stock_movements').createIndex({ userId: 1, _id: -1 }),
-      db.collection('wastage_logs').createIndex({ userId: 1, _id: -1 })
+      db.collection('wastage_logs').createIndex({ userId: 1, _id: -1 }),
+      db.collection('store_settings').createIndex({ userId: 1 })
     ]).catch((err) => console.warn('Index creation notice:', err.message));
 
-    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs] = await Promise.all([
+    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, settingsDoc] = await Promise.all([
       db.collection('inventory_items').find({ userId }).toArray(),
       db.collection('suppliers').find({ userId }).toArray(),
       db.collection('purchase_orders').find({ userId }).toArray(),
       db.collection('stock_movements').find({ userId }).sort({ _id: -1 }).limit(100).toArray(),
-      db.collection('wastage_logs').find({ userId }).sort({ _id: -1 }).toArray()
+      db.collection('wastage_logs').find({ userId }).sort({ _id: -1 }).toArray(),
+      db.collection('store_settings').findOne({ userId })
     ]);
 
     return NextResponse.json({
@@ -44,7 +47,8 @@ export async function GET(req: NextRequest) {
       suppliers: suppliers.map(({ _id, ...rest }) => rest),
       purchaseOrders: purchaseOrders.map(({ _id, ...rest }) => rest),
       stockMovements: stockMovements.map(({ _id, ...rest }) => rest),
-      wastageLogs: wastageLogs.map(({ _id, ...rest }) => rest)
+      wastageLogs: wastageLogs.map(({ _id, ...rest }) => rest),
+      settings: settingsDoc ? { storeName: settingsDoc.storeName || '' } : { storeName: '' }
     });
   } catch (error: any) {
     console.error('Error fetching user store data from MongoDB:', error);
@@ -60,14 +64,21 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { items, suppliers, purchaseOrders, stockMovements, wastageLogs } = body;
+    const { items, suppliers, purchaseOrders, stockMovements, wastageLogs, settings } = body;
 
     const db = await getDatabase();
     if (!db) {
       return NextResponse.json({ success: true, isOfflineMode: true });
     }
 
-    // Upsert or sync user collections with strict tenant isolation
+    if (settings && typeof settings.storeName === 'string') {
+      await db.collection('store_settings').updateOne(
+        { userId },
+        { $set: { userId, storeName: settings.storeName, updatedAt: new Date().toISOString() } },
+        { upsert: true }
+      );
+    }
+
     if (items !== undefined && Array.isArray(items)) {
       await db.collection('inventory_items').deleteMany({ userId });
       if (items.length > 0) {

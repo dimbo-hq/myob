@@ -18,8 +18,8 @@ import {
   LogIn,
   UserPlus,
   FileSpreadsheet,
-  CloudCheck,
-  RefreshCw
+  RefreshCw,
+  Edit2
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -28,6 +28,7 @@ interface NavbarProps {
   onOpenTimeSimulator: () => void;
   onOpenAddProduct: () => void;
   onOpenImport: () => void;
+  onOpenStoreNameModal: () => void;
   onNavigateExpiry: () => void;
 }
 
@@ -37,9 +38,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenTimeSimulator,
   onOpenAddProduct,
   onOpenImport,
+  onOpenStoreNameModal,
   onNavigateExpiry
 }) => {
   const {
+    storeName,
     simulatedDateOffset,
     summary,
     resetToDemoData,
@@ -49,19 +52,29 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#09090b]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand & Location */}
+        {/* Brand & Dynamic Store Name */}
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 text-zinc-200">
             <Store className="h-4 w-4" />
           </div>
-          <div className="flex items-center gap-2.5">
-            <span className="text-sm font-semibold tracking-tight text-white">
-              Aura <span className="text-zinc-500 font-normal">Retail OS</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold tracking-tight text-white lowercase">
+              myob
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-500 font-normal pl-2 border-l border-zinc-800">
+
+            {/* Clickable Store Name */}
+            <button
+              onClick={onOpenStoreNameModal}
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white font-normal pl-2.5 border-l border-zinc-800 transition-colors group"
+              title="Click to rename your store"
+            >
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Downtown Branch
-            </span>
+              <span className="font-medium text-zinc-200 group-hover:text-white truncate max-w-[180px]">
+                {storeName || 'Name Your Store'}
+              </span>
+              <Edit2 className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-zinc-400 transition-opacity" />
+            </button>
+
             {isSyncing && (
               <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-zinc-500 font-mono pl-1">
                 <RefreshCw className="h-3 w-3 animate-spin text-zinc-500" />

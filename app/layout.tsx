@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AURA RETAIL OS | Supermarket & Store Operating Intelligence",
+  title: "myob | Supermarket & Retail Operating Intelligence",
   description: "Next-generation retail operating system with real-time stock control, dynamic expiry clearance AI, automated supplier purchase orders, and optical POS checkout.",
 };
 

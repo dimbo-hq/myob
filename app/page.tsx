@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InventoryProvider, useInventory } from '@/context/InventoryContext';
-import { Show, useAuth } from '@clerk/nextjs';
+import { Show } from '@clerk/nextjs';
 import { LandingPage } from '@/components/landing/LandingPage';
 import { Navbar } from '@/components/layout/Navbar';
 import { DashboardView } from '@/components/dashboard/DashboardView';
@@ -15,6 +15,7 @@ import { BarcodeScannerModal } from '@/components/pos/BarcodeScannerModal';
 import { TimeSimulatorModal } from '@/components/common/TimeSimulatorModal';
 import { AddEditItemModal } from '@/components/inventory/AddEditItemModal';
 import { ImportModal } from '@/components/inventory/ImportModal';
+import { StoreNameModal } from '@/components/common/StoreNameModal';
 import { EmptyStoreOnboarding } from '@/components/common/EmptyStoreOnboarding';
 import { ToastContainer } from '@/components/common/ToastContainer';
 import { 
@@ -36,8 +37,18 @@ function AuthenticatedStoreApp() {
   const [isTimeSimOpen, setIsTimeSimOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isStoreNameModalOpen, setIsStoreNameModalOpen] = useState(false);
+  const [hasPromptedStoreName, setHasPromptedStoreName] = useState(false);
 
-  const { items, summary, isLoadingData } = useInventory();
+  const { items, summary, storeName, isLoadingData } = useInventory();
+
+  // Prompt for store name on first login if not set yet
+  useEffect(() => {
+    if (!isLoadingData && !storeName && !hasPromptedStoreName) {
+      setIsStoreNameModalOpen(true);
+      setHasPromptedStoreName(true);
+    }
+  }, [isLoadingData, storeName, hasPromptedStoreName]);
 
   const navigationTabs = [
     {
@@ -95,6 +106,7 @@ function AuthenticatedStoreApp() {
         onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
         onOpenAddProduct={() => setIsAddProductOpen(true)}
         onOpenImport={() => setIsImportOpen(true)}
+        onOpenStoreNameModal={() => setIsStoreNameModalOpen(true)}
         onNavigateExpiry={() => setActiveTab('expiry')}
       />
 
@@ -188,9 +200,9 @@ function AuthenticatedStoreApp() {
       {/* Footer */}
       <footer className="border-t border-white/[0.05] py-4 text-center text-xs text-zinc-600">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Aura Supermarket & Retail OS</span>
+          <span className="lowercase font-semibold text-zinc-400">myob <span className="text-zinc-600 font-normal">• Supermarket & Retail OS</span></span>
           <span className="font-mono text-[11px] text-zinc-600">
-            Multi-Tenant Isolated MongoDB Database
+            {storeName ? `${storeName} • ` : ''}Multi-Tenant Isolated MongoDB Database
           </span>
         </div>
       </footer>
@@ -223,6 +235,12 @@ function AuthenticatedStoreApp() {
       <ImportModal
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
+      />
+
+      <StoreNameModal
+        isOpen={isStoreNameModalOpen}
+        onClose={() => setIsStoreNameModalOpen(false)}
+        isInitialPrompt={!storeName}
       />
 
       <ToastContainer />

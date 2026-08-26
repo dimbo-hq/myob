@@ -30,10 +30,14 @@ interface InventoryContextType {
   purchaseOrders: PurchaseOrder[];
   stockMovements: StockMovement[];
   wastageLogs: WastageLog[];
+  storeName: string;
   simulatedDateOffset: number;
   toasts: ToastMessage[];
   isLoadingData: boolean;
   isSyncing: boolean;
+  
+  // Store Settings
+  updateStoreName: (name: string) => void;
   
   // Expiry & Status Helpers
   getDaysUntilExpiry: (expiryDateStr: string) => number;
@@ -106,6 +110,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [wastageLogs, setWastageLogs] = useState<WastageLog[]>([]);
+  const [storeName, setStoreName] = useState<string>('');
   const [simulatedDateOffset, setSimulatedDateOffset] = useState<number>(0);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   
@@ -121,12 +126,12 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setIsLoadingData(true);
 
       if (!isSignedIn || !userId) {
-        // Clear state completely when signed out (zero hardcoded data)
         setItems([]);
         setSuppliers([]);
         setPurchaseOrders([]);
         setStockMovements([]);
         setWastageLogs([]);
+        setStoreName('');
         setIsLoadingData(false);
         return;
       }
@@ -140,12 +145,16 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           setPurchaseOrders(data.purchaseOrders || []);
           setStockMovements(data.stockMovements || []);
           setWastageLogs(data.wastageLogs || []);
+          if (data.settings?.storeName) {
+            setStoreName(data.settings.storeName);
+          }
         } else {
           setItems([]);
           setSuppliers([]);
           setPurchaseOrders([]);
           setStockMovements([]);
           setWastageLogs([]);
+          setStoreName('');
         }
       } catch (err) {
         console.error('Error fetching MongoDB store data:', err);
@@ -154,6 +163,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setPurchaseOrders([]);
         setStockMovements([]);
         setWastageLogs([]);
+        setStoreName('');
       } finally {
         setIsLoadingData(false);
       }
@@ -169,7 +179,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       newSuppliers: Supplier[],
       newPOs: PurchaseOrder[],
       newMovements: StockMovement[],
-      newWastage: WastageLog[]
+      newWastage: WastageLog[],
+      currentStoreName: string
     ) => {
       if (!isSignedIn || !userId) return;
 
@@ -186,7 +197,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               suppliers: newSuppliers,
               purchaseOrders: newPOs,
               stockMovements: newMovements,
-              wastageLogs: newWastage
+              wastageLogs: newWastage,
+              settings: { storeName: currentStoreName }
             })
           });
         } catch (err) {
@@ -202,8 +214,18 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Sync with MongoDB whenever state changes
   useEffect(() => {
     if (isLoadingData || !isSignedIn) return;
-    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs);
-  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, isLoadingData, isSignedIn, syncToMongoDB]);
+    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, storeName);
+  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
+
+  // Update store name action
+  const updateStoreName = useCallback((name: string) => {
+    setStoreName(name);
+    addToast({
+      type: 'success',
+      title: 'Store Name Updated',
+      message: `Store workspace renamed to "${name}".`
+    });
+  }, []);
 
   // Toast Helpers
   const addToast = useCallback((toastData: Omit<ToastMessage, 'id' | 'timestamp'>) => {
@@ -259,7 +281,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return 'in-stock';
   }, [getDaysUntilExpiry]);
 
-  // Live Summary Metrics calculated strictly from MongoDB items
+  // Live Summary Metrics
   const summary = useMemo(() => {
     let totalStockUnits = 0;
     let totalCostValuation = 0;
@@ -996,10 +1018,12 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         purchaseOrders,
         stockMovements,
         wastageLogs,
+        storeName,
         simulatedDateOffset,
         toasts,
         isLoadingData,
         isSyncing,
+        updateStoreName,
         getDaysUntilExpiry,
         getEffectiveBatchStatus,
         getItemStatus,

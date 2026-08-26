@@ -39,8 +39,8 @@ export const LandingPage: React.FC = () => {
               <Store className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold tracking-tight text-white">
-                Aura <span className="text-zinc-500 font-normal">Retail OS</span>
+              <span className="text-sm font-bold tracking-tight text-white lowercase">
+                myob <span className="text-zinc-500 font-normal">retail os</span>
               </span>
               <span className="hidden sm:inline-block rounded-full bg-zinc-900 border border-white/[0.06] text-[10px] text-zinc-400 px-2 py-0.5 font-mono">
                 Multi-Tenant MongoDB
@@ -69,7 +69,7 @@ export const LandingPage: React.FC = () => {
         {/* Release Pill */}
         <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900/80 px-3.5 py-1 text-xs text-zinc-300 backdrop-blur-md shadow-sm">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-medium text-white">Aura Supermarket Intelligence 2026</span>
+          <span className="font-medium text-white">myob Supermarket Intelligence 2026</span>
           <span className="text-zinc-500">•</span>
           <span className="text-zinc-400">Isolated Cloud Database</span>
         </div>
@@ -374,7 +374,7 @@ export const LandingPage: React.FC = () => {
       {/* Footer */}
       <footer className="border-t border-white/[0.05] py-6 text-center text-xs text-zinc-600">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Aura Retail OS • Store Management Intelligence</span>
+          <span className="lowercase font-medium text-zinc-400">myob <span className="text-zinc-600 font-normal">• Store Management Intelligence</span></span>
           <span className="font-mono text-[11px] text-zinc-600">
             Secured by Clerk • Multi-Tenant MongoDB
           </span>

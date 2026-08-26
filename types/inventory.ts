@@ -44,6 +44,13 @@ export interface BatchInfo {
   notes?: string;
 }
 
+export interface StoreSettings {
+  storeName: string;
+  storeAddress?: string;
+  currency?: string;
+  phone?: string;
+}
+
 export interface Supplier {
   id: string;
   name: string;
