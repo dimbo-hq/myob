@@ -1,0 +1,1039 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useAuth, useUser } from '@clerk/nextjs';
+import {
+  InventoryItem,
+  Supplier,
+  PurchaseOrder,
+  StockMovement,
+  WastageLog,
+  POSCartItem,
+  ToastMessage,
+  BatchInfo,
+  MovementType,
+  POStatus,
+  StockStatus
+} from '@/types/inventory';
+import {
+  INITIAL_INVENTORY,
+  INITIAL_SUPPLIERS,
+  INITIAL_PURCHASE_ORDERS,
+  INITIAL_STOCK_MOVEMENTS,
+  INITIAL_WASTAGE_LOGS
+} from '@/data/initialData';
+import { getRelativeDate } from '@/lib/dateUtils';
+
+interface InventoryContextType {
+  items: InventoryItem[];
+  suppliers: Supplier[];
+  purchaseOrders: PurchaseOrder[];
+  stockMovements: StockMovement[];
+  wastageLogs: WastageLog[];
+  simulatedDateOffset: number;
+  toasts: ToastMessage[];
+  isLoadingData: boolean;
+  isSyncing: boolean;
+  
+  // Expiry & Status Helpers
+  getDaysUntilExpiry: (expiryDateStr: string) => number;
+  getEffectiveBatchStatus: (expiryDateStr: string) => 'safe' | 'warning' | 'critical' | 'expired';
+  getItemStatus: (item: InventoryItem) => StockStatus;
+  
+  // Analytics & Summary
+  summary: {
+    totalItemsCount: number;
+    totalStockUnits: number;
+    totalCostValuation: number;
+    totalRetailValuation: number;
+    potentialProfit: number;
+    averageMarginPercent: number;
+    outOfStockCount: number;
+    lowStockCount: number;
+    expiringSoonCount: number;
+    expiredCount: number;
+    atRiskLossValue: number;
+    pendingOrdersCount: number;
+  };
+  
+  // Item Operations
+  addItem: (item: Omit<InventoryItem, 'id'>) => string;
+  updateItem: (id: string, updates: Partial<InventoryItem>) => void;
+  deleteItem: (id: string) => void;
+  adjustStock: (itemId: string, delta: number, reason: string, type?: MovementType, batchNumber?: string) => void;
+  importBulkItems: (items: InventoryItem[]) => Promise<void>;
+  
+  // Expiry Operations
+  applyBatchMarkdown: (itemId: string, batchId: string, markdownPercent: number) => void;
+  applySmartExpiryMarkdowns: () => number;
+  writeOffBatch: (
+    itemId: string,
+    batchId: string,
+    quantity: number,
+    reason: WastageLog['reason'],
+    disposal: WastageLog['disposalMethod'],
+    notes?: string
+  ) => void;
+  
+  // Purchase Order Operations
+  createPurchaseOrder: (poData: Omit<PurchaseOrder, 'id' | 'poNumber'>) => string;
+  updatePOStatus: (poId: string, status: POStatus) => void;
+  receivePurchaseOrder: (poId: string, receivedMap: Record<string, number>) => void;
+  autoGenerateReorderPOs: () => number;
+  
+  // POS & Sales
+  processPOSSale: (cartItems: POSCartItem[], paymentMethod: string) => { success: boolean; orderId: string };
+  
+  // Simulator & Utilities
+  advanceSimulatedDays: (days: number) => void;
+  resetSimulatedDate: () => void;
+  resetToDemoData: () => void;
+  seedSampleData: () => Promise<void>;
+  
+  // Notifications
+  addToast: (toast: Omit<ToastMessage, 'id' | 'timestamp'>) => void;
+  dismissToast: (id: string) => void;
+}
+
+const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
+
+export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { userId, isSignedIn, isLoaded: isAuthLoaded } = useAuth();
+  const { user } = useUser();
+
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
+  const [wastageLogs, setWastageLogs] = useState<WastageLog[]>([]);
+  const [simulatedDateOffset, setSimulatedDateOffset] = useState<number>(0);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 1. Fetch User Data Exclusively from MongoDB upon Authentication
+  useEffect(() => {
+    if (!isAuthLoaded) return;
+
+    const fetchDatabaseStore = async () => {
+      setIsLoadingData(true);
+
+      if (!isSignedIn || !userId) {
+        // Clear state completely when signed out (zero hardcoded data)
+        setItems([]);
+        setSuppliers([]);
+        setPurchaseOrders([]);
+        setStockMovements([]);
+        setWastageLogs([]);
+        setIsLoadingData(false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/store-data');
+        if (res.ok) {
+          const data = await res.json();
+          setItems(data.items || []);
+          setSuppliers(data.suppliers || []);
+          setPurchaseOrders(data.purchaseOrders || []);
+          setStockMovements(data.stockMovements || []);
+          setWastageLogs(data.wastageLogs || []);
+        } else {
+          setItems([]);
+          setSuppliers([]);
+          setPurchaseOrders([]);
+          setStockMovements([]);
+          setWastageLogs([]);
+        }
+      } catch (err) {
+        console.error('Error fetching MongoDB store data:', err);
+        setItems([]);
+        setSuppliers([]);
+        setPurchaseOrders([]);
+        setStockMovements([]);
+        setWastageLogs([]);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchDatabaseStore();
+  }, [isAuthLoaded, isSignedIn, userId]);
+
+  // 2. Real-Time Sync of User Mutations to MongoDB
+  const syncToMongoDB = useCallback(
+    async (
+      newItems: InventoryItem[],
+      newSuppliers: Supplier[],
+      newPOs: PurchaseOrder[],
+      newMovements: StockMovement[],
+      newWastage: WastageLog[]
+    ) => {
+      if (!isSignedIn || !userId) return;
+
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+
+      syncTimeoutRef.current = setTimeout(async () => {
+        setIsSyncing(true);
+        try {
+          await fetch('/api/store-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: newItems,
+              suppliers: newSuppliers,
+              purchaseOrders: newPOs,
+              stockMovements: newMovements,
+              wastageLogs: newWastage
+            })
+          });
+        } catch (err) {
+          console.error('Failed to sync changes with MongoDB:', err);
+        } finally {
+          setIsSyncing(false);
+        }
+      }, 500);
+    },
+    [isSignedIn, userId]
+  );
+
+  // Sync with MongoDB whenever state changes
+  useEffect(() => {
+    if (isLoadingData || !isSignedIn) return;
+    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs);
+  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, isLoadingData, isSignedIn, syncToMongoDB]);
+
+  // Toast Helpers
+  const addToast = useCallback((toastData: Omit<ToastMessage, 'id' | 'timestamp'>) => {
+    const newToast: ToastMessage = {
+      ...toastData,
+      id: 'toast-' + Math.random().toString(36).substring(2, 9),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setToasts((prev) => [newToast, ...prev.slice(0, 4)]);
+
+    setTimeout(() => {
+      setToasts((current) => current.filter((t) => t.id !== newToast.id));
+    }, 4500);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((current) => current.filter((t) => t.id !== id));
+  }, []);
+
+  // Expiry Calculations considering simulated date offset
+  const getDaysUntilExpiry = useCallback((expiryDateStr: string): number => {
+    if (!expiryDateStr) return 999;
+    const now = new Date();
+    now.setDate(now.getDate() + simulatedDateOffset);
+    now.setHours(0, 0, 0, 0);
+
+    const expiry = new Date(expiryDateStr);
+    expiry.setHours(0, 0, 0, 0);
+
+    const diffTime = expiry.getTime() - now.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }, [simulatedDateOffset]);
+
+  const getEffectiveBatchStatus = useCallback((expiryDateStr: string): 'safe' | 'warning' | 'critical' | 'expired' => {
+    const days = getDaysUntilExpiry(expiryDateStr);
+    if (days < 0) return 'expired';
+    if (days <= 2) return 'critical';
+    if (days <= 7) return 'warning';
+    return 'safe';
+  }, [getDaysUntilExpiry]);
+
+  const getItemStatus = useCallback((item: InventoryItem): StockStatus => {
+    if (item.currentStock <= 0) return 'out-of-stock';
+    if (item.currentStock <= item.minStockLevel) return 'critical';
+    
+    const hasExpired = item.batches.some(b => b.quantity > 0 && getDaysUntilExpiry(b.expiryDate) < 0);
+    if (hasExpired) return 'expired';
+
+    const hasCriticalExpiry = item.batches.some(b => b.quantity > 0 && getDaysUntilExpiry(b.expiryDate) <= 2);
+    if (hasCriticalExpiry) return 'expiring-soon';
+
+    if (item.currentStock <= item.reorderPoint) return 'low-stock';
+    return 'in-stock';
+  }, [getDaysUntilExpiry]);
+
+  // Live Summary Metrics calculated strictly from MongoDB items
+  const summary = useMemo(() => {
+    let totalStockUnits = 0;
+    let totalCostValuation = 0;
+    let totalRetailValuation = 0;
+    let outOfStockCount = 0;
+    let lowStockCount = 0;
+    let expiringSoonCount = 0;
+    let expiredCount = 0;
+    let atRiskLossValue = 0;
+
+    items.forEach((item) => {
+      totalStockUnits += item.currentStock;
+      totalCostValuation += item.currentStock * item.costPrice;
+      
+      let itemRetailVal = 0;
+      let accountedUnits = 0;
+      
+      item.batches.forEach((b) => {
+        if (b.quantity > 0) {
+          const unitSell = b.markdownPrice || (item.sellingPrice * (1 - (b.markdownPercentage || 0) / 100));
+          itemRetailVal += b.quantity * unitSell;
+          accountedUnits += b.quantity;
+
+          const daysLeft = getDaysUntilExpiry(b.expiryDate);
+          if (daysLeft < 0) {
+            expiredCount += 1;
+            atRiskLossValue += b.quantity * item.costPrice;
+          } else if (daysLeft <= 3) {
+            expiringSoonCount += 1;
+            atRiskLossValue += b.quantity * item.costPrice;
+          }
+        }
+      });
+
+      const remainingUnbatched = Math.max(0, item.currentStock - accountedUnits);
+      itemRetailVal += remainingUnbatched * (item.discountPrice || item.sellingPrice);
+      totalRetailValuation += itemRetailVal;
+
+      if (item.currentStock <= 0) {
+        outOfStockCount++;
+      } else if (item.currentStock <= item.reorderPoint) {
+        lowStockCount++;
+      }
+    });
+
+    const potentialProfit = Math.max(0, totalRetailValuation - totalCostValuation);
+    const averageMarginPercent = totalRetailValuation > 0
+      ? Math.round((potentialProfit / totalRetailValuation) * 100 * 10) / 10
+      : 0;
+
+    const pendingOrdersCount = purchaseOrders.filter((po) =>
+      ['pending', 'sent', 'in-transit'].includes(po.status)
+    ).length;
+
+    return {
+      totalItemsCount: items.length,
+      totalStockUnits,
+      totalCostValuation: Math.round(totalCostValuation * 100) / 100,
+      totalRetailValuation: Math.round(totalRetailValuation * 100) / 100,
+      potentialProfit: Math.round(potentialProfit * 100) / 100,
+      averageMarginPercent,
+      outOfStockCount,
+      lowStockCount,
+      expiringSoonCount,
+      expiredCount,
+      atRiskLossValue: Math.round(atRiskLossValue * 100) / 100,
+      pendingOrdersCount
+    };
+  }, [items, purchaseOrders, getDaysUntilExpiry]);
+
+  // Seed sample supermarket data into isolated user workspace in MongoDB
+  const seedSampleData = useCallback(async () => {
+    setItems(INITIAL_INVENTORY);
+    setSuppliers(INITIAL_SUPPLIERS);
+    setPurchaseOrders(INITIAL_PURCHASE_ORDERS);
+    setStockMovements(INITIAL_STOCK_MOVEMENTS);
+    setWastageLogs(INITIAL_WASTAGE_LOGS);
+
+    addToast({
+      type: 'success',
+      title: 'Demo Store Seeded',
+      message: 'Populated 16 supermarket items, batches, and suppliers to your MongoDB account.'
+    });
+  }, [addToast]);
+
+  // Bulk Import Items from CSV / Excel into MongoDB
+  const importBulkItems = useCallback(async (newItems: InventoryItem[]) => {
+    setItems((prev) => [...newItems, ...prev]);
+
+    const bulkMov: StockMovement = {
+      id: 'mov-imp-' + Date.now(),
+      timestamp: 'Just now',
+      itemId: 'bulk-import',
+      itemName: `Spreadsheet Import (${newItems.length} Products)`,
+      sku: 'BULK-IMPORT',
+      type: 'INITIAL_COUNT',
+      quantityDelta: newItems.reduce((a, c) => a + c.currentStock, 0),
+      previousStock: 0,
+      newStock: newItems.reduce((a, c) => a + c.currentStock, 0),
+      reason: 'Bulk Data Upload (CSV/Excel)',
+      performedBy: user?.fullName || 'Store Owner',
+      unitCost: 0,
+      financialImpact: 0
+    };
+    setStockMovements((prev) => [bulkMov, ...prev]);
+
+    try {
+      await fetch('/api/inventory/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: newItems })
+      });
+    } catch (err) {
+      console.error('API bulk import sync:', err);
+    }
+  }, [user]);
+
+  // Item Actions
+  const addItem = useCallback((itemData: Omit<InventoryItem, 'id'>): string => {
+    const id = 'item-' + Math.random().toString(36).substring(2, 8);
+    const newItem: InventoryItem = {
+      ...itemData,
+      id
+    };
+    setItems((prev) => [newItem, ...prev]);
+
+    if (newItem.currentStock > 0) {
+      const movement: StockMovement = {
+        id: 'mov-' + Math.random().toString(36).substring(2, 9),
+        timestamp: 'Just now',
+        itemId: id,
+        itemName: newItem.name,
+        sku: newItem.sku,
+        type: 'INITIAL_COUNT',
+        quantityDelta: newItem.currentStock,
+        previousStock: 0,
+        newStock: newItem.currentStock,
+        reason: 'New product creation with initial stock count',
+        performedBy: user?.fullName || 'Store Manager',
+        unitCost: newItem.costPrice,
+        financialImpact: newItem.currentStock * newItem.costPrice
+      };
+      setStockMovements((prev) => [movement, ...prev]);
+    }
+
+    addToast({
+      type: 'success',
+      title: 'Item Created',
+      message: `"${newItem.name}" added to inventory successfully.`
+    });
+
+    return id;
+  }, [user, addToast]);
+
+  const updateItem = useCallback((id: string, updates: Partial<InventoryItem>) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          return { ...item, ...updates };
+        }
+        return item;
+      })
+    );
+
+    addToast({
+      type: 'info',
+      title: 'Item Updated',
+      message: 'Product specs and stock properties saved.'
+    });
+  }, [addToast]);
+
+  const deleteItem = useCallback((id: string) => {
+    const itemToDelete = items.find((i) => i.id === id);
+    if (!itemToDelete) return;
+
+    setItems((prev) => prev.filter((i) => i.id !== id));
+    addToast({
+      type: 'warning',
+      title: 'Item Deleted',
+      message: `"${itemToDelete.name}" removed from inventory catalogue.`
+    });
+  }, [items, addToast]);
+
+  // Adjust Stock
+  const adjustStock = useCallback((
+    itemId: string,
+    delta: number,
+    reason: string,
+    type: MovementType = 'ADJUSTMENT',
+    batchNumber?: string
+  ) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== itemId) return item;
+        const newStock = Math.max(0, item.currentStock + delta);
+
+        let updatedBatches = [...item.batches];
+        if (batchNumber && updatedBatches.length > 0) {
+          updatedBatches = updatedBatches.map((b) => {
+            if (b.batchNumber === batchNumber) {
+              return { ...b, quantity: Math.max(0, b.quantity + delta) };
+            }
+            return b;
+          });
+        }
+
+        const movement: StockMovement = {
+          id: 'mov-' + Math.random().toString(36).substring(2, 9),
+          timestamp: 'Just now',
+          itemId: item.id,
+          itemName: item.name,
+          sku: item.sku,
+          type,
+          quantityDelta: delta,
+          previousStock: item.currentStock,
+          newStock,
+          batchNumber,
+          reason,
+          performedBy: user?.fullName || 'Staff Operator',
+          unitCost: item.costPrice,
+          financialImpact: Math.abs(delta) * (type === 'SALE' ? item.sellingPrice : item.costPrice)
+        };
+        setStockMovements((curr) => [movement, ...curr]);
+
+        return {
+          ...item,
+          currentStock: newStock,
+          batches: updatedBatches
+        };
+      })
+    );
+
+    addToast({
+      type: delta >= 0 ? 'success' : 'warning',
+      title: delta >= 0 ? 'Stock Increased' : 'Stock Reduced',
+      message: `${Math.abs(delta)} unit(s) recorded (${reason})`
+    });
+  }, [user, addToast]);
+
+  // Apply Batch Markdown Discount
+  const applyBatchMarkdown = useCallback((itemId: string, batchId: string, markdownPercent: number) => {
+    let itemName = '';
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== itemId) return item;
+        itemName = item.name;
+
+        const updatedBatches = item.batches.map((b) => {
+          if (b.id === batchId) {
+            const discountedPrice = Math.round(item.sellingPrice * (1 - markdownPercent / 100) * 100) / 100;
+            return {
+              ...b,
+              markdownPercentage: markdownPercent,
+              markdownPrice: discountedPrice,
+              notes: markdownPercent > 0 ? `Dynamic Markdown ${markdownPercent}% applied` : undefined
+            };
+          }
+          return b;
+        });
+
+        return { ...item, batches: updatedBatches };
+      })
+    );
+
+    const movement: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: 'Just now',
+      itemId,
+      itemName,
+      sku: '',
+      type: 'MARKDOWN_APPLIED',
+      quantityDelta: 0,
+      previousStock: 0,
+      newStock: 0,
+      reason: `Applied ${markdownPercent}% dynamic clearance discount to batch`,
+      performedBy: 'Dynamic Expiry Engine',
+      unitCost: 0,
+      financialImpact: 0
+    };
+    setStockMovements((prev) => [movement, ...prev]);
+
+    addToast({
+      type: 'info',
+      title: 'Discount Applied',
+      message: `${markdownPercent}% clearance markdown active for selected batch.`
+    });
+  }, [addToast]);
+
+  // Auto Smart Expiry Markdowns
+  const applySmartExpiryMarkdowns = useCallback((): number => {
+    let affectedBatchesCount = 0;
+
+    setItems((prev) =>
+      prev.map((item) => {
+        let changed = false;
+        const updatedBatches = item.batches.map((b) => {
+          if (b.quantity <= 0) return b;
+          const daysLeft = getDaysUntilExpiry(b.expiryDate);
+
+          if (daysLeft <= 1 && b.markdownPercentage < 50) {
+            affectedBatchesCount++;
+            changed = true;
+            return {
+              ...b,
+              markdownPercentage: 50,
+              markdownPrice: Math.round(item.sellingPrice * 0.5 * 100) / 100,
+              notes: 'Smart Expiry Engine: 50% Urgent Clearance (<24-48h)'
+            };
+          } else if (daysLeft <= 3 && b.markdownPercentage < 25) {
+            affectedBatchesCount++;
+            changed = true;
+            return {
+              ...b,
+              markdownPercentage: 25,
+              markdownPrice: Math.round(item.sellingPrice * 0.75 * 100) / 100,
+              notes: 'Smart Expiry Engine: 25% Early Clearance (<3d)'
+            };
+          }
+          return b;
+        });
+
+        return changed ? { ...item, batches: updatedBatches } : item;
+      })
+    );
+
+    if (affectedBatchesCount > 0) {
+      addToast({
+        type: 'success',
+        title: 'Smart Markdowns Activated',
+        message: `Applied dynamic discounts to ${affectedBatchesCount} near-expiry batch(es) to accelerate turnover.`
+      });
+    } else {
+      addToast({
+        type: 'info',
+        title: 'All Good',
+        message: 'No un-discounted batches requiring markdown at this time.'
+      });
+    }
+
+    return affectedBatchesCount;
+  }, [getDaysUntilExpiry, addToast]);
+
+  // Write off spoiled/expired inventory
+  const writeOffBatch = useCallback((
+    itemId: string,
+    batchId: string,
+    quantity: number,
+    reason: WastageLog['reason'],
+    disposal: WastageLog['disposalMethod'],
+    notes?: string
+  ) => {
+    const item = items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    const targetBatch = item.batches.find((b) => b.id === batchId);
+    const batchNum = targetBatch?.batchNumber || 'UNKNOWN';
+    const writeOffQty = Math.min(quantity, targetBatch ? targetBatch.quantity : item.currentStock);
+    const totalLoss = Math.round(writeOffQty * item.costPrice * 100) / 100;
+
+    const wastageEntry: WastageLog = {
+      id: 'wst-' + Math.random().toString(36).substring(2, 9),
+      timestamp: 'Just now',
+      itemId: item.id,
+      itemName: item.name,
+      sku: item.sku,
+      batchNumber: batchNum,
+      quantity: writeOffQty,
+      unit: item.unit,
+      reason,
+      unitCost: item.costPrice,
+      totalLoss,
+      disposalMethod: disposal,
+      recordedBy: user?.fullName || 'Store Supervisor',
+      notes: notes || `Disposal logged via Expiry Hub (${reason})`
+    };
+    setWastageLogs((prev) => [wastageEntry, ...prev]);
+
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.id !== itemId) return it;
+        const newStock = Math.max(0, it.currentStock - writeOffQty);
+        const updatedBatches = it.batches.map((b) => {
+          if (b.id === batchId) {
+            return { ...b, quantity: Math.max(0, b.quantity - writeOffQty) };
+          }
+          return b;
+        });
+
+        return {
+          ...it,
+          currentStock: newStock,
+          batches: updatedBatches
+        };
+      })
+    );
+
+    const movement: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: 'Just now',
+      itemId: item.id,
+      itemName: item.name,
+      sku: item.sku,
+      type: reason === 'expired' ? 'WASTE_EXPIRED' : 'WASTE_DAMAGED',
+      quantityDelta: -writeOffQty,
+      previousStock: item.currentStock,
+      newStock: Math.max(0, item.currentStock - writeOffQty),
+      batchNumber: batchNum,
+      reason: `Wastage write-off: ${reason} (Disposal: ${disposal})`,
+      performedBy: user?.fullName || 'Store Supervisor',
+      unitCost: item.costPrice,
+      financialImpact: -totalLoss
+    };
+    setStockMovements((prev) => [movement, ...prev]);
+
+    addToast({
+      type: 'warning',
+      title: 'Disposal Logged',
+      message: `${writeOffQty} ${item.unit} written off. Loss impact: $${totalLoss.toFixed(2)}.`
+    });
+  }, [items, user, addToast]);
+
+  // Create Purchase Order
+  const createPurchaseOrder = useCallback((poData: Omit<PurchaseOrder, 'id' | 'poNumber'>): string => {
+    const poNum = `PO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const id = 'po-' + Math.random().toString(36).substring(2, 9);
+    
+    const newPO: PurchaseOrder = {
+      ...poData,
+      id,
+      poNumber: poNum
+    };
+
+    setPurchaseOrders((prev) => [newPO, ...prev]);
+
+    addToast({
+      type: 'success',
+      title: 'Purchase Order Created',
+      message: `${poNum} sent to ${poData.supplierName} ($${poData.totalAmount.toFixed(2)})`
+    });
+
+    return id;
+  }, [addToast]);
+
+  const updatePOStatus = useCallback((poId: string, status: POStatus) => {
+    setPurchaseOrders((prev) =>
+      prev.map((po) => {
+        if (po.id === poId) {
+          return { ...po, status };
+        }
+        return po;
+      })
+    );
+
+    addToast({
+      type: 'info',
+      title: 'PO Status Updated',
+      message: `Purchase order moved to status "${status}".`
+    });
+  }, [addToast]);
+
+  // Goods Receipt / Receive PO
+  const receivePurchaseOrder = useCallback((poId: string, receivedMap: Record<string, number>) => {
+    const po = purchaseOrders.find((p) => p.id === poId);
+    if (!po) return;
+
+    let totalUnitsReceived = 0;
+    const updatedItems = [...items];
+
+    po.items.forEach((line) => {
+      const qtyReceived = receivedMap[line.itemId] || line.orderedQty;
+      if (qtyReceived > 0) {
+        totalUnitsReceived += qtyReceived;
+        const itemIdx = updatedItems.findIndex((it) => it.id === line.itemId);
+        if (itemIdx !== -1) {
+          const item = updatedItems[itemIdx];
+          const newStock = item.currentStock + qtyReceived;
+          const newBatchNumber = `${item.sku.split('-')[1] || 'BAT'}-${Date.now().toString().slice(-4)}`;
+
+          const shelfLifeDays = item.category === 'Fresh Produce' ? 7 : item.category === 'Dairy & Eggs' ? 14 : 90;
+          const newBatch: BatchInfo = {
+            id: 'b-' + Math.random().toString(36).substring(2, 8),
+            batchNumber: newBatchNumber,
+            quantity: qtyReceived,
+            expiryDate: getRelativeDate(shelfLifeDays),
+            costPrice: line.unitCost,
+            markdownPercentage: 0,
+            status: 'safe'
+          };
+
+          updatedItems[itemIdx] = {
+            ...item,
+            currentStock: newStock,
+            batches: [newBatch, ...item.batches],
+            salesVelocity: {
+              ...item.salesVelocity,
+              lastRestockedAt: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          };
+
+          const movement: StockMovement = {
+            id: 'mov-' + Math.random().toString(36).substring(2, 9),
+            timestamp: 'Just now',
+            itemId: item.id,
+            itemName: item.name,
+            sku: item.sku,
+            type: 'RESTOCK',
+            quantityDelta: qtyReceived,
+            previousStock: item.currentStock,
+            newStock,
+            batchNumber: newBatchNumber,
+            reason: `Goods Receipt for PO ${po.poNumber}`,
+            performedBy: user?.fullName || 'Warehouse Team',
+            unitCost: line.unitCost,
+            financialImpact: qtyReceived * line.unitCost
+          };
+          setStockMovements((prev) => [movement, ...prev]);
+        }
+      }
+    });
+
+    setItems(updatedItems);
+
+    setPurchaseOrders((prev) =>
+      prev.map((p) => {
+        if (p.id === poId) {
+          return {
+            ...p,
+            status: 'received',
+            receivedDate: getRelativeDate(0),
+            items: p.items.map((line) => ({
+              ...line,
+              receivedQty: receivedMap[line.itemId] || line.orderedQty
+            }))
+          };
+        }
+        return p;
+      })
+    );
+
+    addToast({
+      type: 'success',
+      title: 'Goods Received & Stock Restocked',
+      message: `Received ${totalUnitsReceived} units from PO ${po.poNumber}. Inventory updated.`
+    });
+  }, [items, purchaseOrders, user, addToast]);
+
+  // Auto Generate Reorder POs
+  const autoGenerateReorderPOs = useCallback((): number => {
+    const itemsNeedingOrder = items.filter((item) => item.currentStock <= item.reorderPoint);
+
+    if (itemsNeedingOrder.length === 0) {
+      addToast({
+        type: 'info',
+        title: 'Inventory Healthy',
+        message: 'All products currently meet or exceed safety threshold levels.'
+      });
+      return 0;
+    }
+
+    const supplierGroups: Record<string, InventoryItem[]> = {};
+    itemsNeedingOrder.forEach((item) => {
+      if (!supplierGroups[item.supplierId]) {
+        supplierGroups[item.supplierId] = [];
+      }
+      supplierGroups[item.supplierId].push(item);
+    });
+
+    const newPOs: PurchaseOrder[] = [];
+
+    Object.entries(supplierGroups).forEach(([supId, groupItems]) => {
+      const supplier = suppliers.find((s) => s.id === supId) || {
+        id: supId,
+        name: groupItems[0]?.supplierName || 'Primary Distributor',
+        leadTimeDays: 2
+      };
+
+      const lineItems = groupItems.map((item) => {
+        const orderQty = Math.max(10, item.optimalStockLevel - item.currentStock);
+        return {
+          itemId: item.id,
+          sku: item.sku,
+          name: item.name,
+          unit: item.unit,
+          orderedQty: orderQty,
+          receivedQty: 0,
+          unitCost: item.costPrice,
+          totalCost: Math.round(orderQty * item.costPrice * 100) / 100,
+          suggestedQty: orderQty
+        };
+      });
+
+      const subtotal = lineItems.reduce((acc, curr) => acc + curr.totalCost, 0);
+      const poNum = `PO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      newPOs.push({
+        id: 'po-' + Math.random().toString(36).substring(2, 9),
+        poNumber: poNum,
+        supplierId: supplier.id,
+        supplierName: supplier.name,
+        status: 'draft',
+        orderDate: getRelativeDate(0),
+        expectedDeliveryDate: getRelativeDate(supplier.leadTimeDays || 2),
+        items: lineItems,
+        subtotal: Math.round(subtotal * 100) / 100,
+        tax: 0,
+        shippingFee: 15.00,
+        totalAmount: Math.round((subtotal + 15.00) * 100) / 100,
+        notes: `Smart Auto-Generated Draft Order for ${lineItems.length} low-stock lines.`,
+        createdBy: 'Auto-Replenish AI Engine'
+      });
+    });
+
+    setPurchaseOrders((prev) => [...newPOs, ...prev]);
+
+    addToast({
+      type: 'success',
+      title: 'Auto-Reorder Generated',
+      message: `Created ${newPOs.length} draft purchase order(s) for ${itemsNeedingOrder.length} SKU(s).`
+    });
+
+    return newPOs.length;
+  }, [items, suppliers, addToast]);
+
+  // Process POS Sale
+  const processPOSSale = useCallback((cartItems: POSCartItem[], paymentMethod: string): { success: boolean; orderId: string } => {
+    if (cartItems.length === 0) return { success: false, orderId: '' };
+
+    const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+    const updatedItems = [...items];
+    const newMovements: StockMovement[] = [];
+
+    cartItems.forEach((cartItem) => {
+      const idx = updatedItems.findIndex((it) => it.id === cartItem.item.id);
+      if (idx !== -1) {
+        const item = updatedItems[idx];
+        const newStock = Math.max(0, item.currentStock - cartItem.quantity);
+
+        let remainingQtyToDeduct = cartItem.quantity;
+        const updatedBatches = item.batches.map((b) => {
+          if (remainingQtyToDeduct <= 0) return b;
+          if (cartItem.batch && b.id === cartItem.batch.id) {
+            const deduct = Math.min(b.quantity, remainingQtyToDeduct);
+            remainingQtyToDeduct -= deduct;
+            return { ...b, quantity: Math.max(0, b.quantity - deduct) };
+          } else if (!cartItem.batch && b.quantity > 0) {
+            const deduct = Math.min(b.quantity, remainingQtyToDeduct);
+            remainingQtyToDeduct -= deduct;
+            return { ...b, quantity: Math.max(0, b.quantity - deduct) };
+          }
+          return b;
+        });
+
+        updatedItems[idx] = {
+          ...item,
+          currentStock: newStock,
+          batches: updatedBatches,
+          salesVelocity: {
+            ...item.salesVelocity,
+            weeklySales: item.salesVelocity.weeklySales + cartItem.quantity,
+            lastSoldAt: 'Just now (' + orderId + ')'
+          }
+        };
+
+        newMovements.push({
+          id: 'mov-' + Math.random().toString(36).substring(2, 9),
+          timestamp: 'Just now',
+          itemId: item.id,
+          itemName: item.name,
+          sku: item.sku,
+          type: 'SALE',
+          quantityDelta: -cartItem.quantity,
+          previousStock: item.currentStock,
+          newStock,
+          batchNumber: cartItem.batch?.batchNumber,
+          reason: `POS Sale #${orderId} (${paymentMethod})`,
+          performedBy: user?.fullName || 'POS Cashier #1',
+          unitCost: item.costPrice,
+          financialImpact: cartItem.total
+        });
+      }
+    });
+
+    setItems(updatedItems);
+    setStockMovements((prev) => [...newMovements, ...prev]);
+
+    addToast({
+      type: 'success',
+      title: 'Sale Processed',
+      message: `Receipt #${orderId} completed via ${paymentMethod}. Inventory auto-deducted.`
+    });
+
+    return { success: true, orderId };
+  }, [items, user, addToast]);
+
+  // Simulator Controls
+  const advanceSimulatedDays = useCallback((days: number) => {
+    setSimulatedDateOffset((prev) => prev + days);
+    addToast({
+      type: 'info',
+      title: 'Simulated Date Advanced',
+      message: `Store calendar fast-forwarded by ${days} day(s).`
+    });
+  }, [addToast]);
+
+  const resetSimulatedDate = useCallback(() => {
+    setSimulatedDateOffset(0);
+    addToast({
+      type: 'info',
+      title: 'Time Reset',
+      message: 'Simulation calendar reset to today.'
+    });
+  }, [addToast]);
+
+  const resetToDemoData = useCallback(() => {
+    setItems([]);
+    setSuppliers([]);
+    setPurchaseOrders([]);
+    setStockMovements([]);
+    setWastageLogs([]);
+    setSimulatedDateOffset(0);
+
+    addToast({
+      type: 'info',
+      title: 'Store Cleared',
+      message: 'Store catalogue cleared. Ready for fresh import.'
+    });
+  }, [addToast]);
+
+  return (
+    <InventoryContext.Provider
+      value={{
+        items,
+        suppliers,
+        purchaseOrders,
+        stockMovements,
+        wastageLogs,
+        simulatedDateOffset,
+        toasts,
+        isLoadingData,
+        isSyncing,
+        getDaysUntilExpiry,
+        getEffectiveBatchStatus,
+        getItemStatus,
+        summary,
+        addItem,
+        updateItem,
+        deleteItem,
+        adjustStock,
+        importBulkItems,
+        applyBatchMarkdown,
+        applySmartExpiryMarkdowns,
+        writeOffBatch,
+        createPurchaseOrder,
+        updatePOStatus,
+        receivePurchaseOrder,
+        autoGenerateReorderPOs,
+        processPOSSale,
+        advanceSimulatedDays,
+        resetSimulatedDate,
+        resetToDemoData,
+        seedSampleData,
+        addToast,
+        dismissToast
+      }}
+    >
+      {children}
+    </InventoryContext.Provider>
+  );
+};
+
+export const useInventory = (): InventoryContextType => {
+  const context = useContext(InventoryContext);
+  if (!context) {
+    throw new Error('useInventory must be used within an InventoryProvider');
+  }
+  return context;
+};
