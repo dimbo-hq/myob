@@ -162,7 +162,7 @@ export const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
 
               {/* Batches list */}
               <div className="space-y-2">
-                {item.batches.map((b) => {
+                {item.batches.map((b, bIdx) => {
                   const daysLeft = getDaysUntilExpiry(b.expiryDate);
                   const isExpired = daysLeft < 0;
                   const isCritical = daysLeft >= 0 && daysLeft <= 2;
@@ -170,7 +170,7 @@ export const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
 
                   return (
                     <div
-                      key={b.id}
+                      key={`${b.id}-${bIdx}`}
                       className="rounded-lg border border-white/[0.04] bg-zinc-900/40 p-3 space-y-2"
                     >
                       <div className="flex items-start justify-between">

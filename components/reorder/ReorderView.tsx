@@ -205,13 +205,13 @@ export const ReorderView: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  itemsNeedingOrder.map((item) => {
+                  itemsNeedingOrder.map((item, idx) => {
                     const suggestedQty = Math.max(10, item.optimalStockLevel - item.currentStock);
                     const lineCost = suggestedQty * item.costPrice;
                     const isOut = item.currentStock === 0;
 
                     return (
-                      <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                      <tr key={`${item.id}-${idx}`} className="hover:bg-white/[0.02] transition-colors">
                         <td className="py-3 px-4">
                           <div className="font-medium text-white">{item.name}</div>
                           <div className="text-[10px] text-zinc-500 font-mono">{item.sku} • {item.location.aisle}</div>
@@ -228,14 +228,14 @@ export const ReorderView: React.FC = () => {
                         <td className="py-3 px-4 text-zinc-400">
                           ~{item.salesVelocity.dailyAverage} {item.unit}/day
                         </td>
-                        <td className="py-3 px-4 font-mono font-medium text-emerald-400">
+                        <td className="py-3 px-4 font-mono font-semibold text-emerald-400">
                           +{suggestedQty} {item.unit}
                         </td>
                         <td className="py-3 px-4 text-zinc-300">
                           {item.supplierName}
                         </td>
                         <td className="py-3 px-4 text-right font-mono font-medium text-white">
-                          ${lineCost.toFixed(2)}
+                          {formatINR(lineCost)}
                         </td>
                       </tr>
                     );
@@ -250,13 +250,13 @@ export const ReorderView: React.FC = () => {
       {/* TAB 2: PURCHASE ORDERS */}
       {activeTab === 'orders' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {filteredPOs.map((po) => {
+          {filteredPOs.map((po, idx) => {
             const isReceived = po.status === 'received';
             const canReceive = ['sent', 'in-transit', 'pending'].includes(po.status);
 
             return (
               <div
-                key={po.id}
+                key={`${po.id}-${idx}`}
                 className="surface-card rounded-xl p-4 flex flex-col justify-between"
               >
                 <div className="space-y-2.5">
@@ -285,8 +285,8 @@ export const ReorderView: React.FC = () => {
 
                   {/* Lines preview */}
                   <div className="rounded-lg border border-white/[0.04] bg-zinc-900/40 p-2.5 space-y-1 text-xs">
-                    {po.items.slice(0, 2).map((it, idx) => (
-                      <div key={idx} className="flex justify-between text-zinc-300">
+                    {po.items.slice(0, 2).map((it, pidx) => (
+                      <div key={pidx} className="flex justify-between text-zinc-300">
                         <span className="truncate pr-2">{it.name}</span>
                         <span className="font-mono text-zinc-400 whitespace-nowrap">{it.orderedQty} {it.unit}</span>
                       </div>
@@ -349,9 +349,9 @@ export const ReorderView: React.FC = () => {
       {/* TAB 3: SUPPLIERS */}
       {activeTab === 'suppliers' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {suppliers.map((sup) => (
+          {suppliers.map((sup, idx) => (
             <div
-              key={sup.id}
+              key={`${sup.id}-${idx}`}
               className="surface-card rounded-xl p-4 space-y-2.5"
             >
               <div className="flex items-center justify-between">

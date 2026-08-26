@@ -147,8 +147,8 @@ export const QuickAdjustModal: React.FC<QuickAdjustModalProps> = ({
                   className="w-full rounded-lg border border-white/[0.06] bg-zinc-900 px-2.5 py-1.5 text-xs text-white focus:border-zinc-500 focus:outline-none"
                 >
                   <option value="">General Shelf Inventory</option>
-                  {item.batches.map((b) => (
-                    <option key={b.id} value={b.batchNumber}>
+                  {item.batches.map((b, bIdx) => (
+                    <option key={`${b.id}-${bIdx}`} value={b.batchNumber}>
                       #{b.batchNumber} ({b.quantity} {item.unit} • Exp: {b.expiryDate})
                     </option>
                   ))}

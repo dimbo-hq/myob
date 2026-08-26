@@ -223,13 +223,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="text-zinc-500 text-[11px] mt-0.5">All products exceed reorder points.</div>
                 </div>
               ) : (
-                lowStockItems.slice(0, 4).map((item) => {
+                lowStockItems.slice(0, 4).map((item, idx) => {
                   const isOut = item.currentStock <= 0;
                   const suggested = Math.max(10, item.optimalStockLevel - item.currentStock);
 
                   return (
                     <div
-                      key={item.id}
+                      key={`${item.id}-${idx}`}
                       className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-zinc-900/40 p-3 hover:border-white/[0.08] transition-all"
                     >
                       <div className="space-y-0.5 pr-2">
@@ -313,9 +313,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <div className="space-y-2">
-              {stockMovements.slice(0, 4).map((mov) => (
+              {stockMovements.slice(0, 4).map((mov, idx) => (
                 <div
-                  key={mov.id}
+                  key={`${mov.id}-${idx}`}
                   className="flex items-center justify-between rounded-lg border border-white/[0.03] bg-zinc-900/30 p-2.5 text-xs"
                 >
                   <div className="space-y-0.5">
