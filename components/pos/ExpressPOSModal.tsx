@@ -8,7 +8,6 @@ import {
   Banknote, 
   Minus, 
   Plus, 
-  Scan, 
   Search, 
   ShoppingCart, 
   Trash2, 
@@ -19,7 +18,6 @@ import {
   QrCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { BarcodeScannerModal } from './BarcodeScannerModal';
 import { ReceiptModal } from './ReceiptModal';
 import { formatINR } from '@/lib/currency';
 
@@ -34,7 +32,6 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [cart, setCart] = useState<POSCartItem[]>([]);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'cash' | 'card'>('upi');
   const [completedOrder, setCompletedOrder] = useState<{
     orderId: string;
@@ -212,20 +209,12 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                       Express POS Checkout
                     </h2>
                     <p className="text-[11px] text-zinc-500">
-                      Register #1 • Fast barcode & optical lookup
+                      Register #1 • Optical SKU and quick cart lookup
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsScannerOpen(true)}
-                    className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-all"
-                  >
-                    <Scan className="h-3.5 w-3.5 text-zinc-400" />
-                    <span>Barcode Scan</span>
-                  </button>
-
                   <button
                     onClick={onClose}
                     className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-800 hover:text-white transition-colors"
@@ -467,15 +456,6 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
           </motion.div>
         </div>
       </AnimatePresence>
-
-      <BarcodeScannerModal
-        isOpen={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
-        onSelectProduct={(scanned) => {
-          handleAddToCart(scanned);
-          setIsScannerOpen(false);
-        }}
-      />
 
       {completedOrder && (
         <ReceiptModal

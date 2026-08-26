@@ -11,7 +11,6 @@ import {
 import { 
   FastForward, 
   RotateCcw, 
-  Scan, 
   ShoppingCart, 
   Store,
   Plus,
@@ -24,7 +23,6 @@ import {
 
 interface NavbarProps {
   onOpenPOS: () => void;
-  onOpenScanner: () => void;
   onOpenTimeSimulator: () => void;
   onOpenAddProduct: () => void;
   onOpenImport: () => void;
@@ -34,7 +32,6 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenPOS,
-  onOpenScanner,
   onOpenTimeSimulator,
   onOpenAddProduct,
   onOpenImport,
@@ -119,16 +116,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <FastForward className="h-3.5 w-3.5 text-zinc-400" />
             <span>{simulatedDateOffset === 0 ? 'Sim' : `+${simulatedDateOffset}d`}</span>
-          </button>
-
-          {/* Scanner */}
-          <button
-            onClick={onOpenScanner}
-            className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900/80 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
-            title="Scan Barcode"
-          >
-            <Scan className="h-3.5 w-3.5 text-zinc-400" />
-            <span className="hidden sm:inline">Scan</span>
           </button>
 
           {/* New Item */}

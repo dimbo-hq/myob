@@ -9,7 +9,6 @@ import {
   Flame, 
   Layers, 
   Plus, 
-  Scan, 
   ShoppingCart, 
   TrendingUp, 
   Truck, 
@@ -23,7 +22,6 @@ import { formatINR } from '@/lib/currency';
 interface DashboardViewProps {
   onNavigate: (tab: 'inventory' | 'expiry' | 'reorder' | 'audit') => void;
   onOpenPOS: () => void;
-  onOpenScanner: () => void;
   onOpenTimeSimulator: () => void;
   onOpenAddProduct: () => void;
 }
@@ -31,7 +29,6 @@ interface DashboardViewProps {
 export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
   onOpenPOS,
-  onOpenScanner,
   onOpenTimeSimulator,
   onOpenAddProduct
 }) => {

@@ -11,7 +11,6 @@ import { ExpiryView } from '@/components/expiry/ExpiryView';
 import { ReorderView } from '@/components/reorder/ReorderView';
 import { AuditView } from '@/components/audit/AuditView';
 import { ExpressPOSModal } from '@/components/pos/ExpressPOSModal';
-import { BarcodeScannerModal } from '@/components/pos/BarcodeScannerModal';
 import { TimeSimulatorModal } from '@/components/common/TimeSimulatorModal';
 import { AddEditItemModal } from '@/components/inventory/AddEditItemModal';
 import { ImportModal } from '@/components/inventory/ImportModal';
@@ -33,7 +32,6 @@ type TabKey = 'dashboard' | 'inventory' | 'expiry' | 'reorder' | 'audit';
 function AuthenticatedStoreApp() {
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [isPOSOpen, setIsPOSOpen] = useState(false);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isTimeSimOpen, setIsTimeSimOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -102,7 +100,6 @@ function AuthenticatedStoreApp() {
       {/* Top Navbar */}
       <Navbar
         onOpenPOS={() => setIsPOSOpen(true)}
-        onOpenScanner={() => setIsScannerOpen(true)}
         onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
         onOpenAddProduct={() => setIsAddProductOpen(true)}
         onOpenImport={() => setIsImportOpen(true)}
@@ -178,7 +175,6 @@ function AuthenticatedStoreApp() {
                   <DashboardView
                     onNavigate={(tab) => setActiveTab(tab)}
                     onOpenPOS={() => setIsPOSOpen(true)}
-                    onOpenScanner={() => setIsScannerOpen(true)}
                     onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
                     onOpenAddProduct={() => setIsAddProductOpen(true)}
                   />
@@ -211,15 +207,6 @@ function AuthenticatedStoreApp() {
       <ExpressPOSModal
         isOpen={isPOSOpen}
         onClose={() => setIsPOSOpen(false)}
-      />
-
-      <BarcodeScannerModal
-        isOpen={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
-        onSelectProduct={(scanned) => {
-          setIsScannerOpen(false);
-          setActiveTab('inventory');
-        }}
       />
 
       <TimeSimulatorModal
