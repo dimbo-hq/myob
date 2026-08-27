@@ -74,7 +74,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { items, suppliers, purchaseOrders, stockMovements, wastageLogs, settings } = body;
+    const { 
+      items, 
+      suppliers, 
+      purchaseOrders, 
+      stockMovements, 
+      wastageLogs, 
+      settings,
+      isExplicitClear 
+    } = body;
 
     const db = await getDatabase();
     if (!db) {
@@ -85,50 +93,68 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // 1. Update store settings (Only if non-empty or explicitly cleared)
     if (settings && typeof settings.storeName === 'string') {
-      await db.collection('store_settings').updateOne(
-        { userId },
-        { $set: { userId, storeName: settings.storeName, updatedAt: new Date().toISOString() } },
-        { upsert: true }
-      );
+      if (settings.storeName.trim() !== '' || isExplicitClear) {
+        await db.collection('store_settings').updateOne(
+          { userId },
+          { $set: { userId, storeName: settings.storeName, updatedAt: new Date().toISOString() } },
+          { upsert: true }
+        );
+      }
     }
 
+    // 2. Safeguarded Inventory Items Replacement (Prevents wiping DB on empty initial loads)
     if (items !== undefined && Array.isArray(items)) {
-      await db.collection('inventory_items').deleteMany({ userId });
-      if (items.length > 0) {
-        await db.collection('inventory_items').insertMany(items.map((i) => ({ ...i, userId })));
+      if (items.length > 0 || isExplicitClear === true) {
+        await db.collection('inventory_items').deleteMany({ userId });
+        if (items.length > 0) {
+          await db.collection('inventory_items').insertMany(items.map((i) => ({ ...i, userId })));
+        }
       }
     }
 
+    // 3. Suppliers Replacement
     if (suppliers !== undefined && Array.isArray(suppliers)) {
-      await db.collection('suppliers').deleteMany({ userId });
-      if (suppliers.length > 0) {
-        await db.collection('suppliers').insertMany(suppliers.map((s) => ({ ...s, userId })));
+      if (suppliers.length > 0 || isExplicitClear === true) {
+        await db.collection('suppliers').deleteMany({ userId });
+        if (suppliers.length > 0) {
+          await db.collection('suppliers').insertMany(suppliers.map((s) => ({ ...s, userId })));
+        }
       }
     }
 
+    // 4. Purchase Orders Replacement
     if (purchaseOrders !== undefined && Array.isArray(purchaseOrders)) {
-      await db.collection('purchase_orders').deleteMany({ userId });
-      if (purchaseOrders.length > 0) {
-        await db.collection('purchase_orders').insertMany(purchaseOrders.map((p) => ({ ...p, userId })));
+      if (purchaseOrders.length > 0 || isExplicitClear === true) {
+        await db.collection('purchase_orders').deleteMany({ userId });
+        if (purchaseOrders.length > 0) {
+          await db.collection('purchase_orders').insertMany(purchaseOrders.map((p) => ({ ...p, userId })));
+        }
       }
     }
 
+    // 5. Stock Movements Replacement
     if (stockMovements !== undefined && Array.isArray(stockMovements)) {
-      await db.collection('stock_movements').deleteMany({ userId });
-      if (stockMovements.length > 0) {
-        await db.collection('stock_movements').insertMany(stockMovements.map((m) => ({ ...m, userId })));
+      if (stockMovements.length > 0 || isExplicitClear === true) {
+        await db.collection('stock_movements').deleteMany({ userId });
+        if (stockMovements.length > 0) {
+          await db.collection('stock_movements').insertMany(stockMovements.map((m) => ({ ...m, userId })));
+        }
       }
     }
 
+    // 6. Wastage Logs Replacement
     if (wastageLogs !== undefined && Array.isArray(wastageLogs)) {
-      await db.collection('wastage_logs').deleteMany({ userId });
-      if (wastageLogs.length > 0) {
-        await db.collection('wastage_logs').insertMany(wastageLogs.map((w) => ({ ...w, userId })));
+      if (wastageLogs.length > 0 || isExplicitClear === true) {
+        await db.collection('wastage_logs').deleteMany({ userId });
+        if (wastageLogs.length > 0) {
+          await db.collection('wastage_logs').insertMany(wastageLogs.map((w) => ({ ...w, userId })));
+        }
       }
     }
 
-    return NextResponse.json({ success: true, message: 'Store data saved to MongoDB Atlas' });
+    return NextResponse.json({ success: true, message: 'Store data safely saved to MongoDB Atlas' });
   } catch (error: any) {
     console.warn('Store data save warning:', error.message);
     return NextResponse.json({

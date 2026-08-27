@@ -118,62 +118,109 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialLoadCompleteRef = useRef<boolean>(false);
+  const hasUserMutatedRef = useRef<boolean>(false);
 
-  // 1. Fetch User Data Exclusively from MongoDB upon Authentication
+  // Helper to save store data in user-specific local backup
+  const saveLocalBackup = useCallback((userIdKey: string, storeData: any) => {
+    try {
+      if (typeof window !== 'undefined' && userIdKey) {
+        localStorage.setItem('myob_store_' + userIdKey, JSON.stringify(storeData));
+      }
+    } catch (e) {
+      console.warn('Local backup save warning:', e);
+    }
+  }, []);
+
+  // 1. Fetch User Data with Local Cache Fallback & Zero Data Loss
   useEffect(() => {
     if (!isAuthLoaded) return;
+
+    // Clear any pending sync timeout from previous session
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+    isInitialLoadCompleteRef.current = false;
+    hasUserMutatedRef.current = false;
+
+    if (!isSignedIn || !userId) {
+      setItems([]);
+      setSuppliers([]);
+      setPurchaseOrders([]);
+      setStockMovements([]);
+      setWastageLogs([]);
+      setStoreName('');
+      setIsLoadingData(false);
+      return;
+    }
 
     const fetchDatabaseStore = async () => {
       setIsLoadingData(true);
 
-      if (!isSignedIn || !userId) {
-        setItems([]);
-        setSuppliers([]);
-        setPurchaseOrders([]);
-        setStockMovements([]);
-        setWastageLogs([]);
-        setStoreName('');
-        setIsLoadingData(false);
-        return;
+      // Fast check: retrieve local cache first so UI never falls blank
+      let cachedData: any = null;
+      try {
+        const rawCache = localStorage.getItem('myob_store_' + userId);
+        if (rawCache) {
+          cachedData = JSON.parse(rawCache);
+          if (cachedData.items && cachedData.items.length > 0) {
+            setItems(cachedData.items);
+            setSuppliers(cachedData.suppliers || []);
+            setPurchaseOrders(cachedData.purchaseOrders || []);
+            setStockMovements(cachedData.stockMovements || []);
+            setWastageLogs(cachedData.wastageLogs || []);
+            if (cachedData.settings?.storeName) {
+              setStoreName(cachedData.settings.storeName);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Local cache read warning:', e);
       }
 
       try {
         const res = await fetch('/api/store-data');
         if (res.ok) {
           const data = await res.json();
-          setItems(data.items || []);
-          setSuppliers(data.suppliers || []);
-          setPurchaseOrders(data.purchaseOrders || []);
-          setStockMovements(data.stockMovements || []);
-          setWastageLogs(data.wastageLogs || []);
-          if (data.settings?.storeName) {
-            setStoreName(data.settings.storeName);
+          const hasDbItems = data.items && data.items.length > 0;
+          const hasDbStoreName = data.settings?.storeName && data.settings.storeName.trim() !== '';
+
+          if (hasDbItems || hasDbStoreName) {
+            setItems(data.items || []);
+            setSuppliers(data.suppliers || []);
+            setPurchaseOrders(data.purchaseOrders || []);
+            setStockMovements(data.stockMovements || []);
+            setWastageLogs(data.wastageLogs || []);
+            if (data.settings?.storeName) {
+              setStoreName(data.settings.storeName);
+            }
+            saveLocalBackup(userId, data);
+          } else if (cachedData && cachedData.items && cachedData.items.length > 0) {
+            // DB was empty but local cache has user data - restore to DB
+            console.log('Restoring user catalogue from local cache to MongoDB...');
+            hasUserMutatedRef.current = true;
+          } else {
+            // Truly empty new user store
+            setItems([]);
+            setSuppliers([]);
+            setPurchaseOrders([]);
+            setStockMovements([]);
+            setWastageLogs([]);
+            setStoreName('');
           }
-        } else {
-          setItems([]);
-          setSuppliers([]);
-          setPurchaseOrders([]);
-          setStockMovements([]);
-          setWastageLogs([]);
-          setStoreName('');
         }
       } catch (err) {
         console.error('Error fetching MongoDB store data:', err);
-        setItems([]);
-        setSuppliers([]);
-        setPurchaseOrders([]);
-        setStockMovements([]);
-        setWastageLogs([]);
-        setStoreName('');
       } finally {
+        isInitialLoadCompleteRef.current = true;
         setIsLoadingData(false);
       }
     };
 
     fetchDatabaseStore();
-  }, [isAuthLoaded, isSignedIn, userId]);
+  }, [isAuthLoaded, isSignedIn, userId, saveLocalBackup]);
 
-  // 2. Real-Time Sync of User Mutations to MongoDB
+  // 2. Real-Time Sync of User Mutations to MongoDB (Guarded Against Accidental Overwrites)
   const syncToMongoDB = useCallback(
     async (
       newItems: InventoryItem[],
@@ -181,9 +228,23 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       newPOs: PurchaseOrder[],
       newMovements: StockMovement[],
       newWastage: WastageLog[],
-      currentStoreName: string
+      currentStoreName: string,
+      isExplicitClear?: boolean
     ) => {
-      if (!isSignedIn || !userId) return;
+      // Guard: Never sync if user is not signed in or if data hasn't completed initial load or has not been mutated
+      if (!isSignedIn || !userId || !isInitialLoadCompleteRef.current || !hasUserMutatedRef.current) {
+        return;
+      }
+
+      // Save local backup immediately
+      saveLocalBackup(userId, {
+        items: newItems,
+        suppliers: newSuppliers,
+        purchaseOrders: newPOs,
+        stockMovements: newMovements,
+        wastageLogs: newWastage,
+        settings: { storeName: currentStoreName }
+      });
 
       if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
 
@@ -199,7 +260,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               purchaseOrders: newPOs,
               stockMovements: newMovements,
               wastageLogs: newWastage,
-              settings: { storeName: currentStoreName }
+              settings: { storeName: currentStoreName },
+              isExplicitClear: isExplicitClear || false
             })
           });
         } catch (err) {
@@ -207,26 +269,18 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         } finally {
           setIsSyncing(false);
         }
-      }, 500);
+      }, 600);
     },
-    [isSignedIn, userId]
+    [isSignedIn, userId, saveLocalBackup]
   );
 
-  // Sync with MongoDB whenever state changes
+  // Sync with MongoDB whenever state changes after user mutation
   useEffect(() => {
-    if (isLoadingData || !isSignedIn) return;
+    if (isLoadingData || !isSignedIn || !isInitialLoadCompleteRef.current || !hasUserMutatedRef.current) {
+      return;
+    }
     syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, storeName);
   }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
-
-  // Update store name action
-  const updateStoreName = useCallback((name: string) => {
-    setStoreName(name);
-    addToast({
-      type: 'success',
-      title: 'Store Name Updated',
-      message: `Store workspace renamed to "${name}".`
-    });
-  }, []);
 
   // Toast Helpers
   const addToast = useCallback((toastData: Omit<ToastMessage, 'id' | 'timestamp'>) => {
@@ -245,6 +299,17 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const dismissToast = useCallback((id: string) => {
     setToasts((current) => current.filter((t) => t.id !== id));
   }, []);
+
+  // Update store name action
+  const updateStoreName = useCallback((name: string) => {
+    hasUserMutatedRef.current = true;
+    setStoreName(name);
+    addToast({
+      type: 'success',
+      title: 'Store Name Updated',
+      message: `Store workspace renamed to "${name}".`
+    });
+  }, [addToast]);
 
   // Expiry Calculations considering simulated date offset
   const getDaysUntilExpiry = useCallback((expiryDateStr: string): number => {
@@ -355,6 +420,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Seed sample supermarket data into isolated user workspace in MongoDB
   const seedSampleData = useCallback(async () => {
+    hasUserMutatedRef.current = true;
     setItems(INITIAL_INVENTORY);
     setSuppliers(INITIAL_SUPPLIERS);
     setPurchaseOrders(INITIAL_PURCHASE_ORDERS);
@@ -370,6 +436,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Bulk Import Items from CSV / Excel into MongoDB
   const importBulkItems = useCallback(async (newItems: InventoryItem[], replaceExisting: boolean = true) => {
+    hasUserMutatedRef.current = true;
     if (replaceExisting) {
       setItems(newItems);
     } else {
@@ -398,16 +465,19 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Clear all inventory items
   const clearAllInventory = useCallback(() => {
+    hasUserMutatedRef.current = true;
     setItems([]);
+    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, true);
     addToast({
       type: 'info',
       title: 'Catalogue Reset',
       message: 'All inventory products have been removed.'
     });
-  }, [addToast]);
+  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, syncToMongoDB, addToast]);
 
   // Item Actions
   const addItem = useCallback((itemData: Omit<InventoryItem, 'id'>): string => {
+    hasUserMutatedRef.current = true;
     const id = 'item-' + Math.random().toString(36).substring(2, 8);
     const newItem: InventoryItem = {
       ...itemData,
@@ -444,6 +514,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [user, addToast]);
 
   const updateItem = useCallback((id: string, updates: Partial<InventoryItem>) => {
+    hasUserMutatedRef.current = true;
     setItems((prev) =>
       prev.map((item) => {
         if (item.id === id) {
@@ -461,6 +532,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [addToast]);
 
   const deleteItem = useCallback((id: string) => {
+    hasUserMutatedRef.current = true;
     const itemToDelete = items.find((i) => i.id === id);
     if (!itemToDelete) return;
 
@@ -480,6 +552,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     type: MovementType = 'ADJUSTMENT',
     batchNumber?: string
   ) => {
+    hasUserMutatedRef.current = true;
     setItems((prev) =>
       prev.map((item) => {
         if (item.id !== itemId) return item;
@@ -530,6 +603,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Apply Batch Markdown Discount
   const applyBatchMarkdown = useCallback((itemId: string, batchId: string, markdownPercent: number) => {
+    hasUserMutatedRef.current = true;
     let itemName = '';
     setItems((prev) =>
       prev.map((item) => {
@@ -579,6 +653,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Auto Smart Expiry Markdowns
   const applySmartExpiryMarkdowns = useCallback((): number => {
+    hasUserMutatedRef.current = true;
     let affectedBatchesCount = 0;
 
     setItems((prev) =>
@@ -640,6 +715,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     disposal: WastageLog['disposalMethod'],
     notes?: string
   ) => {
+    hasUserMutatedRef.current = true;
     const item = items.find((i) => i.id === itemId);
     if (!item) return;
 
@@ -712,6 +788,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Create Purchase Order
   const createPurchaseOrder = useCallback((poData: Omit<PurchaseOrder, 'id' | 'poNumber'>): string => {
+    hasUserMutatedRef.current = true;
     const poNum = `PO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const id = 'po-' + Math.random().toString(36).substring(2, 9);
     
@@ -733,6 +810,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [addToast]);
 
   const updatePOStatus = useCallback((poId: string, status: POStatus) => {
+    hasUserMutatedRef.current = true;
     setPurchaseOrders((prev) =>
       prev.map((po) => {
         if (po.id === poId) {
@@ -751,6 +829,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Goods Receipt / Receive PO
   const receivePurchaseOrder = useCallback((poId: string, receivedMap: Record<string, number>) => {
+    hasUserMutatedRef.current = true;
     const po = purchaseOrders.find((p) => p.id === poId);
     if (!po) return;
 
@@ -837,6 +916,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Auto Generate Reorder POs
   const autoGenerateReorderPOs = useCallback((): number => {
+    hasUserMutatedRef.current = true;
     const itemsNeedingOrder = items.filter((item) => item.currentStock <= item.reorderPoint);
 
     if (itemsNeedingOrder.length === 0) {
@@ -914,6 +994,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Process POS Sale
   const processPOSSale = useCallback((cartItems: POSCartItem[], paymentMethod: string): { success: boolean; orderId: string } => {
+    hasUserMutatedRef.current = true;
     if (cartItems.length === 0) return { success: false, orderId: '' };
 
     const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
