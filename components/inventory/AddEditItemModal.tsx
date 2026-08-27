@@ -26,7 +26,7 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
   const [name, setName] = useState(itemToEdit?.name || '');
   const [brand, setBrand] = useState(itemToEdit?.brand || '');
   const [sku, setSku] = useState(itemToEdit?.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`);
-  const [barcode, setBarcode] = useState(itemToEdit?.barcode || `84012900${Math.floor(1000 + Math.random() * 9000)}`);
+  const [barcode, setBarcode] = useState(itemToEdit?.barcode || `890100${Math.floor(100000 + Math.random() * 900000)}`);
   const [category, setCategory] = useState<CategoryType>(itemToEdit?.category || 'Fresh Produce');
   const [subcategory, setSubcategory] = useState(itemToEdit?.subcategory || 'General');
   const [unit, setUnit] = useState<UnitType>(itemToEdit?.unit || 'pcs');
@@ -74,7 +74,10 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const supplierObj = suppliers.find((s) => s.id === supplierId) || suppliers[0];
+    const supplierObj = (suppliers && suppliers.length > 0 && suppliers.find((s) => s.id === supplierId)) || suppliers?.[0] || {
+      id: supplierId || 'sup-1',
+      name: 'Primary Wholesale Dist.'
+    };
 
     if (isEditing && itemToEdit) {
       updateItem(itemToEdit.id, {
@@ -98,8 +101,8 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
           section,
           tempZone
         },
-        supplierId: supplierObj.id,
-        supplierName: supplierObj.name
+        supplierId: supplierObj?.id || 'sup-1',
+        supplierName: supplierObj?.name || 'Primary Wholesale Dist.'
       });
     } else {
       const newBatches = currentStock > 0 ? [
@@ -138,8 +141,8 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
         sellingPrice,
         vatRate,
         batches: newBatches,
-        supplierId: supplierObj.id,
-        supplierName: supplierObj.name,
+        supplierId: supplierObj?.id || 'sup-1',
+        supplierName: supplierObj?.name || 'Primary Wholesale Dist.',
         salesVelocity: {
           dailyAverage: Math.max(1, Math.round(optimalStockLevel / 7)),
           weeklySales: Math.max(7, optimalStockLevel),
