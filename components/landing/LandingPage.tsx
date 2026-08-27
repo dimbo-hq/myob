@@ -42,8 +42,8 @@ export const LandingPage: React.FC = () => {
       <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#09090b]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 text-zinc-200">
-              <Store className="h-4 w-4" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 overflow-hidden shadow-sm">
+              <img src="/logo.png" alt="myob" className="h-full w-full object-contain p-0.5" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white lowercase">

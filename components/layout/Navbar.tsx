@@ -51,8 +51,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand & Dynamic Store Name */}
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 text-zinc-200">
-            <Store className="h-4 w-4" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 overflow-hidden shadow-sm">
+            <img src="/logo.png" alt="myob" className="h-full w-full object-contain p-0.5" />
           </div>
           <div className="flex items-center gap-2">
             <div className="flex flex-col">

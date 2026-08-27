@@ -4,8 +4,16 @@ import { dark } from "@clerk/themes";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "myob | Supermarket & Retail Operating Intelligence",
+  title: "myob | Mind Your Own Business (Retail Intelligence OS)",
   description: "Next-generation retail operating system with real-time stock control, dynamic expiry clearance AI, automated supplier purchase orders, and optical POS checkout.",
+  icons: {
+    icon: [
+      { url: '/icon.png' },
+      { url: '/logo.png' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/icon.png'
+  }
 };
 
 export default function RootLayout({
