@@ -64,8 +64,9 @@ interface InventoryContextType {
   addItem: (item: Omit<InventoryItem, 'id'>) => string;
   updateItem: (id: string, updates: Partial<InventoryItem>) => void;
   deleteItem: (id: string) => void;
+  clearAllInventory: () => void;
   adjustStock: (itemId: string, delta: number, reason: string, type?: MovementType, batchNumber?: string) => void;
-  importBulkItems: (items: InventoryItem[]) => Promise<void>;
+  importBulkItems: (items: InventoryItem[], replaceExisting?: boolean) => Promise<void>;
   
   // Expiry Operations
   applyBatchMarkdown: (itemId: string, batchId: string, markdownPercent: number) => void;
@@ -368,36 +369,42 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [addToast]);
 
   // Bulk Import Items from CSV / Excel into MongoDB
-  const importBulkItems = useCallback(async (newItems: InventoryItem[]) => {
-    setItems((prev) => [...newItems, ...prev]);
+  const importBulkItems = useCallback(async (newItems: InventoryItem[], replaceExisting: boolean = true) => {
+    if (replaceExisting) {
+      setItems(newItems);
+    } else {
+      setItems((prev) => [...newItems, ...prev]);
+    }
 
     const bulkMov: StockMovement = {
       id: 'mov-imp-' + Date.now(),
       timestamp: 'Just now',
       itemId: 'bulk-import',
-      itemName: `Spreadsheet Import (${newItems.length} Products)`,
+      itemName: replaceExisting
+        ? `Catalogue Replaced (${newItems.length} Products)`
+        : `Spreadsheet Import (${newItems.length} Products Added)`,
       sku: 'BULK-IMPORT',
       type: 'INITIAL_COUNT',
       quantityDelta: newItems.reduce((a, c) => a + c.currentStock, 0),
       previousStock: 0,
       newStock: newItems.reduce((a, c) => a + c.currentStock, 0),
-      reason: 'Bulk Data Upload (CSV/Excel)',
+      reason: replaceExisting ? 'Fresh Catalogue Overwrite (CSV/Excel)' : 'Bulk Data Upload (CSV/Excel)',
       performedBy: user?.fullName || 'Store Owner',
       unitCost: 0,
       financialImpact: 0
     };
     setStockMovements((prev) => [bulkMov, ...prev]);
-
-    try {
-      await fetch('/api/inventory/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: newItems })
-      });
-    } catch (err) {
-      console.error('API bulk import sync:', err);
-    }
   }, [user]);
+
+  // Clear all inventory items
+  const clearAllInventory = useCallback(() => {
+    setItems([]);
+    addToast({
+      type: 'info',
+      title: 'Catalogue Reset',
+      message: 'All inventory products have been removed.'
+    });
+  }, [addToast]);
 
   // Item Actions
   const addItem = useCallback((itemData: Omit<InventoryItem, 'id'>): string => {
@@ -1031,6 +1038,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         addItem,
         updateItem,
         deleteItem,
+        clearAllInventory,
         adjustStock,
         importBulkItems,
         applyBatchMarkdown,
