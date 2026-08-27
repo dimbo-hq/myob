@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { POSCartItem } from '@/types/inventory';
-import { Printer, CheckCircle2, X } from 'lucide-react';
+import { Printer, CheckCircle2, X, Download, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatINR } from '@/lib/currency';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -19,9 +21,8 @@ interface ReceiptModalProps {
   paymentMethod: string;
 }
 
-// Authentic SVG Barcode generator that renders crisp black bars on screen and print
+// Crisp SVG Barcode that renders in screen, canvas, and print
 const BarcodeSvg: React.FC<{ value: string }> = ({ value }) => {
-  // Deterministic bar widths for consistent crisp barcode pattern
   const barSequence = [2, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 3, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 3, 1, 2, 1, 2, 1, 3, 1, 2];
 
   let currentX = 6;
@@ -70,25 +71,144 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   paymentMethod
 }) => {
   const { storeName } = useInventory();
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   if (!isOpen) return null;
 
-  const handlePrint = () => {
-    window.print();
+  const displayName = storeName ? storeName.toUpperCase() : 'MYOB STORE';
+
+  // 1. Direct PDF Download with html2canvas + jsPDF
+  const handleDownloadPDF = async () => {
+    if (!receiptRef.current) return;
+    setIsGeneratingPDF(true);
+
+    try {
+      // Capture only the receipt node with high DPI
+      const canvas = await html2canvas(receiptRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 80; // 80mm thermal width
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [imgWidth, Math.max(100, imgHeight + 4)]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 2, imgWidth, imgHeight);
+      pdf.save(`Receipt-${orderId}.pdf`);
+    } catch (error) {
+      console.error('Error generating receipt PDF:', error);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
-  const displayName = storeName ? storeName.toUpperCase() : 'MYOB STORE';
+  // 2. High-speed 1-Page Isolated Iframe Printing (Bypasses Parent DOM 500-page freeze)
+  const handlePrint = () => {
+    if (!receiptRef.current) return;
+
+    const receiptHtml = receiptRef.current.outerHTML;
+
+    // Create an isolated hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Receipt - ${orderId}</title>
+          <style>
+            @page {
+              margin: 0;
+              size: 80mm auto;
+            }
+            body {
+              font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+              margin: 0;
+              padding: 6mm;
+              color: #000000;
+              background: #ffffff;
+              width: 80mm;
+              box-sizing: border-box;
+            }
+            .no-print { display: none !important; }
+            * { box-sizing: border-box; }
+            /* Tailwind helper classes inlined for standalone iframe */
+            .text-center { text-align: center; }
+            .font-bold { font-weight: bold; }
+            .font-black { font-weight: 900; }
+            .uppercase { text-transform: uppercase; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-center { align-items: center; }
+            .border-b { border-bottom: 1px dashed #94a3b8; }
+            .border-t { border-top: 1px dashed #94a3b8; }
+            .border-t-2 { border-top: 2px solid #000000; }
+            .py-1 { padding-top: 2px; padding-bottom: 2px; }
+            .py-2 { padding-top: 6px; padding-bottom: 6px; }
+            .pb-2 { padding-bottom: 6px; }
+            .pt-2 { padding-top: 6px; }
+            .mt-1 { margin-top: 4px; }
+            .space-y-1 > * + * { margin-top: 4px; }
+            .space-y-2 > * + * { margin-top: 6px; }
+            .text-xs { font-size: 11px; }
+            .text-sm { font-size: 13px; }
+            .text-base { font-size: 14px; }
+            .text-lg { font-size: 16px; }
+            .line-through { text-decoration: line-through; color: #64748b; }
+            svg { display: block; margin: 0 auto; }
+          </style>
+        </head>
+        <body>
+          ${receiptHtml}
+          <script>
+            window.onload = function() {
+              window.focus();
+              window.print();
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Clean up temporary iframe after print dialog opens
+    setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    }, 2000);
+  };
 
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-        {/* Backdrop (hidden during print) */}
+        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/85 backdrop-blur-sm no-print"
+          className="fixed inset-0 bg-black/85 backdrop-blur-sm"
         />
 
         {/* Modal Window Container */}
@@ -98,11 +218,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-slate-700 bg-white text-slate-900 shadow-2xl z-10 font-mono"
         >
-          {/* Printable Receipt Area */}
-          <div id="printable-receipt" className="bg-white text-slate-900">
+          {/* Printable & Downloadable Receipt Container */}
+          <div ref={receiptRef} className="bg-white text-slate-900">
             {/* Top Receipt header */}
             <div className="bg-zinc-900 px-5 py-3.5 text-center text-white font-sans border-b border-zinc-800">
-              <div className="flex justify-between items-center mb-1.5 no-print">
+              <div className="flex justify-between items-center mb-1.5">
                 <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Paid in Full
                 </span>
@@ -195,31 +315,48 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
               {/* Barcode & Footer */}
               <div className="text-center pt-1 space-y-1.5 border-t border-dashed border-slate-300">
-                {/* Crisp SVG Barcode */}
                 <BarcodeSvg value={orderId} />
-
                 <p className="text-[10px] text-slate-600 font-sans">
                   Thank you for shopping at {displayName}!
                 </p>
               </div>
-
-              {/* On-Screen Action Buttons (hidden during print) */}
-              <div className="flex gap-2 pt-2 no-print font-sans">
-                <button
-                  onClick={handlePrint}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-xs font-bold text-white hover:bg-slate-800 active:scale-95 transition-all shadow-md cursor-pointer"
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  <span>Print Receipt</span>
-                </button>
-                <button
-                  onClick={onClose}
-                  className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
-                >
-                  Close
-                </button>
-              </div>
             </div>
+          </div>
+
+          {/* Action Buttons (Download PDF & Direct Print) */}
+          <div className="bg-slate-50 border-t border-slate-200 p-3.5 flex items-center gap-2 font-sans">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPDF}
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-bold text-white hover:bg-emerald-500 active:scale-95 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Generating PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Download PDF</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handlePrint}
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2.5 text-xs font-bold text-white hover:bg-slate-800 active:scale-95 transition-all shadow-sm cursor-pointer"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span>Print 1-Page</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer"
+            >
+              Close
+            </button>
           </div>
         </motion.div>
       </div>
