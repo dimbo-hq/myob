@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { 
   AlertTriangle, 
@@ -13,11 +13,36 @@ import {
   TrendingUp, 
   Truck, 
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  PieChart as PieIcon,
+  BarChart3,
+  Calendar,
+  Sparkles,
+  ShieldAlert,
+  Boxes,
+  Percent,
+  RefreshCw,
+  FastForward,
+  ChevronRight,
+  TrendingDown
 } from 'lucide-react';
 import { StatCard } from '../common/StatCard';
 import { StockStatusBadge } from '../common/Badge';
 import { formatINR } from '@/lib/currency';
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  AreaChart,
+  Area
+} from 'recharts';
 
 interface DashboardViewProps {
   onNavigate: (tab: 'inventory' | 'expiry' | 'reorder' | 'audit') => void;
@@ -25,6 +50,19 @@ interface DashboardViewProps {
   onOpenTimeSimulator: () => void;
   onOpenAddProduct: () => void;
 }
+
+// Department Color Palette for Premium Dark Mode
+const DEPARTMENT_COLORS: Record<string, string> = {
+  'Fresh Produce': '#10b981', // Emerald
+  'Dairy & Eggs': '#38bdf8', // Sky
+  'Bakery & Deli': '#f59e0b', // Amber
+  'Meat & Seafood': '#f43f5e', // Rose
+  'Beverages': '#a855f7', // Purple
+  'Pantry & Dry Goods': '#ec4899', // Pink
+  'Frozen Foods': '#06b6d4', // Cyan
+  'Snacks & Confectionery': '#eab308', // Yellow
+  'Household & Personal Care': '#8b5cf6' // Violet
+};
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
@@ -37,95 +75,416 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     summary,
     stockMovements,
     applySmartExpiryMarkdowns,
-    getDaysUntilExpiry
+    getDaysUntilExpiry,
+    simulatedDateOffset
   } = useInventory();
 
+  const [pieMetric, setPieMetric] = useState<'value' | 'stock' | 'count'>('value');
+  const [chartView, setChartView] = useState<'breakdown' | 'expiryHorizon' | 'margins'>('breakdown');
+
   // Urgent expiring items (< 3 days)
-  const urgentExpiringItems: { item: typeof items[0]; batch: typeof items[0]['batches'][0]; days: number }[] = [];
-  items.forEach((item) => {
-    item.batches.forEach((b) => {
-      if (b.quantity > 0) {
-        const days = getDaysUntilExpiry(b.expiryDate);
-        if (days <= 3) {
-          urgentExpiringItems.push({ item, batch: b, days });
+  const urgentExpiringItems = useMemo(() => {
+    const list: { item: typeof items[0]; batch: typeof items[0]['batches'][0]; days: number }[] = [];
+    items.forEach((item) => {
+      item.batches.forEach((b) => {
+        if (b.quantity > 0) {
+          const days = getDaysUntilExpiry(b.expiryDate);
+          if (days <= 3) {
+            list.push({ item, batch: b, days });
+          }
         }
-      }
+      });
     });
-  });
-  urgentExpiringItems.sort((a, b) => a.days - b.days);
+    return list.sort((a, b) => a.days - b.days);
+  }, [items, getDaysUntilExpiry]);
 
   // Critical Low Stock items
-  const lowStockItems = items.filter((i) => i.currentStock <= i.reorderPoint);
-  lowStockItems.sort((a, b) => a.currentStock - b.currentStock);
+  const lowStockItems = useMemo(() => {
+    return items
+      .filter((i) => i.currentStock <= i.reorderPoint)
+      .sort((a, b) => a.currentStock - b.currentStock);
+  }, [items]);
 
-  // Category distribution
-  const categoryStats: Record<string, { count: number; stock: number; value: number }> = {};
-  items.forEach((i) => {
-    if (!categoryStats[i.category]) {
-      categoryStats[i.category] = { count: 0, stock: 0, value: 0 };
+  // Category Aggregations for Charts
+  const departmentChartData = useMemo(() => {
+    const map: Record<string, { name: string; count: number; stock: number; value: number; cost: number; marginTotal: number }> = {};
+    
+    items.forEach((i) => {
+      if (!map[i.category]) {
+        map[i.category] = {
+          name: i.category,
+          count: 0,
+          stock: 0,
+          value: 0,
+          cost: 0,
+          marginTotal: 0
+        };
+      }
+      map[i.category].count += 1;
+      map[i.category].stock += i.currentStock;
+      map[i.category].value += i.currentStock * i.sellingPrice;
+      map[i.category].cost += i.currentStock * i.costPrice;
+      const margin = i.sellingPrice > 0 ? ((i.sellingPrice - i.costPrice) / i.sellingPrice) * 100 : 0;
+      map[i.category].marginTotal += margin;
+    });
+
+    return Object.values(map).map((d) => ({
+      name: d.name,
+      value: Math.round(d.value),
+      stock: d.stock,
+      count: d.count,
+      avgMargin: d.count > 0 ? Math.round(d.marginTotal / d.count) : 0,
+      color: DEPARTMENT_COLORS[d.name] || '#71717a'
+    })).sort((a, b) => b.value - a.value);
+  }, [items]);
+
+  // Expiry Horizon Distribution
+  const expiryHorizonData = useMemo(() => {
+    let expiredUnits = 0;
+    let criticalUnits = 0;
+    let warningUnits = 0;
+    let safeUnits = 0;
+    let longLifeUnits = 0;
+
+    items.forEach((item) => {
+      item.batches.forEach((b) => {
+        if (b.quantity > 0) {
+          const days = getDaysUntilExpiry(b.expiryDate);
+          if (days < 0) expiredUnits += b.quantity;
+          else if (days <= 2) criticalUnits += b.quantity;
+          else if (days <= 7) warningUnits += b.quantity;
+          else if (days <= 30) safeUnits += b.quantity;
+          else longLifeUnits += b.quantity;
+        }
+      });
+    });
+
+    return [
+      { horizon: 'Expired (<0d)', units: expiredUnits, fill: '#f43f5e' },
+      { horizon: 'Critical (<48h)', units: criticalUnits, fill: '#fb923c' },
+      { horizon: 'Warning (3-7d)', units: warningUnits, fill: '#facc15' },
+      { horizon: 'Optimal (8-30d)', units: safeUnits, fill: '#22d3ee' },
+      { horizon: 'Long Life (>30d)', units: longLifeUnits, fill: '#34d399' }
+    ];
+  }, [items, getDaysUntilExpiry]);
+
+  // Stock health ratio
+  const inStockPct = summary.totalItemsCount > 0 
+    ? Math.round(((summary.totalItemsCount - (summary.outOfStockCount + summary.lowStockCount)) / summary.totalItemsCount) * 100) 
+    : 100;
+
+  // Custom Chart Tooltip
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="rounded-xl border border-white/10 bg-[#121215]/95 backdrop-blur-md p-3 text-xs shadow-2xl space-y-1.5 min-w-[160px]">
+          <div className="flex items-center gap-2 font-semibold text-white">
+            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: data.color || data.fill }} />
+            <span>{data.name || data.horizon}</span>
+          </div>
+          <div className="space-y-1 border-t border-white/[0.06] pt-1.5 font-mono text-[11px]">
+            {data.value !== undefined && (
+              <div className="flex justify-between text-zinc-300">
+                <span className="text-zinc-500">Valuation:</span>
+                <span className="text-emerald-400 font-medium">{formatINR(data.value, false)}</span>
+              </div>
+            )}
+            {data.stock !== undefined && (
+              <div className="flex justify-between text-zinc-300">
+                <span className="text-zinc-500">Stock:</span>
+                <span className="text-white font-medium">{data.stock.toLocaleString()} units</span>
+              </div>
+            )}
+            {data.units !== undefined && (
+              <div className="flex justify-between text-zinc-300">
+                <span className="text-zinc-500">Volume:</span>
+                <span className="text-white font-medium">{data.units.toLocaleString()} units</span>
+              </div>
+            )}
+            {data.count !== undefined && (
+              <div className="flex justify-between text-zinc-300">
+                <span className="text-zinc-500">SKUs:</span>
+                <span className="text-zinc-400">{data.count} items</span>
+              </div>
+            )}
+            {data.avgMargin !== undefined && (
+              <div className="flex justify-between text-zinc-300">
+                <span className="text-zinc-500">Avg Margin:</span>
+                <span className="text-amber-400">{data.avgMargin}%</span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
     }
-    categoryStats[i.category].count += 1;
-    categoryStats[i.category].stock += i.currentStock;
-    categoryStats[i.category].value += i.currentStock * i.sellingPrice;
-  });
+    return null;
+  };
 
   return (
-    <div className="space-y-6">
-      {/* KPI Overview Grid */}
+    <div className="space-y-5">
+      {/* 1. TOP KPI STAT STRIP */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatCard
-          title="Total Inventory Value"
+          title="Total Store Valuation"
           value={formatINR(summary.totalRetailValuation, false)}
-          subtitle={`Cost Basis: ${formatINR(summary.totalCostValuation, false)}`}
-          trend={{ value: `${summary.averageMarginPercent}% Margin`, isPositive: true }}
+          subtitle={`Wholesale Cost: ${formatINR(summary.totalCostValuation, false)}`}
+          trend={{ value: `${summary.averageMarginPercent}% Avg Margin`, isPositive: true }}
           onClick={() => onNavigate('inventory')}
         />
 
         <StatCard
-          title="Restock Required"
-          value={`${summary.outOfStockCount + summary.lowStockCount} Products`}
-          subtitle={`${summary.outOfStockCount} out of stock • ${summary.lowStockCount} low`}
-          trend={summary.outOfStockCount > 0 ? { value: 'Critical Stockout', isPositive: false } : undefined}
+          title="Inventory Stock Health"
+          value={`${inStockPct}% Optimal`}
+          subtitle={`${summary.outOfStockCount} out of stock • ${summary.lowStockCount} low buffer`}
+          trend={summary.outOfStockCount > 0 ? { value: `${summary.outOfStockCount} Stockouts`, isPositive: false } : { value: 'Well Balanced', isPositive: true }}
           onClick={() => onNavigate('reorder')}
         />
 
         <StatCard
-          title="At-Risk Perishable Loss"
+          title="At-Risk Perishable Exposure"
           value={formatINR(summary.atRiskLossValue)}
-          subtitle={`${summary.expiringSoonCount + summary.expiredCount} batches near expiration`}
-          trend={summary.expiringSoonCount > 0 ? { value: 'Markdown Recommended', isNeutral: true } : undefined}
+          subtitle={`${summary.expiringSoonCount + summary.expiredCount} batches near or past date`}
+          trend={summary.expiringSoonCount > 0 ? { value: 'Markdowns Active', isNeutral: true } : { value: 'Zero Spoilage', isPositive: true }}
           onClick={() => onNavigate('expiry')}
         />
 
         <StatCard
-          title="Active Purchase Orders"
+          title="Replenishment Orders"
           value={`${summary.pendingOrdersCount} In Transit`}
-          subtitle="Awaiting loading bay delivery"
+          subtitle="Loading bay shipment pipeline"
+          trend={{ value: 'Supplier Sync', isPositive: true }}
           onClick={() => onNavigate('reorder')}
         />
       </div>
 
-      {/* Two Column Grid: Expiry Radar & Low Stock Buffer */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left: Perishable Expiry Radar */}
-        <div className="surface-card rounded-xl p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-3.5">
+      {/* 2. INTERACTIVE VISUALIZER HUB */}
+      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-[#0f0f13] space-y-4">
+        {/* Chart Header & Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-400">
+              <BarChart3 className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+                Store Analytics & Inventory Visualizer
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">Live Real-Time</span>
+              </h3>
+              <p className="text-[11px] text-zinc-400">
+                Multi-dimensional breakdown across departments, asset valuations, and shelf-life horizons
+              </p>
+            </div>
+          </div>
+
+          {/* Tab Selector */}
+          <div className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-950/60 p-1">
+            {[
+              { id: 'breakdown', label: 'Department Share', icon: <PieIcon className="h-3 w-3" /> },
+              { id: 'expiryHorizon', label: 'Expiry Horizon', icon: <Calendar className="h-3 w-3" /> },
+              { id: 'margins', label: 'Margin Matrix', icon: <Percent className="h-3 w-3" /> }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setChartView(tab.id as any)}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                  chartView === tab.id
+                    ? 'bg-zinc-800 text-white font-semibold shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* VIEW 1: Department Donut & Valuation Distribution */}
+        {chartView === 'breakdown' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pt-2">
+            {/* Left: Donut Chart with Center KPI */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[260px]">
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={departmentChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={72}
+                    outerRadius={105}
+                    paddingAngle={3}
+                    dataKey={pieMetric}
+                    stroke="#0f0f13"
+                    strokeWidth={2}
+                  >
+                    {departmentChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+
+              {/* Center Donut Label */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
+                  {pieMetric === 'value' ? 'Total Value' : pieMetric === 'stock' ? 'Total Units' : 'Total SKUs'}
+                </span>
+                <span className="text-sm sm:text-base font-bold text-white font-mono mt-0.5">
+                  {pieMetric === 'value'
+                    ? formatINR(summary.totalRetailValuation, false)
+                    : pieMetric === 'stock'
+                    ? `${summary.totalStockUnits.toLocaleString()}`
+                    : `${summary.totalItemsCount}`}
+                </span>
+                <span className="text-[10px] text-emerald-400 font-medium">{departmentChartData.length} Departments</span>
+              </div>
+
+              {/* Metric Toggle */}
+              <div className="flex gap-1 mt-1 rounded-lg border border-white/[0.04] bg-zinc-950/40 p-0.5 text-[11px]">
+                {(['value', 'stock', 'count'] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setPieMetric(m)}
+                    className={`rounded px-2 py-0.5 capitalize transition-all ${
+                      pieMetric === m ? 'bg-zinc-800 text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {m === 'value' ? '₹ Valuation' : m === 'stock' ? 'Units' : 'SKUs'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Department Grid Legend with Progress Bars */}
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {departmentChartData.map((dept) => {
+                const totalMetricVal = pieMetric === 'value' ? summary.totalRetailValuation : pieMetric === 'stock' ? summary.totalStockUnits : summary.totalItemsCount;
+                const metricVal = pieMetric === 'value' ? dept.value : pieMetric === 'stock' ? dept.stock : dept.count;
+                const share = totalMetricVal > 0 ? Math.round((metricVal / totalMetricVal) * 100) : 0;
+
+                return (
+                  <div
+                    key={dept.name}
+                    className="rounded-xl border border-white/[0.04] bg-zinc-900/40 p-2.5 hover:border-white/[0.08] hover:bg-zinc-900/60 transition-all group"
+                  >
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <div className="flex items-center gap-2 truncate pr-2">
+                        <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: dept.color }} />
+                        <span className="font-medium text-zinc-200 truncate">{dept.name}</span>
+                      </div>
+                      <span className="font-mono font-semibold text-white">
+                        {pieMetric === 'value' ? formatINR(dept.value, false) : dept.stock.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono mb-1">
+                      <span>{dept.count} SKUs • {dept.avgMargin}% Margin</span>
+                      <span className="text-zinc-400">{share}%</span>
+                    </div>
+
+                    <div className="h-1.5 w-full rounded-full bg-zinc-950 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(4, share)}%`, backgroundColor: dept.color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* VIEW 2: Expiry Horizon Bar Chart */}
+        {chartView === 'expiryHorizon' && (
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white tracking-tight">
-                  Perishable Expiry Radar
-                </h3>
-                <p className="text-xs text-zinc-500 mt-0.5">
-                  Batches expiring within 72 hours
-                </p>
+                <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">Perishable Shelf-Life Curve</h4>
+                <p className="text-[11px] text-zinc-500">Distribution of stock units categorized by days remaining to expiry</p>
               </div>
 
               <button
                 onClick={() => applySmartExpiryMarkdowns()}
-                className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-all"
+                className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-all shadow-sm"
               >
-                <Zap className="h-3 w-3" />
-                <span>Auto-Markdown</span>
+                <Zap className="h-3.5 w-3.5" />
+                <span>Auto-Apply Markdowns</span>
+              </button>
+            </div>
+
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={expiryHorizonData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                  <XAxis dataKey="horizon" stroke="#71717a" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                  <RechartsTooltip content={<CustomTooltip />} />
+                  <Bar dataKey="units" radius={[6, 6, 0, 0]}>
+                    {expiryHorizonData.map((entry, index) => (
+                      <Cell key={`bar-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW 3: Margin & Profitability Matrix */}
+        {chartView === 'margins' && (
+          <div className="space-y-4 pt-2">
+            <div>
+              <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">Gross Profit Margin Matrix</h4>
+              <p className="text-[11px] text-zinc-500">Average profit markup percentage achieved across each retail department</p>
+            </div>
+
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={departmentChartData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />
+                  <XAxis type="number" unit="%" stroke="#71717a" fontSize={11} domain={[0, 100]} />
+                  <YAxis dataKey="name" type="category" stroke="#a1a1aa" fontSize={11} tickLine={false} width={130} />
+                  <RechartsTooltip content={<CustomTooltip />} />
+                  <Bar dataKey="avgMargin" radius={[0, 4, 4, 0]}>
+                    {departmentChartData.map((entry, index) => (
+                      <Cell key={`margin-bar-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 3. OPERATIONAL RADAR & REAL-TIME HUBS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left: Perishable Expiry Radar */}
+        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08]">
+          <div>
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-3.5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                  <Flame className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-semibold text-white tracking-tight">
+                    Perishable Expiry Radar
+                  </h3>
+                  <p className="text-[11px] text-zinc-500">
+                    Urgent batches requiring clearance markdowns
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onNavigate('expiry')}
+                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+              >
+                Clearance Hub →
               </button>
             </div>
 
@@ -140,36 +499,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ) : (
                 urgentExpiringItems.slice(0, 4).map(({ item, batch, days }, index) => {
                   const isExp = days < 0;
-                  const isToday = days === 0;
+                  const hasMarkdown = batch.markdownPercentage > 0;
+                  const discountPrice = batch.markdownPrice || (item.sellingPrice * (1 - (batch.markdownPercentage || 0) / 100));
 
                   return (
                     <div
                       key={`${item.id}-${batch.id}-${index}`}
-                      className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-zinc-900/40 p-3 hover:border-white/[0.08] transition-all"
+                      className="flex items-center justify-between rounded-xl border border-white/[0.04] bg-zinc-900/40 p-3 hover:border-white/[0.08] transition-all"
                     >
-                      <div className="space-y-0.5 pr-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-zinc-200">{item.name}</span>
-                          {batch.markdownPercentage > 0 && (
-                            <span className="text-[10px] font-medium text-amber-400 bg-amber-950/40 px-1.5 py-0.2 rounded border border-amber-800/40">
-                              -{batch.markdownPercentage}%
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-zinc-500">
-                          Batch #{batch.batchNumber} • {batch.quantity} {item.unit} • {formatINR(item.sellingPrice)}
+                      <div className="space-y-0.5 pr-2 truncate">
+                        <div className="text-xs font-medium text-zinc-200 truncate">{item.name}</div>
+                        <div className="flex items-center gap-2 text-[11px] text-zinc-500 font-mono">
+                          <span>Batch #{batch.batchNumber}</span>
+                          <span>•</span>
+                          <span>{batch.quantity} {item.unit}</span>
+                          <span>•</span>
+                          <span className={hasMarkdown ? 'text-emerald-400' : 'text-zinc-400'}>
+                            {formatINR(hasMarkdown ? discountPrice : item.sellingPrice)}
+                          </span>
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium ${
                           isExp
-                            ? 'bg-rose-950/50 text-rose-400 border border-rose-800/40'
-                            : isToday
-                            ? 'bg-amber-950/50 text-amber-400 border border-amber-800/40'
-                            : 'bg-zinc-800 text-zinc-300'
+                            ? 'bg-rose-950/60 text-rose-400 border border-rose-800/40'
+                            : 'bg-amber-950/60 text-amber-400 border border-amber-800/40'
                         }`}>
-                          {isExp ? `Expired ${Math.abs(days)}d` : isToday ? 'Expires Today' : `${days}d left`}
+                          {isExp ? `Expired ${Math.abs(days)}d` : days === 0 ? 'Expires Today' : `${days}d left`}
                         </span>
                       </div>
                     </div>
@@ -190,28 +547,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Right: Low Stock Buffer Alerts */}
-        <div className="surface-card rounded-xl p-5 flex flex-col justify-between">
+        {/* Right: Stock Buffer & Replenishment Radar */}
+        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08]">
           <div>
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-3.5">
-              <div>
-                <h3 className="text-sm font-semibold text-white tracking-tight">
-                  Stock Buffer & Reorder Alerts
-                </h3>
-                <p className="text-xs text-zinc-500 mt-0.5">
-                  Products below safety stock thresholds
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                  <Boxes className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-semibold text-white tracking-tight">
+                    Stock Buffer & Reorder Alerts
+                  </h3>
+                  <p className="text-[11px] text-zinc-500">
+                    Products below safety stock thresholds
+                  </p>
+                </div>
               </div>
 
               <button
                 onClick={() => onNavigate('reorder')}
-                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-800/80 px-2.5 py-1 text-xs font-medium text-zinc-300 hover:bg-zinc-700 transition-all"
+                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
               >
-                <span>Reorder Hub</span>
+                Reorder Hub →
               </button>
             </div>
 
-            {/* List */}
+            {/* Items list */}
             <div className="space-y-2">
               {lowStockItems.length === 0 ? (
                 <div className="py-8 text-center text-xs text-zinc-500">
@@ -227,16 +589,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   return (
                     <div
                       key={`${item.id}-${idx}`}
-                      className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-zinc-900/40 p-3 hover:border-white/[0.08] transition-all"
+                      className="flex items-center justify-between rounded-xl border border-white/[0.04] bg-zinc-900/40 p-3 hover:border-white/[0.08] transition-all"
                     >
-                      <div className="space-y-0.5 pr-2">
-                        <div className="text-xs font-medium text-zinc-200">{item.name}</div>
+                      <div className="space-y-0.5 pr-2 truncate">
+                        <div className="text-xs font-medium text-zinc-200 truncate">{item.name}</div>
                         <div className="text-[11px] text-zinc-500">
                           {item.location.aisle} • Vendor: {item.supplierName} • Need +{suggested} {item.unit}
                         </div>
                       </div>
 
-                      <div className="text-right">
+                      <div className="text-right shrink-0">
                         <StockStatusBadge
                           status={isOut ? 'out-of-stock' : 'low-stock'}
                           currentStock={item.currentStock}
@@ -262,83 +624,80 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Category Breakdown & Activity Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Department Asset Share */}
-        <div className="surface-card rounded-xl p-5 space-y-3">
-          <h3 className="text-xs font-semibold text-zinc-300 tracking-tight uppercase tracking-wider">
-            Department Inventory Share
-          </h3>
+      {/* 4. RECENT STORE ACTIVITY & QUICK OPERATOR HUB */}
+      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-[#0f0f13] space-y-3">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+              <Clock className="h-3.5 w-3.5" />
+            </div>
+            <div>
+              <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">
+                Live Store Activity & Audit Trail
+              </h3>
+              <p className="text-[11px] text-zinc-500">Real-time inventory changes, POS checkouts, and adjustments</p>
+            </div>
+          </div>
 
-          <div className="space-y-2.5">
-            {Object.entries(categoryStats).map(([catName, data]) => {
-              const share = summary.totalRetailValuation > 0
-                ? Math.round((data.value / summary.totalRetailValuation) * 100)
-                : 0;
+          <button
+            onClick={() => onNavigate('audit')}
+            className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+          >
+            Full Ledger →
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {stockMovements.length === 0 ? (
+            <div className="py-6 text-center text-xs text-zinc-500">
+              No store activity movements recorded yet.
+            </div>
+          ) : (
+            stockMovements.slice(0, 5).map((mov, idx) => {
+              const isPositive = mov.quantityDelta > 0;
+              const isSale = mov.type === 'SALE';
 
               return (
-                <div key={catName} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-zinc-400 truncate pr-2">{catName}</span>
-                    <span className="font-medium text-zinc-200 font-mono">{formatINR(data.value, false)}</span>
+                <div
+                  key={`${mov.id}-${idx}`}
+                  className="flex items-center justify-between rounded-xl border border-white/[0.03] bg-zinc-900/30 p-3 text-xs hover:border-white/[0.06] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-mono font-bold ${
+                      isSale
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : isPositive
+                        ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                        : 'bg-zinc-800 text-zinc-400'
+                    }`}>
+                      {isSale ? 'POS' : isPositive ? '+IN' : 'ADJ'}
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <div className="font-medium text-zinc-200">{mov.itemName}</div>
+                      <div className="text-[11px] text-zinc-500">
+                        {mov.reason} • By {mov.performedBy}
+                      </div>
+                    </div>
                   </div>
-                  <div className="h-1 w-full rounded-full bg-zinc-800 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-zinc-400"
-                      style={{ width: `${Math.max(4, share)}%` }}
-                    />
+
+                  <div className="text-right whitespace-nowrap pl-3 font-mono">
+                    <div className={`font-semibold text-xs ${
+                      isPositive ? 'text-emerald-400' : mov.quantityDelta < 0 ? 'text-rose-400' : 'text-amber-400'
+                    }`}>
+                      {isPositive ? `+${mov.quantityDelta}` : mov.quantityDelta !== 0 ? mov.quantityDelta : 'Updated'}
+                    </div>
+                    {mov.financialImpact !== 0 && (
+                      <div className="text-[10px] text-zinc-400">
+                        {formatINR(Math.abs(mov.financialImpact))}
+                      </div>
+                    )}
+                    <div className="text-[10px] text-zinc-600">{mov.timestamp}</div>
                   </div>
                 </div>
               );
-            })}
-          </div>
-        </div>
-
-        {/* Live Activity Feed */}
-        <div className="lg:col-span-2 surface-card rounded-xl p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-3.5">
-              <h3 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-                Recent Store Activity
-              </h3>
-              <button
-                onClick={() => onNavigate('audit')}
-                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
-              >
-                Full Ledger →
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {stockMovements.slice(0, 4).map((mov, idx) => (
-                <div
-                  key={`${mov.id}-${idx}`}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.03] bg-zinc-900/30 p-2.5 text-xs"
-                >
-                  <div className="space-y-0.5">
-                    <div className="font-medium text-zinc-200">{mov.itemName}</div>
-                    <div className="text-[11px] text-zinc-500 truncate max-w-sm">
-                      {mov.reason} • {mov.performedBy}
-                    </div>
-                  </div>
-
-                  <div className="text-right whitespace-nowrap pl-3">
-                    <div className={`font-mono text-xs font-medium ${
-                      mov.quantityDelta > 0 ? 'text-emerald-400' : mov.quantityDelta < 0 ? 'text-rose-400' : 'text-amber-400'
-                    }`}>
-                      {mov.quantityDelta > 0 ? `+${mov.quantityDelta}` : mov.quantityDelta !== 0 ? mov.quantityDelta : 'Discount'}
-                    </div>
-                    <div className="text-[10px] text-zinc-600 font-mono">{mov.timestamp}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-3.5 pt-3 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-zinc-500">
-            <span>Synchronized with POS registers and cold chain sensors</span>
-            <span className="text-emerald-500 font-medium">● Online</span>
-          </div>
+            })
+          )}
         </div>
       </div>
     </div>
