@@ -1,0 +1,501 @@
+Name,Brand,SKU,Barcode,Category,CurrentStock,Unit,CostPrice,SellingPrice,ExpiryDate,Aisle,TempZone
+Grass-Fed Biodegradable Garbage Bags 200ml,Vedic Fresh Plantations,HOUS-000001,890100655790,Household & Personal Care,115,packet,413.56,598.25,2028-01-02,Aisle 11,ambient
+Sweet Tulsi Honey Avocados 10-Pack,Tata Provisions,FRES-000002,890100655791,Fresh Produce,169,bunch,154.85,234.15,2026-09-10,Aisle 02,chilled
+Smoked Pears 400g,FarmGold Dairy,FRES-000003,890100655792,Fresh Produce,181,pcs,17.61,24.19,2026-08-29,Aisle 01,ambient
+Grass-Fed Apple Cider Vinegar Drink 1kg,Bhoomi Springs,BEVE-000004,890100655793,Beverages,244,box,320.35,534.70,2026-09-26,Aisle 06,chilled
+Organic Clove & Mint Toothpaste 2kg,Ganga Plantations,HOUS-000005,890100655794,Household & Personal Care,31,packet,474.81,654.68,2027-12-09,Aisle 12,ambient
+Cold-Pressed Penne Rigate Pasta 500ml,FarmGold Agro,PANT-000006,890100655795,Pantry & Dry Goods,38,packet,275.64,457.62,2028-05-05,Aisle 06,ambient
+Sweet Bath Tissue 6-Pack 5kg,Nilgiri Kitchens,HOUS-000007,890100655796,Household & Personal Care,200,tube,72.81,117.00,2028-01-25,Aisle 11,ambient
+Low-Sodium Mint Lime Seedless Grapes 10-Pack,Saffola Agro,FRES-000008,890100655797,Fresh Produce,155,bunch,37.74,51.99,2026-09-15,Aisle 01,ambient
+Desi Gouda Block 5L,Ganga Co.,DAIR-000009,890100655798,Dairy & Eggs,29,pack,432.31,715.74,2026-09-17,Aisle 02,chilled
+Smoked Masala Chai Pure Jaggery Powder (Gud) 6-Pack,Tata Mills,PANT-000010,890100655799,Pantry & Dry Goods,177,packet,688.95,1159.45,2027-12-06,Aisle 06,ambient
+Cold-Pressed Kesar Pista Spicy Peanut Chikki 24-Pack,Pashmina Organics,SNAC-000011,890100655800,Snacks & Confectionery,248,tub,379.40,608.95,2027-04-16,Aisle 09,ambient
+Farm-Fresh Raw Wildflower Honey 4-Pack,Bhoomi Provisions,PANT-000012,890100655801,Pantry & Dry Goods,113,packet,347.53,612.61,2027-06-24,Aisle 07,ambient
+Unpolished Tandoori Smoked Garlic Bulbs 750g,Satvik Botanicals,FRES-000013,890100655802,Fresh Produce,207,bunch,25.24,31.94,2026-09-02,Aisle 01,ambient
+Wildcrafted Dishwash Gel Lemon 100g,Green Earth Agro,HOUS-000014,890100655803,Household & Personal Care,32,packet,138.32,175.76,2027-11-25,Aisle 11,ambient
+Pure Mint Lime Mustard Oil Kachi Ghani 200g,Fortune Harvest,PANT-000015,890100655804,Pantry & Dry Goods,34,bottle,364.66,521.99,2027-05-28,Aisle 06,ambient
+Authentic Espresso Roast Ground Coffee 750g,Everest Milling,BEVE-000016,890100655805,Beverages,104,bottle,279.74,379.06,2027-02-22,Aisle 06,chilled
+Smoked Hash Browns 6pk 500ml,Pashmina Harvest,FROZ-000017,890100655806,Frozen Foods,228,pack,333.00,444.13,2027-08-16,Aisle 09,frozen
+Low-Sodium Penne Rigate Pasta 12-Pack,Vedic Fresh Foods,PANT-000018,890100655807,Pantry & Dry Goods,63,bottle,284.03,430.95,2028-05-08,Aisle 06,ambient
+Crisp Jalapeno Lime Floor Disinfectant Pine 400g,Nilgiri Springs,HOUS-000019,890100655808,Household & Personal Care,189,packet,46.00,62.10,2028-05-21,Aisle 12,ambient
+Aged Smoked Paprika Pink Himalayan Salt 150g,Desi Organics Botanicals,PANT-000020,890100655809,Pantry & Dry Goods,178,bottle,719.54,1330.42,2028-07-14,Aisle 08,ambient
+Stone-Ground Garlic Naan Frozen 4pk 300g,Ganga Foods,FROZ-000021,890100655810,Frozen Foods,156,pack,100.45,178.33,2026-08-20,Aisle 08,frozen
+Desi Portobello Mushrooms 200ml,Ganga Harvest,FRES-000022,890100655811,Fresh Produce,139,kg,32.49,42.04,2026-09-08,Aisle 02,chilled
+Stone-Ground Multigrain Tortillas 750ml,Nilgiri Plantations,BAKE-000023,890100655812,Bakery & Deli,19,pcs,235.79,311.79,2026-09-02,Aisle 03,ambient
+Smoked Cream Cheese 300g,Ganga Organics,DAIR-000024,890100655813,Dairy & Eggs,62,packet,222.75,375.87,2026-09-04,Aisle 02,chilled
+Desi Jeera Masala Soda 200ml,Deccan Kitchens,BEVE-000025,890100655814,Beverages,39,bag,270.45,407.26,2026-08-30,Aisle 06,ambient
+Homestyle Broccoli Crowns 250ml,Green Earth Provisions,FRES-000026,890100655815,Fresh Produce,175,pcs,133.29,240.14,2026-08-24,Aisle 02,ambient
+Whole-Grain Mint Lime Desi Cow Ghee 1L,Royal Indian Botanicals,DAIR-000027,890100655816,Dairy & Eggs,55,bottle,76.00,103.41,2026-08-31,Aisle 03,chilled
+Cold-Pressed Nagpur Orange Parmigiano-Reggiano 12-Pack,Kaveri Goods,DAIR-000028,890100655817,Dairy & Eggs,91,packet,417.04,648.42,2026-09-25,Aisle 02,chilled
+Gourmet Shampoo Anti-Dandruff Family Pack,Pashmina Goods,HOUS-000029,890100655818,Household & Personal Care,75,bottle,159.17,283.58,2027-08-19,Aisle 12,ambient
+Authentic Makhana Crunch California Almonds 5L,Tata Plantations,SNAC-000030,890100655819,Snacks & Confectionery,236,bag,282.01,472.52,2027-05-24,Aisle 10,ambient
+Artisan Golden Ginger Catla Fish Steaks 1kg,Satvik Kitchens,MEAT-000031,890100655820,Meat & Seafood,122,pack,738.43,1039.96,2026-09-01,Aisle 04,chilled
+Unpolished Hash Browns 6pk 2kg,Vedic Fresh Kitchens,FROZ-000032,890100655821,Frozen Foods,180,pack,139.56,179.12,2027-07-20,Aisle 09,frozen
+Spiced Kesar Pista Alphonso Kulfi Tub 350g,Fortune Kitchens,FROZ-000033,890100655822,Frozen Foods,92,tub,369.21,554.25,2027-03-01,Aisle 09,frozen
+Organic Oat Milk 1kg,Heritage Organics,DAIR-000034,890100655823,Dairy & Eggs,133,box,373.39,671.37,2026-09-17,Aisle 02,chilled
+Wildcrafted Spicy Peanut Chikki 5kg,Everest Springs,SNAC-000035,890100655824,Snacks & Confectionery,79,bar,182.75,238.28,2027-03-07,Aisle 10,ambient
+Plant-Based Matcha Green Tea Fresh Rohu Fish 1.5L,Mother Dairy Agro,MEAT-000036,890100655825,Meat & Seafood,17,kg,631.39,890.51,2026-08-30,Aisle 04,chilled
+Low-Sodium Pomfret Whole 750g,Pashmina Goods,MEAT-000037,890100655826,Meat & Seafood,147,pcs,802.65,1462.37,2026-08-29,Aisle 04,chilled
+Aged Vanilla Bean Bell Peppers 400g,Urban Roots Co.,FRES-000038,890100655827,Fresh Produce,237,kg,104.08,152.21,2026-09-12,Aisle 01,chilled
+Artisan Vanilla Bean Paneer Block 2L,Mother Dairy Dairy,DAIR-000039,890100655828,Dairy & Eggs,57,box,198.22,333.47,2026-09-11,Aisle 03,chilled
+Artisan Red Chilli & Garlic Roasted Makhana Foxnuts 400g,Himalayan Farms,SNAC-000040,890100655829,Snacks & Confectionery,245,tub,523.13,884.33,2027-01-13,Aisle 09,ambient
+Free-Range Pista Almond Sweet Potatoes 24-Pack,Saffola Springs,FRES-000041,890100655830,Fresh Produce,214,pcs,97.30,179.84,2026-09-04,Aisle 01,chilled
+Golden Penne Rigate Pasta 330ml,Urban Roots Springs,PANT-000042,890100655831,Pantry & Dry Goods,202,bottle,639.25,866.78,2027-05-17,Aisle 06,ambient
+Low-Sodium Red Chilli & Garlic Cream Cheese 500ml,FarmGold Goods,DAIR-000043,890100655832,Dairy & Eggs,80,packet,171.99,233.98,2026-08-31,Aisle 02,chilled
+Wildcrafted Organic Rolled Oats 150ml,Everest Naturals,PANT-000044,890100655833,Pantry & Dry Goods,239,can,582.45,873.43,2028-04-29,Aisle 08,ambient
+Extra-Virgin Double Toned Milk 5kg,Dabur Kitchens,DAIR-000045,890100655834,Dairy & Eggs,113,tub,412.78,644.84,2026-09-08,Aisle 02,chilled
+Desi Makhana Crunch Cold-Pressed Groundnut Oil 50g,Kaveri Harvest,PANT-000046,890100655835,Pantry & Dry Goods,92,can,121.67,179.97,2028-02-26,Aisle 06,ambient
+Desi Garlic Focaccia 1kg,Everest Goods,BAKE-000047,890100655836,Bakery & Deli,69,box,234.89,349.95,2026-08-30,Aisle 03,chilled
+Country Style Flavored Yogurt 8-Pack,Organic Tattva Provisions,DAIR-000048,890100655837,Dairy & Eggs,7,pack,144.84,235.22,2026-09-14,Aisle 03,chilled
+Smoked Guava Chilli Juice 5L,Nilgiri Harvest,BEVE-000049,890100655838,Beverages,82,can,385.81,697.69,2027-03-26,Aisle 05,ambient
+Desi Poha Thick Flakes Snack Pack,Nature Harvest Goods,PANT-000050,890100655839,Pantry & Dry Goods,91,can,307.30,561.56,2026-08-27,Aisle 07,ambient
+Zero-Sugar Mint Lime Watermelon 150ml,Himalayan Springs,FRES-000051,890100655840,Fresh Produce,140,pcs,44.86,79.61,2026-09-15,Aisle 01,ambient
+Extra-Virgin Frozen Paneer Cubes 100g,Dabur Farms,FROZ-000052,890100655841,Frozen Foods,75,bag,139.50,215.07,2027-03-27,Aisle 08,frozen
+Wildcrafted Truffle Infused Himalayan Spring Water 4-Pack,Pure Vedic Goods,BEVE-000053,890100655842,Beverages,119,bottle,74.77,95.08,2027-07-12,Aisle 06,chilled
+Smoked Cashew Paste Curry Base 10kg,Vedic Fresh Farms,PANT-000054,890100655843,Pantry & Dry Goods,210,packet,118.05,195.05,2027-06-03,Aisle 07,ambient
+Natural Mint Lime Fabric Softener Floral 2-Pack,Kaveri Dairy,HOUS-000055,890100655844,Household & Personal Care,139,tube,427.85,595.50,2028-01-18,Aisle 12,ambient
+Farm-Fresh Tonic Water Premium 500g,Everest Milling,BEVE-000056,890100655845,Beverages,143,carton,399.66,591.17,2027-03-22,Aisle 05,chilled
+Artisan Red Chilli & Garlic Salted Butter 2L,Kaveri Milling,DAIR-000057,890100655846,Dairy & Eggs,151,tub,94.16,141.19,2026-09-12,Aisle 02,chilled
+Rustic Red Onions 150ml,Everest Springs,FRES-000058,890100655847,Fresh Produce,147,bag,73.36,105.12,2026-09-02,Aisle 01,ambient
+Authentic Frozen Samosas 200ml,Deccan Dairy,FROZ-000059,890100655848,Frozen Foods,80,bag,318.30,429.95,2026-08-19,Aisle 09,frozen
+Valley Fresh Caramelized Onion Filter Coffee Beans 2kg,Fortune Plantations,BEVE-000060,890100655849,Beverages,52,carton,213.92,385.08,2027-01-17,Aisle 06,ambient
+Homestyle Mint Lime Organic Brown Sugar 50g,Ganga Milling,PANT-000061,890100655850,Pantry & Dry Goods,180,box,294.66,436.67,2028-05-23,Aisle 06,ambient
+Sweet Lemon Pepper Unsalted White Butter Value Pack,Vedic Fresh Organics,DAIR-000062,890100655851,Dairy & Eggs,38,pack,33.54,46.70,2026-09-04,Aisle 02,chilled
+Premium Ricotta Fresh 24-Pack,Nilgiri Foods,DAIR-000063,890100655852,Dairy & Eggs,15,bottle,130.56,173.81,2026-09-11,Aisle 03,chilled
+Whole-Grain Wood-Fired Veggie Pizza 2L,Deccan Farms,FROZ-000064,890100655853,Frozen Foods,112,bag,166.78,251.84,2027-02-06,Aisle 09,frozen
+Signature Fruit Cake Slice 400g,Saffola Co.,BAKE-000065,890100655854,Bakery & Deli,194,pack,129.94,191.27,2026-09-06,Aisle 03,chilled
+Free-Range Pineapples 330ml,Urban Roots Plantations,FRES-000066,890100655855,Fresh Produce,59,bag,108.10,195.66,2026-08-29,Aisle 02,chilled
+Valley Fresh Lemons 100g,Tata Mills,FRES-000067,890100655856,Fresh Produce,175,pack,85.36,120.21,2026-09-01,Aisle 01,chilled
+Natural Cashew Paste Curry Base Value Pack,Dabur Milling,PANT-000068,890100655857,Pantry & Dry Goods,23,packet,49.30,86.19,2027-08-29,Aisle 06,ambient
+Heritage Biodegradable Garbage Bags Family Pack,Royal Indian Botanicals,HOUS-000069,890100655858,Household & Personal Care,73,pack,101.31,149.60,2027-03-08,Aisle 11,ambient
+Artisan Frozen Samosas 500ml,Green Earth Springs,FROZ-000070,890100655859,Frozen Foods,115,pack,161.69,210.46,2027-06-14,Aisle 09,frozen
+Homestyle Coriander Leaves 330ml,Kaveri Mills,FRES-000071,890100655860,Fresh Produce,135,bunch,83.02,120.83,2026-09-17,Aisle 01,ambient
+Stone-Ground Matcha Green Tea Paneer Paratha Frozen 400g,Green Earth Farms,FROZ-000072,890100655861,Frozen Foods,202,bag,189.87,278.83,2027-06-15,Aisle 09,frozen
+Sun-Dried Cinnamon Spice Toned Milk 2L,Fortune Farms,DAIR-000073,890100655862,Dairy & Eggs,122,pack,212.38,265.85,2026-09-22,Aisle 03,chilled
+Handcrafted Dark Chocolate Broccoli Crowns 8-Pack,Saffola Botanicals,FRES-000074,890100655863,Fresh Produce,20,kg,17.79,22.31,2026-09-03,Aisle 01,chilled
+Smoked Nagpur Orange Parmigiano-Reggiano 1L,Desi Organics Kitchens,DAIR-000075,890100655864,Dairy & Eggs,8,bottle,381.76,699.13,2026-09-22,Aisle 02,chilled
+Low-Sodium Cinnamon Spice Herbal Hand Wash Neem 1L,Green Earth Provisions,HOUS-000076,890100655865,Household & Personal Care,32,packet,203.33,259.85,2028-01-03,Aisle 12,ambient
+Farm-Fresh Lavash Crackers 330ml,Everest Mills,BAKE-000077,890100655866,Bakery & Deli,21,pack,211.96,373.75,2026-09-04,Aisle 03,chilled
+Gourmet Smoked Paprika Cow Milk 500ml,Nature Harvest Botanicals,DAIR-000078,890100655867,Dairy & Eggs,207,tub,235.15,295.78,2026-08-30,Aisle 02,chilled
+Gourmet Sea Salt Cream Cheese 150g,Patanjali Milling,DAIR-000079,890100655868,Dairy & Eggs,245,carton,189.21,239.74,2026-09-24,Aisle 02,chilled
+Pure Makhana Crunch Fresh Rohu Fish 10-Pack,Organic Tattva Naturals,MEAT-000080,890100655869,Meat & Seafood,196,kg,607.11,987.22,2026-08-30,Aisle 05,chilled
+Valley Fresh Matcha Green Tea Coriander Leaves 24-Pack,Deccan Naturals,FRES-000081,890100655870,Fresh Produce,85,bag,85.23,141.78,2026-08-15,Aisle 01,chilled
+Rustic Chatpata Masala Buffalo Milk 350g,Nilgiri Foods,DAIR-000082,890100655871,Dairy & Eggs,5,pack,443.51,702.63,2026-09-01,Aisle 03,chilled
+Zero-Sugar Coconut Cream Soy Milk Protein 1L,Patanjali Dairy,DAIR-000083,890100655872,Dairy & Eggs,6,bottle,93.40,119.52,2026-09-15,Aisle 02,chilled
+Country Style Coconut Cream Parmigiano-Reggiano 2L,Satvik Agro,DAIR-000084,890100655873,Dairy & Eggs,132,pack,103.50,172.20,2026-09-14,Aisle 03,chilled
+Stone-Ground Frozen Samosas 6-Pack,Vedic Fresh Farms,FROZ-000085,890100655874,Frozen Foods,83,tub,242.56,386.03,2027-02-21,Aisle 08,frozen
+Crisp Brownie Bites 500ml,Vedic Fresh Farms,BAKE-000086,890100655875,Bakery & Deli,166,box,87.97,118.64,2026-09-05,Aisle 04,chilled
+Sweet Coconut Cream Toor Dal Premium 1kg,Fortune Dairy,PANT-000087,890100655876,Pantry & Dry Goods,185,packet,700.88,1071.02,2027-08-09,Aisle 07,ambient
+Stone-Ground Chana Dal Polished 10-Pack,Ganga Co.,PANT-000088,890100655877,Pantry & Dry Goods,204,box,147.77,228.36,2027-09-28,Aisle 06,ambient
+Cured Butter Murukku 5L,Green Earth Harvest,SNAC-000089,890100655878,Snacks & Confectionery,71,tub,58.19,105.27,2026-11-01,Aisle 09,ambient
+Sun-Dried Espresso Roast Ground Coffee 250g,FarmGold Botanicals,BEVE-000090,890100655879,Beverages,228,bottle,36.87,66.77,2027-03-05,Aisle 05,chilled
+Heritage Rose Infused Liquid Laundry Detergent 200ml,Patanjali Naturals,HOUS-000091,890100655880,Household & Personal Care,110,pack,140.50,182.09,2029-03-10,Aisle 11,ambient
+Farm-Fresh Vanilla Bean Frozen Veg Momos 10-Pack,Catch Co.,FROZ-000092,890100655881,Frozen Foods,8,packet,366.13,602.02,2027-01-04,Aisle 08,frozen
+Artisan Dark Chocolate Bath Tissue 6-Pack 500ml,Desi Organics Organics,HOUS-000093,890100655882,Household & Personal Care,33,packet,226.84,334.19,2027-03-03,Aisle 11,ambient
+Low-Sodium Tandoori Smoked Pineapples 2kg,Vedic Fresh Goods,FRES-000094,890100655883,Fresh Produce,188,bunch,158.13,287.76,2026-09-06,Aisle 01,chilled
+Wildcrafted Sona Masoori Rice 24-Pack,Mother Dairy Kitchens,PANT-000095,890100655884,Pantry & Dry Goods,58,bottle,678.12,1167.11,2028-07-22,Aisle 07,ambient
+Valley Fresh Red Chilli & Garlic Pears 2-Pack,Everest Springs,FRES-000096,890100655885,Fresh Produce,206,bunch,50.93,65.71,2026-09-08,Aisle 01,ambient
+Cured Fresh Mosambi Juice Family Pack,FarmGold Dairy,BEVE-000097,890100655886,Beverages,237,bottle,425.47,695.86,2026-12-23,Aisle 06,ambient
+Select Sweet Tamarind Mosquito Vaporizer Refill Snack Pack,Ganga Agro,HOUS-000098,890100655887,Household & Personal Care,19,packet,139.05,239.61,2028-04-04,Aisle 12,ambient
+Royal Butter Croissants 1kg,Urban Roots Mills,BAKE-000099,890100655888,Bakery & Deli,204,box,204.48,364.49,2026-08-28,Aisle 04,chilled
+Gourmet Bhujia Sev 150g,Satvik Springs,SNAC-000100,890100655889,Snacks & Confectionery,70,bag,402.95,534.28,2027-06-10,Aisle 09,ambient
+Smoked Toasted Sesame Hash Browns 6pk 2L,Heritage Springs,FROZ-000101,890100655890,Frozen Foods,57,bag,325.08,414.52,2027-06-05,Aisle 08,frozen
+Aged Ciabatta Roll 5kg,Royal Indian Botanicals,BAKE-000102,890100655891,Bakery & Deli,231,box,53.08,67.18,2026-09-06,Aisle 04,chilled
+Heritage Vanilla Bean Mixed Berries Frozen 400g,Green Earth Organics,FROZ-000103,890100655892,Frozen Foods,74,pack,269.40,470.01,2026-11-13,Aisle 08,frozen
+Stone-Ground Surmai Steaks 1kg,Mother Dairy Foods,MEAT-000104,890100655893,Meat & Seafood,44,pcs,617.58,1093.81,2026-09-01,Aisle 04,chilled
+Gourmet Masala Chai Aloo Tikki 8-Pack 750ml,Everest Agro,FROZ-000105,890100655894,Frozen Foods,19,packet,130.52,192.58,2026-08-22,Aisle 09,frozen
+Select Granola Health Bars 300g,Everest Botanicals,SNAC-000106,890100655895,Snacks & Confectionery,140,box,33.64,42.34,2027-05-29,Aisle 10,ambient
+Wildcrafted Crab Meat Fresh 750ml,Mother Dairy Botanicals,MEAT-000107,890100655896,Meat & Seafood,71,pcs,340.06,506.95,2026-08-31,Aisle 04,chilled
+Unpolished Fresh Rohu Fish 500g,Pashmina Co.,MEAT-000108,890100655897,Meat & Seafood,49,pcs,438.26,640.83,2026-09-03,Aisle 04,chilled
+Royal Golden Ginger Fresh Chicken Curry Cut 1.5L,Desi Organics Mills,MEAT-000109,890100655898,Meat & Seafood,31,pcs,847.40,1368.71,2026-08-30,Aisle 04,chilled
+Low-Sodium Pista Almond Blueberries 5L,Ganga Harvest,FRES-000110,890100655899,Fresh Produce,169,pack,118.10,195.73,2026-09-09,Aisle 01,ambient
+Pure Atlantic Salmon Fillet 1L,Green Earth Botanicals,MEAT-000111,890100655900,Meat & Seafood,165,pack,794.71,1411.77,2026-09-03,Aisle 04,chilled
+Golden Nagpur Orange Baby Spinach 250g,Dabur Milling,FRES-000112,890100655901,Fresh Produce,157,kg,150.71,262.99,2026-09-10,Aisle 02,chilled
+Grass-Fed Matcha Green Tea Electrolyte Energy Drink 750ml,FarmGold Botanicals,BEVE-000113,890100655902,Beverages,19,carton,396.57,500.50,2026-11-12,Aisle 06,ambient
+Whole-Grain Ginger Root 2-Pack,Bhoomi Mills,FRES-000114,890100655903,Fresh Produce,48,pack,45.87,75.17,2026-09-11,Aisle 01,chilled
+Pure Caramelized Onion Aloo Tikki 8-Pack Family Pack,Satvik Farms,FROZ-000115,890100655904,Frozen Foods,92,packet,292.69,390.11,2026-10-30,Aisle 09,frozen
+Artisan Red Chilli & Garlic Mutton Curry Cut 150ml,Vedic Fresh Springs,MEAT-000116,890100655905,Meat & Seafood,113,kg,258.77,429.55,2026-09-02,Aisle 04,chilled
+Smoked Bottle Gourd (Lauki) 4-Pack,Fortune Farms,FRES-000117,890100655906,Fresh Produce,143,bag,51.17,85.97,2026-09-15,Aisle 01,ambient
+Gluten-Free Tulsi Honey Cheese Croissant 100g,Himalayan Harvest,BAKE-000118,890100655907,Bakery & Deli,135,pcs,166.22,306.46,2026-08-30,Aisle 03,ambient
+Wildcrafted Cinnamon Spice Garlic Bulbs 750ml,Vedic Fresh Goods,FRES-000119,890100655908,Fresh Produce,157,bag,74.87,121.74,2026-09-05,Aisle 01,ambient
+Grass-Fed Dark Chocolate Palak Leaves 350g,Patanjali Provisions,FRES-000120,890100655909,Fresh Produce,50,kg,105.03,150.08,2026-08-29,Aisle 02,chilled
+Extra-Virgin Mint Lime Mustard Oil Kachi Ghani 350g,Nilgiri Organics,PANT-000121,890100655910,Pantry & Dry Goods,152,packet,510.88,668.66,2028-01-24,Aisle 07,ambient
+Free-Range Paneer Tikka Deli 100g,Tata Co.,BAKE-000122,890100655911,Bakery & Deli,211,pcs,92.69,124.07,2026-09-03,Aisle 04,ambient
+Aged Vanilla Bean Smoked Chicken Slices 2kg,Pashmina Dairy,BAKE-000123,890100655912,Bakery & Deli,96,pcs,120.32,186.28,2026-08-27,Aisle 04,ambient
+Plant-Based Filter Coffee Beans 8-Pack,Satvik Agro,BEVE-000124,890100655913,Beverages,73,box,298.11,459.01,2027-03-21,Aisle 05,ambient
+Rustic Toasted Sesame Dry Fruits Trail Mix 330ml,Himalayan Provisions,SNAC-000125,890100655914,Snacks & Confectionery,116,packet,94.61,155.75,2027-02-13,Aisle 09,ambient
+Gourmet Rose Infused Shampoo Anti-Dandruff 2L,Satvik Plantations,HOUS-000126,890100655915,Household & Personal Care,13,box,166.47,261.86,2027-07-29,Aisle 11,ambient
+Homestyle Gourmet Cookies Choco-Chip 1kg,Saffola Milling,SNAC-000127,890100655916,Snacks & Confectionery,38,box,404.70,531.64,2026-10-25,Aisle 09,ambient
+Natural Jalapeno Lime Ginger Root 500ml,Himalayan Organics,FRES-000128,890100655917,Fresh Produce,146,kg,69.28,88.58,2026-08-22,Aisle 01,ambient
+Spiced Lemon Pepper Buffalo Milk 5kg,Pashmina Mills,DAIR-000129,890100655918,Dairy & Eggs,14,tub,218.95,390.50,2026-09-02,Aisle 03,chilled
+Signature Dark Chocolate Soan Papdi Box 5kg,Royal Indian Co.,SNAC-000130,890100655919,Snacks & Confectionery,239,tub,314.29,520.56,2027-02-18,Aisle 09,ambient
+Desi Buffalo Milk 2kg,SunBrite Botanicals,DAIR-000131,890100655920,Dairy & Eggs,152,tub,429.38,742.11,2026-09-08,Aisle 03,chilled
+Sweet Nagpur Orange Feta Cheese 24-Pack,FarmGold Foods,DAIR-000132,890100655921,Dairy & Eggs,182,pack,356.98,492.58,2026-09-17,Aisle 03,chilled
+Spiced Almond Milk 330ml,Vedic Fresh Foods,DAIR-000133,890100655922,Dairy & Eggs,199,packet,209.45,333.31,2026-09-25,Aisle 02,chilled
+Select Matcha Green Tea Cashew Paste Curry Base 300g,Catch Farms,PANT-000134,890100655923,Pantry & Dry Goods,12,bottle,660.75,1043.56,2026-08-30,Aisle 07,ambient
+Cold-Pressed Cow Milk 150ml,Catch Kitchens,DAIR-000135,890100655924,Dairy & Eggs,227,bottle,382.74,498.58,2026-08-27,Aisle 03,chilled
+Homestyle Dark Chocolate Bottle Gourd (Lauki) 10-Pack,Satvik Farms,FRES-000136,890100655925,Fresh Produce,61,bunch,124.16,188.29,2026-09-09,Aisle 01,chilled
+Organic Masala Chai Smoked Chicken Slices 1.5L,Nature Harvest Farms,BAKE-000137,890100655926,Bakery & Deli,26,pack,188.41,334.22,2026-09-08,Aisle 04,chilled
+Gourmet Sweet Tamarind Double Toned Milk 350g,Green Earth Mills,DAIR-000138,890100655927,Dairy & Eggs,19,carton,201.77,282.19,2026-09-24,Aisle 03,chilled
+Organic Truffle Infused 70% Dark Chocolate Bar 150ml,Desi Organics Mills,SNAC-000139,890100655928,Snacks & Confectionery,13,bar,304.62,468.33,2027-01-08,Aisle 10,ambient
+Rustic Red Chilli & Garlic Kabuli Chana Large 10-Pack,SunBrite Springs,PANT-000140,890100655929,Pantry & Dry Goods,58,box,49.69,70.65,2027-08-08,Aisle 08,ambient
+Smoked Cow Milk 6-Pack,Tata Milling,DAIR-000141,890100655930,Dairy & Eggs,162,bottle,243.46,363.90,2026-08-31,Aisle 02,chilled
+Organic Mishri Mawa 750ml,Patanjali Agro,DAIR-000142,890100655931,Dairy & Eggs,123,pack,319.04,493.15,2026-09-07,Aisle 02,chilled
+Heritage Tulsi Honey Garlic Focaccia Family Pack,Mother Dairy Harvest,BAKE-000143,890100655932,Bakery & Deli,112,pack,25.80,35.02,2026-09-09,Aisle 04,ambient
+Farm-Fresh Bath Tissue 6-Pack Family Pack,Dabur Co.,HOUS-000144,890100655933,Household & Personal Care,88,packet,189.41,256.21,2028-04-13,Aisle 11,ambient
+Traditional Pista Almond Shampoo Anti-Dandruff 8-Pack,Organic Tattva Farms,HOUS-000145,890100655934,Household & Personal Care,35,box,338.39,529.69,2029-05-11,Aisle 11,ambient
+Plant-Based Shampoo Anti-Dandruff 150g,Amul Plantations,HOUS-000146,890100655935,Household & Personal Care,160,pack,278.27,500.25,2028-09-17,Aisle 11,ambient
+Gluten-Free California Almonds 12-Pack,Green Earth Mills,SNAC-000147,890100655936,Snacks & Confectionery,97,tub,353.06,543.60,2027-04-26,Aisle 10,ambient
+Valley Fresh Caramelized Onion Toor Dal Premium Value Pack,SunBrite Dairy,PANT-000148,890100655937,Pantry & Dry Goods,155,box,143.46,223.37,2028-01-12,Aisle 08,ambient
+Natural Masala Chai Organic Brown Sugar 4-Pack,Satvik Farms,PANT-000149,890100655938,Pantry & Dry Goods,173,jar,327.42,544.02,2027-03-04,Aisle 08,ambient
+Zero-Sugar Smoked Paprika Fresh Mint (Pudina) 300g,Everest Milling,FRES-000150,890100655939,Fresh Produce,114,bag,118.74,217.73,2026-09-16,Aisle 01,chilled
+Signature Edamame Pods Family Pack,Patanjali Goods,FROZ-000151,890100655940,Frozen Foods,78,tub,405.51,647.70,2027-03-07,Aisle 08,frozen
+Aged Pure Jaggery Powder (Gud) 10kg,Pashmina Springs,PANT-000152,890100655941,Pantry & Dry Goods,247,can,227.67,388.43,2027-02-05,Aisle 06,ambient
+Wildcrafted Smoked Paprika Shampoo Anti-Dandruff 4-Pack,Kaveri Foods,HOUS-000153,890100655942,Household & Personal Care,213,pack,182.52,329.44,2027-09-27,Aisle 12,ambient
+Select Liquid Laundry Detergent 1kg,Saffola Milling,HOUS-000154,890100655943,Household & Personal Care,57,packet,456.22,696.43,2028-02-24,Aisle 11,ambient
+Whole-Grain Cardamom Spiced Alphonso Kulfi Tub 1kg,Catch Co.,FROZ-000155,890100655944,Frozen Foods,115,pack,356.30,626.30,2027-03-02,Aisle 09,frozen
+Select Matcha Green Tea Fish Fingers Frozen 4-Pack,Urban Roots Co.,FROZ-000156,890100655945,Frozen Foods,250,box,118.08,215.72,2026-11-30,Aisle 09,frozen
+Artisan Tandoori Smoked Cucumbers 150g,Fortune Agro,FRES-000157,890100655946,Fresh Produce,188,kg,145.99,254.86,2026-08-29,Aisle 01,chilled
+Premium Vanilla Bean Brownie Bites 4-Pack,Amul Botanicals,BAKE-000158,890100655947,Bakery & Deli,191,pack,317.63,546.21,2026-09-10,Aisle 04,chilled
+Heritage Chatpata Masala Garlic Naan Frozen 4pk 500ml,Ganga Kitchens,FROZ-000159,890100655948,Frozen Foods,183,bag,391.40,506.23,2027-08-16,Aisle 08,frozen
+Valley Fresh Pista Almond Crab Meat Fresh 2kg,Himalayan Springs,MEAT-000160,890100655949,Meat & Seafood,113,pcs,464.13,793.44,2026-08-30,Aisle 04,chilled
+Sweet Apple Cider Vinegar Drink 500g,Fortune Agro,BEVE-000161,890100655950,Beverages,226,can,281.63,453.90,2027-08-07,Aisle 05,ambient
+Heritage Mozzarella Shredded Value Pack,FarmGold Milling,DAIR-000162,890100655951,Dairy & Eggs,19,box,366.84,540.68,2026-09-03,Aisle 03,chilled
+Cured Seedless Grapes 100g,Himalayan Milling,FRES-000163,890100655952,Fresh Produce,64,pcs,97.87,146.32,2026-09-16,Aisle 01,chilled
+Plant-Based Pista Almond Kabuli Chana Large 500ml,Kaveri Provisions,PANT-000164,890100655953,Pantry & Dry Goods,7,packet,202.31,315.31,2028-04-11,Aisle 06,ambient
+Artisan Multigrain Tortillas 24-Pack,Desi Organics Provisions,BAKE-000165,890100655954,Bakery & Deli,243,pack,179.11,237.89,2026-09-09,Aisle 03,chilled
+Roasted Tulsi Honey Smoked Chicken Slices 5L,Organic Tattva Organics,BAKE-000166,890100655955,Bakery & Deli,228,pack,162.29,211.32,2026-09-08,Aisle 03,ambient
+Grass-Fed Sourdough Loaf 150ml,Fortune Plantations,BAKE-000167,890100655956,Bakery & Deli,60,pack,242.02,319.87,2026-08-29,Aisle 03,ambient
+Pure Kabuli Chana Large 24-Pack,Nature Harvest Naturals,PANT-000168,890100655957,Pantry & Dry Goods,236,bag,600.76,936.19,2027-09-27,Aisle 08,ambient
+Premium Diet Mixture Namkeen 5kg,FarmGold Springs,SNAC-000169,890100655958,Snacks & Confectionery,85,bar,316.02,422.67,2027-06-14,Aisle 10,ambient
+Sun-Dried Vanilla Bean Multigrain Tortillas 100g,Patanjali Dairy,BAKE-000170,890100655959,Bakery & Deli,210,pack,83.22,142.59,2026-08-28,Aisle 03,ambient
+Handcrafted Smoked Paprika Soan Papdi Box 1kg,Pashmina Co.,SNAC-000171,890100655960,Snacks & Confectionery,38,box,534.42,984.00,2026-11-11,Aisle 09,ambient
+Select Garlic Naan Frozen 4pk 10-Pack,Nilgiri Agro,FROZ-000172,890100655961,Frozen Foods,248,box,89.11,159.77,2026-12-17,Aisle 09,frozen
+Crisp Truffle Infused Fresh Mint (Pudina) 200ml,Ganga Harvest,FRES-000173,890100655962,Fresh Produce,58,pcs,114.74,176.36,2026-09-02,Aisle 01,ambient
+Grass-Fed Frozen Paneer Cubes 750g,Saffola Agro,FROZ-000174,890100655963,Frozen Foods,14,bag,219.76,305.97,2026-08-30,Aisle 09,frozen
+Aged Squid Rings Cleaned 12-Pack,FarmGold Provisions,MEAT-000175,890100655964,Meat & Seafood,8,kg,619.06,1023.86,2026-09-03,Aisle 04,chilled
+Artisan Cold Brew Coffee 1L,Desi Organics Dairy,BEVE-000176,890100655965,Beverages,232,bottle,426.84,547.29,2027-07-02,Aisle 06,chilled
+Select Mustard Oil Kachi Ghani 150g,SunBrite Botanicals,PANT-000177,890100655966,Pantry & Dry Goods,175,bottle,517.53,703.73,2027-01-22,Aisle 07,ambient
+Grass-Fed Green Peas Fresh 300g,Satvik Goods,FRES-000178,890100655967,Fresh Produce,121,pack,40.55,66.36,2026-09-10,Aisle 01,chilled
+Aged Tulsi Honey Bhujia Sev 750ml,Mother Dairy Mills,SNAC-000179,890100655968,Snacks & Confectionery,57,bag,442.84,645.83,2026-11-21,Aisle 09,ambient
+Free-Range Rawa Sooji 10kg,Bhoomi Agro,PANT-000180,890100655969,Pantry & Dry Goods,237,jar,610.94,1006.63,2027-11-05,Aisle 07,ambient
+Select Truffle Infused Banana Chips Kerala Style 350g,Pashmina Co.,SNAC-000181,890100655970,Snacks & Confectionery,93,pack,407.77,669.32,2027-05-24,Aisle 10,ambient
+Plant-Based Avocados 750g,Amul Milling,FRES-000182,890100655971,Fresh Produce,226,pcs,28.10,44.67,2026-09-10,Aisle 02,ambient
+Grass-Fed Desi Cow Ghee 50g,Tata Mills,DAIR-000183,890100655972,Dairy & Eggs,125,box,96.77,127.52,2026-09-13,Aisle 03,chilled
+Extra-Virgin Rose Infused Pita Bread 6-Pack,Catch Co.,BAKE-000184,890100655973,Bakery & Deli,41,pcs,318.43,546.66,2026-09-09,Aisle 04,ambient
+Select Smoked Paprika Moong Dal Namkeen 250ml,Saffola Goods,SNAC-000185,890100655974,Snacks & Confectionery,110,bar,56.32,81.34,2027-04-12,Aisle 09,ambient
+Country Style Garlic & Herb Poha Thick Flakes 50g,Dabur Harvest,PANT-000186,890100655975,Pantry & Dry Goods,84,packet,186.23,246.73,2027-03-08,Aisle 07,ambient
+Gourmet Mint Lime Almond Milk 24-Pack,FarmGold Agro,DAIR-000187,890100655976,Dairy & Eggs,185,pack,184.87,275.30,2026-09-10,Aisle 02,chilled
+Rustic Bath Tissue 6-Pack 12-Pack,Desi Organics Botanicals,HOUS-000188,890100655977,Household & Personal Care,46,pack,333.77,464.90,2029-04-17,Aisle 11,ambient
+Premium Smoked Paprika Lavash Crackers 250ml,SunBrite Plantations,BAKE-000189,890100655978,Bakery & Deli,59,pcs,125.51,170.45,2026-08-15,Aisle 03,chilled
+Country Style Rawa Sooji 12-Pack,Organic Tattva Plantations,PANT-000190,890100655979,Pantry & Dry Goods,32,bottle,701.67,979.99,2027-08-01,Aisle 06,ambient
+Spiced Bagel Plain 4pk 250ml,Tata Mills,BAKE-000191,890100655980,Bakery & Deli,4,pcs,277.68,461.36,2026-09-03,Aisle 03,ambient
+Organic Cinnamon Spice Kaju Katli Sweet Box 1kg,Himalayan Naturals,SNAC-000192,890100655981,Snacks & Confectionery,242,bar,416.53,676.12,2027-04-29,Aisle 10,ambient
+Homestyle Vanilla Bean Organic Sharbati Atta 10-Pack,Nature Harvest Botanicals,PANT-000193,890100655982,Pantry & Dry Goods,167,bottle,505.03,852.87,2027-01-21,Aisle 06,ambient
+Crisp Kesar Pista Veg Burger Patties 1.5L,Amul Goods,FROZ-000194,890100655983,Frozen Foods,108,bag,105.27,194.23,2026-11-29,Aisle 08,frozen
+Crisp Kashmiri Saffron Toor Dal Premium 10-Pack,Nature Harvest Co.,PANT-000195,890100655984,Pantry & Dry Goods,245,box,45.26,66.90,2028-04-02,Aisle 07,ambient
+Wildcrafted Red Chilli & Garlic Sweet Corn Kernels 500ml,Organic Tattva Co.,FROZ-000196,890100655985,Frozen Foods,106,bag,81.91,102.97,2026-08-30,Aisle 09,frozen
+Rustic Oranges Nagpur 6-Pack,Tata Co.,FRES-000197,890100655986,Fresh Produce,224,pcs,122.74,217.09,2026-08-27,Aisle 01,chilled
+Free-Range Bath Tissue 6-Pack 300g,Deccan Harvest,HOUS-000198,890100655987,Household & Personal Care,182,tube,481.70,608.41,2027-03-16,Aisle 12,ambient
+Unpolished Nagpur Orange Banana Chips Kerala Style 200g,Organic Tattva Kitchens,SNAC-000199,890100655988,Snacks & Confectionery,212,bag,493.10,654.04,2027-03-27,Aisle 10,ambient
+Stone-Ground Caramelized Onion Gulab Jamun Tin 2-Pack,Urban Roots Kitchens,SNAC-000200,890100655989,Snacks & Confectionery,22,packet,447.94,823.09,2026-12-23,Aisle 10,ambient
+Country Style Organic Brown Sugar 350g,Desi Organics Milling,PANT-000201,890100655990,Pantry & Dry Goods,101,packet,233.36,341.89,2028-04-07,Aisle 06,ambient
+Plant-Based Tandoori Smoked Cow Milk Family Pack,FarmGold Agro,DAIR-000202,890100655991,Dairy & Eggs,61,pack,247.21,453.52,2026-09-16,Aisle 02,chilled
+Spiced Surface Floor Cleaner Rose 24-Pack,Pashmina Plantations,HOUS-000203,890100655992,Household & Personal Care,234,box,230.61,398.82,2029-03-25,Aisle 11,ambient
+Grass-Fed Toasted Sesame Sweet Potatoes 500g,FarmGold Agro,FRES-000204,890100655993,Fresh Produce,26,bag,159.68,270.13,2026-08-28,Aisle 02,ambient
+Raw Kachi Ghani Mustard Guavas 350g,Desi Organics Plantations,FRES-000205,890100655994,Fresh Produce,47,pcs,118.65,164.95,2026-09-14,Aisle 01,chilled
+Cured Vanilla Bean Sparkling Mineral Water 1L,Heritage Springs,BEVE-000206,890100655995,Beverages,72,can,324.84,491.67,2026-08-28,Aisle 06,chilled
+Handcrafted Sweet Potatoes 50g,Bhoomi Springs,FRES-000207,890100655996,Fresh Produce,128,pcs,158.45,226.50,2026-09-09,Aisle 01,chilled
+Whole-Grain Coconut Cream Floor Disinfectant Pine 1kg,Tata Dairy,HOUS-000208,890100655997,Household & Personal Care,122,bottle,499.28,775.41,2028-01-05,Aisle 11,ambient
+Homestyle Rose Infused Alphonso Kulfi Tub Snack Pack,Royal Indian Farms,FROZ-000209,890100655998,Frozen Foods,61,box,76.09,137.61,2026-12-07,Aisle 08,frozen
+Natural Toasted Sesame Frozen Green Peas 750ml,Fortune Harvest,FROZ-000210,890100655999,Frozen Foods,228,pack,326.14,504.58,2026-12-16,Aisle 08,frozen
+Grass-Fed Gourmet Cookies Choco-Chip 5kg,Mother Dairy Foods,SNAC-000211,890100656000,Snacks & Confectionery,78,bag,179.50,260.47,2026-12-18,Aisle 10,ambient
+Farm-Fresh Chicken Keema 2kg,Dabur Organics,MEAT-000212,890100656001,Meat & Seafood,76,pack,204.38,285.89,2026-09-02,Aisle 05,chilled
+Smoked Tulsi Honey Masala CTC Tea 250ml,Everest Naturals,BEVE-000213,890100656002,Beverages,246,bag,96.06,147.91,2027-07-29,Aisle 06,chilled
+Gourmet Smoked Paprika Fresh Mint (Pudina) 750ml,Saffola Provisions,FRES-000214,890100656003,Fresh Produce,129,pcs,42.24,67.46,2026-09-02,Aisle 02,chilled
+Organic Electrolyte Energy Drink 4-Pack,Royal Indian Goods,BEVE-000215,890100656004,Beverages,18,box,216.93,380.68,2027-06-15,Aisle 05,chilled
+Low-Sodium Amla Juice Pure 250g,Nilgiri Goods,BEVE-000216,890100656005,Beverages,56,can,116.42,201.76,2027-08-20,Aisle 05,chilled
+Low-Sodium Carrots Family Pack,FarmGold Milling,FRES-000217,890100656006,Fresh Produce,130,bunch,147.45,214.70,2026-08-26,Aisle 01,ambient
+Gluten-Free Alphonso Mango Coriander Leaves 10kg,Patanjali Harvest,FRES-000218,890100656007,Fresh Produce,23,bag,105.05,190.14,2026-09-03,Aisle 02,ambient
+Smoked Jalapeno Lime Alphonso Kulfi Tub 2kg,Deccan Plantations,FROZ-000219,890100656008,Frozen Foods,163,bag,387.09,528.76,2026-11-28,Aisle 09,frozen
+Cold-Pressed Dark Chocolate Smoked Chicken Slices 50g,Deccan Farms,BAKE-000220,890100656009,Bakery & Deli,206,pack,244.58,448.50,2026-09-09,Aisle 04,chilled
+Cold-Pressed Ajwain & Jeera Soan Papdi Box Family Pack,Catch Plantations,SNAC-000221,890100656010,Snacks & Confectionery,75,tub,393.59,669.79,2026-12-25,Aisle 09,ambient
+Smoked Nimbu Paani Soda 5L,Satvik Goods,BEVE-000222,890100656011,Beverages,8,box,440.44,623.99,2027-06-13,Aisle 06,ambient
+Country Style Lemon Pepper Roasted Makhana Foxnuts 300g,Nilgiri Goods,SNAC-000223,890100656012,Snacks & Confectionery,88,pack,197.32,296.83,2027-04-23,Aisle 09,ambient
+Sweet Masala CTC Tea 50g,FarmGold Harvest,BEVE-000224,890100656013,Beverages,211,carton,157.88,285.14,2026-12-17,Aisle 05,chilled
+Homestyle Vanilla Bean Electrolyte Energy Drink 2L,Urban Roots Milling,BEVE-000225,890100656014,Beverages,246,can,363.65,474.73,2027-04-29,Aisle 05,chilled
+Raw Garlic & Herb Kitchen Paper Towels 4-Roll 100g,Vedic Fresh Plantations,HOUS-000226,890100656015,Household & Personal Care,69,box,316.96,452.68,2028-03-30,Aisle 12,ambient
+Homestyle Floor Disinfectant Pine 150g,SunBrite Foods,HOUS-000227,890100656016,Household & Personal Care,160,tube,251.07,327.55,2029-03-08,Aisle 12,ambient
+Cured Mishri Mawa 250ml,Deccan Provisions,DAIR-000228,890100656017,Dairy & Eggs,117,carton,249.28,455.30,2026-09-17,Aisle 03,chilled
+Unpolished Bell Peppers 2kg,Organic Tattva Mills,FRES-000229,890100656018,Fresh Produce,107,pcs,110.01,201.57,2026-09-16,Aisle 02,chilled
+Plant-Based Caramelized Onion Chicken Sausages 2-Pack,Deccan Harvest,MEAT-000230,890100656019,Meat & Seafood,187,kg,306.09,491.61,2026-08-29,Aisle 04,chilled
+Farm-Fresh Sweet Tamarind Smoked Chicken Slices 2kg,Fortune Milling,BAKE-000231,890100656020,Bakery & Deli,18,pack,146.90,227.99,2026-08-28,Aisle 03,ambient
+Crisp Fruit Cake Slice 200g,Catch Naturals,BAKE-000232,890100656021,Bakery & Deli,83,pcs,200.68,301.90,2026-09-07,Aisle 03,ambient
+Whole-Grain Kachi Ghani Mustard Garlic Focaccia 300g,Desi Organics Goods,BAKE-000233,890100656022,Bakery & Deli,16,pcs,172.35,313.91,2026-09-05,Aisle 03,ambient
+Valley Fresh Soan Papdi Box 750ml,Bhoomi Milling,SNAC-000234,890100656023,Snacks & Confectionery,231,pack,452.28,635.90,2027-02-01,Aisle 09,ambient
+Farm-Fresh Vanilla Bean Strawberries 8-Pack,Pure Vedic Farms,FRES-000235,890100656024,Fresh Produce,123,kg,128.96,187.10,2026-09-11,Aisle 02,ambient
+Rustic Kashmiri Saffron Raw Wildflower Honey 5L,Dabur Milling,PANT-000236,890100656025,Pantry & Dry Goods,217,can,503.89,809.32,2028-03-30,Aisle 08,ambient
+Royal Pineapples 12-Pack,Saffola Agro,FRES-000237,890100656026,Fresh Produce,161,bag,134.20,178.43,2026-08-29,Aisle 01,ambient
+Roasted Matcha Green Tea Bananas 10-Pack,Himalayan Co.,FRES-000238,890100656027,Fresh Produce,119,pack,134.37,175.00,2026-08-30,Aisle 01,chilled
+Sun-Dried Herbal Hand Wash Neem 12-Pack,Dabur Springs,HOUS-000239,890100656028,Household & Personal Care,19,bottle,524.56,671.08,2028-03-05,Aisle 11,ambient
+Heritage Bottle Gourd (Lauki) 250g,SunBrite Dairy,FRES-000240,890100656029,Fresh Produce,26,bag,158.60,207.58,2026-09-17,Aisle 01,chilled
+Authentic Ayurvedic Bath Soap 500ml,Saffola Provisions,HOUS-000241,890100656030,Household & Personal Care,204,pack,156.19,265.12,2028-06-30,Aisle 12,ambient
+Crisp Lemon Pepper Bananas 5L,Vedic Fresh Botanicals,FRES-000242,890100656031,Fresh Produce,125,pack,123.15,168.98,2026-09-01,Aisle 01,ambient
+Sun-Dried Garlic & Herb Ginger Root 1.5L,Amul Foods,FRES-000243,890100656032,Fresh Produce,177,pack,109.39,185.50,2026-09-09,Aisle 02,chilled
+Plant-Based Smoked Paprika Brownie Bites 500g,Kaveri Plantations,BAKE-000244,890100656033,Bakery & Deli,13,pack,158.44,279.85,2026-09-10,Aisle 04,ambient
+Handcrafted Coconut Cream Iced Lemon Tea 10kg,Saffola Kitchens,BEVE-000245,890100656034,Beverages,146,carton,382.22,608.65,2026-08-17,Aisle 05,ambient
+Homestyle Ajwain & Jeera Stainless Steel Scrubber 3pk Snack Pack,Everest Goods,HOUS-000246,890100656035,Household & Personal Care,173,pack,449.43,611.31,2027-10-30,Aisle 11,ambient
+Cold-Pressed Liquid Laundry Detergent 2-Pack,SunBrite Milling,HOUS-000247,890100656036,Household & Personal Care,72,box,347.43,531.71,2028-09-18,Aisle 12,ambient
+Sun-Dried Chatpata Masala Dry Fruits Trail Mix 1kg,Pashmina Plantations,SNAC-000248,890100656037,Snacks & Confectionery,180,tub,225.08,405.85,2026-10-20,Aisle 09,ambient
+Sun-Dried Urad Dal Whole 10-Pack,Vedic Fresh Botanicals,PANT-000249,890100656038,Pantry & Dry Goods,41,bag,295.78,480.45,2027-11-16,Aisle 06,ambient
+Authentic Sea Salt Iced Lemon Tea 300g,SunBrite Kitchens,BEVE-000250,890100656039,Beverages,107,pack,309.60,555.75,2027-06-12,Aisle 05,ambient
+Organic Tulsi Honey Espresso Roast Ground Coffee 250ml,Vedic Fresh Mills,BEVE-000251,890100656040,Beverages,234,pack,325.83,510.23,2027-05-24,Aisle 06,ambient
+Unpolished Clove & Mint Toothpaste 10-Pack,Urban Roots Mills,HOUS-000252,890100656041,Household & Personal Care,133,box,558.82,853.49,2026-08-23,Aisle 11,ambient
+Free-Range Liquid Laundry Detergent 500ml,Tata Organics,HOUS-000253,890100656042,Household & Personal Care,25,pack,542.53,692.11,2029-01-05,Aisle 11,ambient
+Aged Toasted Sesame Tonic Water Premium 24-Pack,Heritage Harvest,BEVE-000254,890100656043,Beverages,91,carton,359.66,465.62,2027-06-22,Aisle 06,chilled
+Royal Alphonso Mango Tender Coconut Water 5L,Green Earth Milling,BEVE-000255,890100656044,Beverages,94,bag,245.26,319.16,2027-03-25,Aisle 05,chilled
+Gourmet Biodegradable Garbage Bags 12-Pack,Tata Provisions,HOUS-000256,890100656045,Household & Personal Care,217,box,136.09,206.68,2028-10-07,Aisle 11,ambient
+Gourmet Fresh Mosambi Juice 2kg,FarmGold Provisions,BEVE-000257,890100656046,Beverages,69,can,61.01,95.40,2026-11-28,Aisle 05,chilled
+Stone-Ground Sweet Tamarind Filter Coffee Beans 200g,Himalayan Organics,BEVE-000258,890100656047,Beverages,75,box,75.56,98.48,2026-08-28,Aisle 06,chilled
+Spiced French Fries Crispy 4-Pack,Tata Naturals,FROZ-000259,890100656048,Frozen Foods,68,box,89.43,161.81,2026-12-26,Aisle 08,frozen
+Extra-Virgin Red Chilli & Garlic Apples Snack Pack,Organic Tattva Naturals,FRES-000260,890100656049,Fresh Produce,242,pcs,28.68,39.52,2026-09-06,Aisle 02,chilled
+Whole-Grain Apple Cider Vinegar Drink 2L,Nilgiri Milling,BEVE-000261,890100656050,Beverages,75,bottle,339.85,429.52,2026-10-11,Aisle 05,ambient
+Wildcrafted Fruit Muffins 2L,Vedic Fresh Springs,BAKE-000262,890100656051,Bakery & Deli,127,box,266.73,335.04,2026-09-02,Aisle 04,chilled
+Wildcrafted Organic Green Tea 750g,Kaveri Botanicals,BEVE-000263,890100656052,Beverages,182,bag,185.50,279.40,2027-02-04,Aisle 05,ambient
+Signature Lemon Pepper Organic Brown Sugar 250ml,Pure Vedic Dairy,PANT-000264,890100656053,Pantry & Dry Goods,103,jar,359.05,656.89,2027-03-18,Aisle 06,ambient
+Free-Range Tulsi Honey Blueberries 24-Pack,Pure Vedic Mills,FRES-000265,890100656054,Fresh Produce,28,kg,137.43,213.85,2026-09-10,Aisle 02,chilled
+Whole-Grain Crab Meat Fresh 200g,FarmGold Co.,MEAT-000266,890100656055,Meat & Seafood,86,pack,671.36,871.87,2026-08-30,Aisle 04,chilled
+Rustic Frozen Veg Momos 12-Pack,Dabur Mills,FROZ-000267,890100656056,Frozen Foods,34,box,239.70,308.16,2027-02-24,Aisle 09,frozen
+Cured California Almonds 12-Pack,Saffola Goods,SNAC-000268,890100656057,Snacks & Confectionery,185,packet,82.06,126.17,2026-10-11,Aisle 09,ambient
+Raw Garlic Bulbs 24-Pack,FarmGold Botanicals,FRES-000269,890100656058,Fresh Produce,139,pcs,152.41,239.68,2026-08-30,Aisle 02,ambient
+Select Smoked Paprika Garlic Naan Frozen 4pk 750g,Satvik Agro,FROZ-000270,890100656059,Frozen Foods,131,bag,323.31,558.53,2027-07-10,Aisle 08,frozen
+Gluten-Free Kachi Ghani Mustard Paneer Tikka Deli 400g,Deccan Naturals,BAKE-000271,890100656060,Bakery & Deli,115,box,113.63,152.34,2026-09-06,Aisle 04,chilled
+Desi Pista Almond Clove & Mint Toothpaste 1kg,Heritage Agro,HOUS-000272,890100656061,Household & Personal Care,237,pack,143.59,198.59,2027-08-28,Aisle 12,ambient
+Artisan Ginger Root 250g,Bhoomi Harvest,FRES-000273,890100656062,Fresh Produce,40,pack,81.16,113.64,2026-09-15,Aisle 02,ambient
+Unpolished Fresh Chicken Curry Cut 10-Pack,Organic Tattva Dairy,MEAT-000274,890100656063,Meat & Seafood,171,pcs,659.32,928.82,2026-08-30,Aisle 04,chilled
+Traditional Diet Mixture Namkeen 5L,Heritage Farms,SNAC-000275,890100656064,Snacks & Confectionery,187,bar,297.39,501.46,2026-12-06,Aisle 10,ambient
+Country Style Lavash Crackers 300g,Catch Goods,BAKE-000276,890100656065,Bakery & Deli,64,pcs,262.30,445.31,2026-09-08,Aisle 03,chilled
+Aged Amla Juice Pure 4-Pack,Dabur Farms,BEVE-000277,890100656066,Beverages,124,bag,364.43,614.15,2026-08-28,Aisle 06,ambient
+Roasted Chaash / Buttermilk 150ml,Himalayan Plantations,DAIR-000278,890100656067,Dairy & Eggs,17,tub,222.26,369.35,2026-09-06,Aisle 02,chilled
+Smoked Chicken Drumsticks 5kg,Pashmina Agro,MEAT-000279,890100656068,Meat & Seafood,150,kg,774.08,1417.95,2026-08-28,Aisle 05,chilled
+Artisan Smoked Paprika Bath Tissue 6-Pack 750ml,Kaveri Mills,HOUS-000280,890100656069,Household & Personal Care,54,bottle,236.76,427.19,2027-04-22,Aisle 12,ambient
+Cured Ajwain & Jeera Filter Coffee Beans 6-Pack,Nature Harvest Plantations,BEVE-000281,890100656070,Beverages,75,bottle,359.80,626.88,2027-07-22,Aisle 05,ambient
+Spiced Chicken Sausages 300g,Bhoomi Plantations,MEAT-000282,890100656071,Meat & Seafood,83,pcs,209.31,299.70,2026-08-30,Aisle 04,chilled
+Plant-Based Kachi Ghani Mustard Roasted Salted Cashews 4-Pack,Heritage Mills,SNAC-000283,890100656072,Snacks & Confectionery,193,bar,412.35,612.83,2027-04-21,Aisle 09,ambient
+Whole-Grain Paneer Tikka Deli 750g,Nilgiri Farms,BAKE-000284,890100656073,Bakery & Deli,43,pack,274.80,409.50,2026-09-09,Aisle 04,chilled
+Pure Bamboo Toothbrush 2pk 6-Pack,Organic Tattva Mills,HOUS-000285,890100656074,Household & Personal Care,199,packet,208.55,346.94,2027-12-09,Aisle 11,ambient
+Handcrafted Garlic & Herb French Fries Crispy 6-Pack,Patanjali Kitchens,FROZ-000286,890100656075,Frozen Foods,62,pack,415.32,715.22,2026-12-06,Aisle 09,frozen
+Spiced Jeera Masala Soda 4-Pack,FarmGold Plantations,BEVE-000287,890100656076,Beverages,124,carton,36.36,60.80,2026-10-13,Aisle 06,chilled
+Raw Smoked Paprika Garlic Focaccia 750ml,Royal Indian Naturals,BAKE-000288,890100656077,Bakery & Deli,15,pack,56.91,95.26,2026-08-28,Aisle 04,ambient
+Aged Vanilla Bean Gulab Jamun Tin 5L,Deccan Botanicals,SNAC-000289,890100656078,Snacks & Confectionery,29,packet,110.16,163.14,2027-03-22,Aisle 10,ambient
+Valley Fresh Kachi Ghani Mustard Green Chillies 5kg,Vedic Fresh Co.,FRES-000290,890100656079,Fresh Produce,58,pcs,21.91,38.85,2026-09-03,Aisle 01,chilled
+Gluten-Free Cardamom Spiced Masala CTC Tea 1L,Tata Kitchens,BEVE-000291,890100656080,Beverages,226,can,174.77,250.03,2026-10-13,Aisle 05,chilled
+Gluten-Free Malai Kulfi Bar 500g,Ganga Agro,FROZ-000292,890100656081,Frozen Foods,184,tub,106.28,177.16,2027-04-10,Aisle 09,frozen
+Pure Oranges Nagpur 2L,FarmGold Dairy,FRES-000293,890100656082,Fresh Produce,81,bunch,129.52,239.48,2026-09-16,Aisle 01,ambient
+Royal Ajwain & Jeera Portobello Mushrooms 1kg,Ganga Goods,FRES-000294,890100656083,Fresh Produce,140,pack,41.72,65.63,2026-09-06,Aisle 01,ambient
+Pure Tandoori Smoked Feta Cheese 1kg,Ganga Springs,DAIR-000295,890100656084,Dairy & Eggs,127,bottle,499.09,775.93,2026-08-27,Aisle 03,chilled
+Unpolished Kokum Sharbat 1.5L,Tata Botanicals,BEVE-000296,890100656085,Beverages,34,pack,433.34,717.78,2027-03-15,Aisle 05,ambient
+Homestyle Cardamom Spiced Garlic Focaccia 2-Pack,Green Earth Dairy,BAKE-000297,890100656086,Bakery & Deli,134,pcs,79.64,134.75,2026-09-04,Aisle 04,ambient
+Gourmet Mint Lime Cream Cheese 6-Pack,Dabur Plantations,DAIR-000298,890100656087,Dairy & Eggs,160,pack,171.19,298.60,2026-09-26,Aisle 02,chilled
+Stone-Ground Red Chilli & Garlic Extra Virgin Olive Oil 24-Pack,Pashmina Botanicals,PANT-000299,890100656088,Pantry & Dry Goods,106,packet,279.54,486.16,2027-07-26,Aisle 08,ambient
+Sun-Dried Makhana Crunch Chicken Sausages 10kg,Mother Dairy Dairy,MEAT-000300,890100656089,Meat & Seafood,94,pack,207.73,335.80,2026-08-30,Aisle 04,chilled
+Wildcrafted Mixed Berries Frozen Value Pack,Nilgiri Springs,FROZ-000301,890100656090,Frozen Foods,175,tub,91.32,152.31,2027-06-07,Aisle 09,frozen
+Free-Range Coconut Cream Roasted Salted Cashews 2-Pack,Royal Indian Dairy,SNAC-000302,890100656091,Snacks & Confectionery,165,bag,314.14,503.02,2027-02-22,Aisle 10,ambient
+Heritage Pista Almond Multigrain Tortillas 10-Pack,Everest Kitchens,BAKE-000303,890100656092,Bakery & Deli,105,pack,55.87,74.17,2026-09-07,Aisle 04,ambient
+Handcrafted Masala Chai 70% Dark Chocolate Bar 150ml,Patanjali Kitchens,SNAC-000304,890100656093,Snacks & Confectionery,231,box,30.15,50.61,2026-12-12,Aisle 09,ambient
+Country Style Hash Browns 6pk 4-Pack,Desi Organics Organics,FROZ-000305,890100656094,Frozen Foods,27,bag,82.82,118.98,2027-06-30,Aisle 09,frozen
+Aged Whole Wheat Atta Bread 750g,Ganga Harvest,BAKE-000306,890100656095,Bakery & Deli,188,pack,222.86,368.98,2026-09-02,Aisle 04,ambient
+Golden Jeera Masala Soda 300g,Nilgiri Naturals,BEVE-000307,890100656096,Beverages,134,carton,293.27,532.86,2027-07-15,Aisle 05,ambient
+Gourmet Diet Mixture Namkeen Snack Pack,Royal Indian Farms,SNAC-000308,890100656097,Snacks & Confectionery,5,box,437.61,789.54,2027-02-23,Aisle 10,ambient
+Spiced Fruit Cake Slice Value Pack,Mother Dairy Agro,BAKE-000309,890100656098,Bakery & Deli,161,box,183.63,304.02,2026-09-05,Aisle 03,chilled
+Artisan Pista Almond Goat Mince Premium 350g,Ganga Kitchens,MEAT-000310,890100656099,Meat & Seafood,17,kg,842.37,1393.70,2026-09-03,Aisle 05,chilled
+Traditional Chatpata Masala Poha Thick Flakes 2-Pack,Kaveri Naturals,PANT-000311,890100656100,Pantry & Dry Goods,118,bottle,520.71,959.48,2026-08-18,Aisle 06,ambient
+Free-Range Sweet Tamarind Penne Rigate Pasta Family Pack,Mother Dairy Mills,PANT-000312,890100656101,Pantry & Dry Goods,149,bottle,519.63,937.58,2026-12-24,Aisle 08,ambient
+Farm-Fresh Chicken Salami 330ml,FarmGold Provisions,BAKE-000313,890100656102,Bakery & Deli,5,pcs,75.41,129.55,2026-09-09,Aisle 04,chilled
+Heritage Nagpur Orange Chicken Sausages 750g,Bhoomi Harvest,MEAT-000314,890100656103,Meat & Seafood,103,pcs,734.80,1064.15,2026-09-03,Aisle 04,chilled
+Valley Fresh Caramelized Onion Goat Mince Premium 750ml,Patanjali Goods,MEAT-000315,890100656104,Meat & Seafood,199,pack,735.69,1043.20,2026-09-03,Aisle 04,chilled
+Cold-Pressed Tulsi Honey Bhujia Sev 4-Pack,Pashmina Co.,SNAC-000316,890100656105,Snacks & Confectionery,97,tub,130.87,213.99,2026-11-04,Aisle 10,ambient
+Country Style Truffle Infused Strawberries 500g,Heritage Foods,FRES-000317,890100656106,Fresh Produce,210,kg,91.51,126.33,2026-09-02,Aisle 01,chilled
+Cured Tulsi Honey Hash Browns 6pk 150ml,Green Earth Mills,FROZ-000318,890100656107,Frozen Foods,39,bag,118.61,186.01,2026-12-19,Aisle 08,frozen
+Sun-Dried Tender Coconut Water 500g,Desi Organics Springs,BEVE-000319,890100656108,Beverages,43,carton,92.16,129.95,2027-03-21,Aisle 06,ambient
+Authentic Moong Dal Washed Family Pack,Catch Harvest,PANT-000320,890100656109,Pantry & Dry Goods,186,bottle,430.43,712.77,2028-04-19,Aisle 08,ambient
+Desi Kesar Pista Gulab Jamun Tin 500ml,SunBrite Agro,SNAC-000321,890100656110,Snacks & Confectionery,203,box,105.92,141.62,2027-05-10,Aisle 09,ambient
+Zero-Sugar Tandoori Smoked Parmigiano-Reggiano 350g,Kaveri Botanicals,DAIR-000322,890100656111,Dairy & Eggs,178,packet,150.18,256.24,2026-09-08,Aisle 03,chilled
+Handcrafted Spicy Peanut Chikki 4-Pack,Urban Roots Agro,SNAC-000323,890100656112,Snacks & Confectionery,248,tub,136.57,224.04,2026-12-31,Aisle 10,ambient
+Gluten-Free Kulcha 4-Pack 24-Pack,Everest Springs,BAKE-000324,890100656113,Bakery & Deli,201,box,45.04,70.75,2026-09-01,Aisle 04,chilled
+Valley Fresh Sea Salt Flavored Yogurt 500g,Royal Indian Harvest,DAIR-000325,890100656114,Dairy & Eggs,131,tub,444.15,643.85,2026-08-30,Aisle 03,chilled
+Premium Coconut Cream Fabric Softener Floral 10-Pack,Green Earth Agro,HOUS-000326,890100656115,Household & Personal Care,30,bottle,109.71,144.48,2029-04-26,Aisle 11,ambient
+Unpolished Fresh Methi 5kg,Catch Mills,FRES-000327,890100656116,Fresh Produce,92,pack,74.41,120.84,2026-09-11,Aisle 02,chilled
+Cured Smoked Chicken Slices 2L,Organic Tattva Co.,BAKE-000328,890100656117,Bakery & Deli,66,pack,112.87,183.41,2026-08-29,Aisle 03,ambient
+Authentic Boneless Chicken Breast 250g,Pure Vedic Dairy,MEAT-000329,890100656118,Meat & Seafood,77,pack,217.99,306.85,2026-09-03,Aisle 05,chilled
+Whole-Grain Parmigiano-Reggiano 4-Pack,Nilgiri Kitchens,DAIR-000330,890100656119,Dairy & Eggs,153,carton,475.30,837.73,2026-09-04,Aisle 02,chilled
+Extra-Virgin Cardamom Spiced Almond Milk 200ml,Deccan Naturals,DAIR-000331,890100656120,Dairy & Eggs,204,carton,402.06,526.00,2026-09-08,Aisle 03,chilled
+Farm-Fresh Matcha Green Tea Bamboo Toothbrush 2pk 6-Pack,Pure Vedic Harvest,HOUS-000332,890100656121,Household & Personal Care,155,box,452.16,695.70,2026-08-30,Aisle 11,ambient
+Farm-Fresh Frozen Samosas 750g,Everest Kitchens,FROZ-000333,890100656122,Frozen Foods,177,packet,360.42,605.35,2027-02-06,Aisle 08,frozen
+Aged Roasted Makhana Foxnuts 330ml,Pure Vedic Provisions,SNAC-000334,890100656123,Snacks & Confectionery,173,bar,548.40,914.18,2027-04-18,Aisle 10,ambient
+Pure Heavy Cream 6-Pack,Vedic Fresh Foods,DAIR-000335,890100656124,Dairy & Eggs,74,pack,323.59,556.91,2026-09-07,Aisle 03,chilled
+Select Catla Fish Steaks 150g,Heritage Co.,MEAT-000336,890100656125,Meat & Seafood,135,pcs,849.38,1546.23,2026-09-02,Aisle 04,chilled
+Extra-Virgin Lassi Mango Infused 2L,Pure Vedic Organics,DAIR-000337,890100656126,Dairy & Eggs,139,tub,94.71,145.19,2026-09-06,Aisle 03,chilled
+Authentic Brioche Burger Buns 200ml,Deccan Mills,BAKE-000338,890100656127,Bakery & Deli,249,pcs,227.80,345.78,2026-09-05,Aisle 04,ambient
+Traditional Coconut Cream Malai Kulfi Bar 100g,Vedic Fresh Botanicals,FROZ-000339,890100656128,Frozen Foods,190,tub,275.01,441.25,2027-02-24,Aisle 08,frozen
+Organic Mutton Curry Cut Snack Pack,Urban Roots Goods,MEAT-000340,890100656129,Meat & Seafood,8,pack,266.49,424.74,2026-09-01,Aisle 05,chilled
+Spiced Paneer Paratha Frozen 500ml,Patanjali Plantations,FROZ-000341,890100656130,Frozen Foods,113,tub,401.66,696.94,2027-07-06,Aisle 09,frozen
+Aged Frozen Green Peas 8-Pack,Royal Indian Goods,FROZ-000342,890100656131,Frozen Foods,135,bag,351.11,537.26,2026-08-19,Aisle 08,frozen
+Traditional Ajwain & Jeera Herbal Hand Wash Neem 250ml,Satvik Naturals,HOUS-000343,890100656132,Household & Personal Care,145,box,108.91,161.87,2028-12-25,Aisle 12,ambient
+Artisan Toor Dal Premium 330ml,Saffola Co.,PANT-000344,890100656133,Pantry & Dry Goods,197,packet,600.81,835.56,2027-11-17,Aisle 07,ambient
+Low-Sodium Cinnamon Spice Edamame Pods 750g,Kaveri Harvest,FROZ-000345,890100656134,Frozen Foods,177,packet,417.21,631.79,2027-05-26,Aisle 09,frozen
+Homestyle Red Chilli & Garlic Chicken Drumsticks 50g,Vedic Fresh Botanicals,MEAT-000346,890100656135,Meat & Seafood,211,kg,484.93,624.18,2026-08-31,Aisle 04,chilled
+Valley Fresh Jalapeno Lime Custard Apple (Sitaphal) 4-Pack,Nature Harvest Naturals,FRES-000347,890100656136,Fresh Produce,119,bunch,129.64,185.03,2026-09-02,Aisle 02,chilled
+Golden Tulsi Honey Gourmet Cookies Choco-Chip 1.5L,Amul Botanicals,SNAC-000348,890100656137,Snacks & Confectionery,202,tub,189.44,324.41,2026-11-01,Aisle 10,ambient
+Zero-Sugar Mint Lime Sparkling Mineral Water 750ml,Green Earth Naturals,BEVE-000349,890100656138,Beverages,244,box,420.83,708.58,2026-10-24,Aisle 06,chilled
+Pure Smoked Paprika Masala CTC Tea 300g,Ganga Co.,BEVE-000350,890100656139,Beverages,57,bag,252.57,430.56,2027-01-11,Aisle 06,ambient
+Select Cashew Paste Curry Base 150ml,Satvik Provisions,PANT-000351,890100656140,Pantry & Dry Goods,235,box,486.48,610.26,2028-03-08,Aisle 08,ambient
+Free-Range Kaju Katli Sweet Box 10kg,Nilgiri Plantations,SNAC-000352,890100656141,Snacks & Confectionery,214,pack,251.84,351.13,2027-04-06,Aisle 09,ambient
+Unpolished Sea Salt Diet Mixture Namkeen 250ml,Tata Goods,SNAC-000353,890100656142,Snacks & Confectionery,224,box,278.24,376.13,2026-12-03,Aisle 10,ambient
+Zero-Sugar Tulsi Honey Brioche Burger Buns 2L,Nature Harvest Harvest,BAKE-000354,890100656143,Bakery & Deli,38,pcs,51.94,75.30,2026-08-31,Aisle 04,chilled
+Cold-Pressed Tandoori Smoked Malai Kulfi Bar 150ml,Pashmina Milling,FROZ-000355,890100656144,Frozen Foods,234,pack,248.02,313.24,2026-08-28,Aisle 08,frozen
+Royal Mozzarella Shredded 250g,Satvik Springs,DAIR-000356,890100656145,Dairy & Eggs,63,box,167.20,299.87,2026-09-14,Aisle 03,chilled
+Authentic Masala Chai Coriander Leaves 350g,SunBrite Organics,FRES-000357,890100656146,Fresh Produce,167,pack,156.95,223.05,2026-09-08,Aisle 01,chilled
+Signature Oat Milk 4-Pack,Nature Harvest Naturals,DAIR-000358,890100656147,Dairy & Eggs,241,pack,67.69,96.92,2026-09-08,Aisle 02,chilled
+Organic Feta Cheese 150ml,Vedic Fresh Mills,DAIR-000359,890100656148,Dairy & Eggs,139,carton,328.85,456.82,2026-09-17,Aisle 02,chilled
+Wildcrafted Matcha Green Tea Parmigiano-Reggiano 10-Pack,Royal Indian Harvest,DAIR-000360,890100656149,Dairy & Eggs,246,bottle,119.51,199.01,2026-09-13,Aisle 02,chilled
+Homestyle Feta Cheese 200ml,Urban Roots Agro,DAIR-000361,890100656150,Dairy & Eggs,135,box,304.75,534.80,2026-09-12,Aisle 03,chilled
+Select Pista Almond Edamame Pods 200ml,FarmGold Kitchens,FROZ-000362,890100656151,Frozen Foods,180,packet,298.57,501.87,2027-03-12,Aisle 08,frozen
+Cured Mint Lime Lassi Mango Infused 50g,Nature Harvest Dairy,DAIR-000363,890100656152,Dairy & Eggs,39,bottle,484.17,847.14,2026-09-13,Aisle 03,chilled
+Unpolished Sea Salt Fruit Cake Slice 10-Pack,Heritage Springs,BAKE-000364,890100656153,Bakery & Deli,152,pack,315.06,481.63,2026-09-02,Aisle 04,chilled
+Wildcrafted Tulsi Honey Ginger Kombucha 24-Pack,Royal Indian Milling,BEVE-000365,890100656154,Beverages,143,carton,438.29,734.36,2027-04-06,Aisle 05,chilled
+Wildcrafted Mosquito Vaporizer Refill 24-Pack,Dabur Springs,HOUS-000366,890100656155,Household & Personal Care,15,box,136.71,218.94,2029-02-05,Aisle 12,ambient
+Sweet Vanilla Bean Catla Fish Steaks 150g,Kaveri Springs,MEAT-000367,890100656156,Meat & Seafood,209,pcs,759.49,1279.84,2026-08-30,Aisle 04,chilled
+Spiced Mint Lime Fruit Muffins 500ml,Bhoomi Organics,BAKE-000368,890100656157,Bakery & Deli,154,pcs,313.71,552.81,2026-08-31,Aisle 04,chilled
+Gluten-Free Pista Almond Veg Spring Rolls 1kg,Royal Indian Foods,FROZ-000369,890100656158,Frozen Foods,31,pack,308.16,430.60,2027-02-26,Aisle 09,frozen
+Gluten-Free Truffle Infused Amla Juice Pure 1.5L,Patanjali Organics,BEVE-000370,890100656159,Beverages,63,bag,170.02,252.37,2026-08-30,Aisle 05,chilled
+Zero-Sugar Golden Ginger Ciabatta Roll 750g,Heritage Goods,BAKE-000371,890100656160,Bakery & Deli,131,pack,76.26,133.92,2026-09-04,Aisle 04,chilled
+Extra-Virgin Bath Tissue 6-Pack 24-Pack,Mother Dairy Botanicals,HOUS-000372,890100656161,Household & Personal Care,97,pack,35.18,48.51,2028-05-11,Aisle 11,ambient
+Raw Mint Lime Green Peas Fresh 8-Pack,SunBrite Milling,FRES-000373,890100656162,Fresh Produce,59,bag,62.17,103.08,2026-08-30,Aisle 02,ambient
+Stone-Ground Broccoli Crowns Family Pack,SunBrite Harvest,FRES-000374,890100656163,Fresh Produce,65,pack,37.73,60.82,2026-09-15,Aisle 02,ambient
+Handcrafted Mint Lime Ayurvedic Bath Soap Value Pack,Heritage Co.,HOUS-000375,890100656164,Household & Personal Care,208,pack,218.68,384.57,2027-10-16,Aisle 12,ambient
+Premium Rose Infused Chicken Drumsticks 4-Pack,Desi Organics Botanicals,MEAT-000376,890100656165,Meat & Seafood,232,pcs,396.62,555.79,2026-08-31,Aisle 05,chilled
+Sweet Sea Salt Stainless Steel Scrubber 3pk 1L,Organic Tattva Milling,HOUS-000377,890100656166,Household & Personal Care,197,tube,323.00,512.57,2027-09-12,Aisle 12,ambient
+Free-Range Mint Lime Lemons 150g,Urban Roots Harvest,FRES-000378,890100656167,Fresh Produce,239,pack,39.80,53.34,2026-09-13,Aisle 02,ambient
+Gourmet Cinnamon Spice Coriander Leaves 200g,Green Earth Co.,FRES-000379,890100656168,Fresh Produce,222,kg,59.85,76.51,2026-09-11,Aisle 01,ambient
+Stone-Ground Surface Floor Cleaner Rose 4-Pack,Nature Harvest Harvest,HOUS-000380,890100656169,Household & Personal Care,48,packet,125.61,177.79,2028-10-23,Aisle 11,ambient
+Spiced Cardamom Spiced Royal Basmati Rice 100g,Pure Vedic Harvest,PANT-000381,890100656170,Pantry & Dry Goods,192,can,626.05,1138.93,2026-11-26,Aisle 06,ambient
+Gourmet Alphonso Mango Iced Lemon Tea 12-Pack,Saffola Goods,BEVE-000382,890100656171,Beverages,126,bottle,333.97,507.57,2027-08-21,Aisle 06,ambient
+Rustic Mixed Berries Frozen 4-Pack,Organic Tattva Naturals,FROZ-000383,890100656172,Frozen Foods,199,packet,149.61,260.89,2027-08-25,Aisle 09,frozen
+Sweet Pista Almond Wood-Fired Veggie Pizza 150ml,Satvik Co.,FROZ-000384,890100656173,Frozen Foods,65,pack,374.14,648.09,2026-08-29,Aisle 09,frozen
+Natural Garlic & Herb Fruit Cake Slice 250g,SunBrite Farms,BAKE-000385,890100656174,Bakery & Deli,196,pack,233.13,409.18,2026-09-01,Aisle 04,ambient
+Gourmet Hash Browns 6pk 12-Pack,Mother Dairy Naturals,FROZ-000386,890100656175,Frozen Foods,180,box,261.92,406.86,2027-02-09,Aisle 08,frozen
+Unpolished Biodegradable Garbage Bags 2kg,Bhoomi Goods,HOUS-000387,890100656176,Household & Personal Care,196,bottle,574.68,939.92,2029-01-28,Aisle 12,ambient
+Natural Kachi Ghani Mustard Butter Murukku 5L,Catch Agro,SNAC-000388,890100656177,Snacks & Confectionery,140,pack,78.13,135.53,2027-04-22,Aisle 09,ambient
+Roasted Rose Infused Mozzarella Shredded 5kg,Royal Indian Plantations,DAIR-000389,890100656178,Dairy & Eggs,215,packet,497.60,769.71,2026-09-05,Aisle 03,chilled
+Cold-Pressed Makhana Crunch Cold Pressed Orange Juice 4-Pack,Amul Naturals,BEVE-000390,890100656179,Beverages,131,box,142.67,189.18,2026-08-21,Aisle 06,chilled
+Cold-Pressed Hash Browns 6pk 500g,Desi Organics Harvest,FROZ-000391,890100656180,Frozen Foods,79,pack,89.71,121.43,2027-04-11,Aisle 08,frozen
+Pure Mutton Curry Cut 1kg,Urban Roots Dairy,MEAT-000392,890100656181,Meat & Seafood,229,pack,337.93,542.34,2026-08-31,Aisle 04,chilled
+Golden Cold-Pressed Groundnut Oil 150ml,Catch Provisions,PANT-000393,890100656182,Pantry & Dry Goods,35,can,496.11,702.41,2027-03-07,Aisle 08,ambient
+Rustic Jalapeno Lime Sparkling Mineral Water 400g,Vedic Fresh Harvest,BEVE-000394,890100656183,Beverages,140,bottle,351.25,540.41,2027-07-21,Aisle 05,ambient
+Wildcrafted Masala Chai Butter Croissants 6-Pack,Tata Botanicals,BAKE-000395,890100656184,Bakery & Deli,70,box,189.99,318.78,2026-09-07,Aisle 04,ambient
+Natural Organic Green Tea 750g,Ganga Plantations,BEVE-000396,890100656185,Beverages,14,carton,229.65,302.19,2027-05-06,Aisle 06,chilled
+Natural Cream Cheese 750g,Vedic Fresh Harvest,DAIR-000397,890100656186,Dairy & Eggs,195,packet,232.66,318.72,2026-09-23,Aisle 02,chilled
+Select Truffle Infused Chicken Sausages 24-Pack,Tata Farms,MEAT-000398,890100656187,Meat & Seafood,178,pack,600.08,972.20,2026-08-31,Aisle 05,chilled
+Organic Alphonso Mango Frozen Veg Momos 1L,Everest Botanicals,FROZ-000399,890100656188,Frozen Foods,60,box,350.71,609.51,2027-07-19,Aisle 08,frozen
+Artisan Ginger Kombucha 10kg,Nature Harvest Goods,BEVE-000400,890100656189,Beverages,103,can,352.21,497.57,2026-08-30,Aisle 06,chilled
+Extra-Virgin Fresh Rohu Fish Snack Pack,Nilgiri Provisions,MEAT-000401,890100656190,Meat & Seafood,210,pack,934.80,1348.83,2026-08-30,Aisle 04,chilled
+Stone-Ground Boneless Chicken Breast 500g,Amul Naturals,MEAT-000402,890100656191,Meat & Seafood,210,kg,611.95,931.35,2026-08-29,Aisle 05,chilled
+Homestyle Herbal Hand Wash Neem 750g,FarmGold Mills,HOUS-000403,890100656192,Household & Personal Care,30,bottle,43.79,77.11,2026-08-27,Aisle 12,ambient
+Unpolished Biodegradable Garbage Bags 500g,Ganga Mills,HOUS-000404,890100656193,Household & Personal Care,139,pack,167.68,231.47,2027-07-26,Aisle 11,ambient
+Zero-Sugar Makhana Crunch Roasted Makhana Foxnuts 4-Pack,Green Earth Co.,SNAC-000405,890100656194,Snacks & Confectionery,112,pack,465.54,859.28,2027-05-29,Aisle 09,ambient
+Pure Kesar Pista Fresh Mint (Pudina) 250ml,FarmGold Organics,FRES-000406,890100656195,Fresh Produce,192,pcs,152.89,251.68,2026-09-11,Aisle 01,ambient
+Whole-Grain Kesar Pista Multigrain Tortillas 10-Pack,Heritage Agro,BAKE-000407,890100656196,Bakery & Deli,176,box,310.39,570.00,2026-09-06,Aisle 03,ambient
+Farm-Fresh Clove & Mint Toothpaste 10kg,Desi Organics Farms,HOUS-000408,890100656197,Household & Personal Care,162,packet,71.44,103.02,2028-07-29,Aisle 12,ambient
+Grass-Fed Cold Brew Coffee 5kg,Amul Foods,BEVE-000409,890100656198,Beverages,69,bottle,400.96,739.12,2026-11-16,Aisle 06,chilled
+Homestyle Truffle Infused Mosquito Vaporizer Refill 100g,Kaveri Botanicals,HOUS-000410,890100656199,Household & Personal Care,43,packet,204.76,291.27,2029-02-17,Aisle 12,ambient
+Country Style Chatpata Masala Cold-Pressed Groundnut Oil 350g,Amul Milling,PANT-000411,890100656200,Pantry & Dry Goods,15,bag,58.65,78.06,2027-09-01,Aisle 06,ambient
+Spiced Kashmiri Saffron Green Peas Fresh 2L,Amul Co.,FRES-000412,890100656201,Fresh Produce,12,bag,107.22,166.43,2026-09-07,Aisle 01,ambient
+Golden Vanilla Bean Banana Chips Kerala Style 5kg,Heritage Kitchens,SNAC-000413,890100656202,Snacks & Confectionery,132,bag,369.33,601.03,2026-11-24,Aisle 09,ambient
+Valley Fresh Hash Browns 6pk 2-Pack,Fortune Foods,FROZ-000414,890100656203,Frozen Foods,239,tub,398.95,688.36,2027-04-15,Aisle 08,frozen
+Authentic Greek Yogurt 330ml,Fortune Naturals,DAIR-000415,890100656204,Dairy & Eggs,67,bottle,60.99,86.68,2026-09-06,Aisle 02,chilled
+Golden Masala Chai Herbal Hand Wash Neem 8-Pack,Bhoomi Agro,HOUS-000416,890100656205,Household & Personal Care,156,bottle,502.46,705.54,2029-02-20,Aisle 11,ambient
+Royal Kashmiri Saffron Garlic Focaccia 2-Pack,FarmGold Naturals,BAKE-000417,890100656206,Bakery & Deli,199,pcs,83.52,146.68,2026-09-01,Aisle 04,chilled
+Pure Smoked Paprika Fresh Chicken Curry Cut 500g,Nature Harvest Co.,MEAT-000418,890100656207,Meat & Seafood,234,pack,353.43,491.01,2026-08-30,Aisle 04,chilled
+Gluten-Free Soan Papdi Box 1kg,Fortune Mills,SNAC-000419,890100656208,Snacks & Confectionery,214,pack,545.95,797.51,2026-12-27,Aisle 10,ambient
+Low-Sodium Vanilla Bean Fresh Chicken Curry Cut 330ml,FarmGold Goods,MEAT-000420,890100656209,Meat & Seafood,29,pack,257.65,463.41,2026-08-29,Aisle 05,chilled
+Sun-Dried Smoked Chicken Slices Snack Pack,Heritage Plantations,BAKE-000421,890100656210,Bakery & Deli,30,pcs,227.08,322.23,2026-08-29,Aisle 04,ambient
+Grass-Fed Feta Cheese 10-Pack,Pashmina Farms,DAIR-000422,890100656211,Dairy & Eggs,91,tub,62.48,110.10,2026-08-31,Aisle 03,chilled
+Grass-Fed Cheese Croissant 1L,Vedic Fresh Naturals,BAKE-000423,890100656212,Bakery & Deli,232,pcs,227.64,379.31,2026-08-28,Aisle 03,ambient
+Signature Ayurvedic Bath Soap 5L,Deccan Provisions,HOUS-000424,890100656213,Household & Personal Care,42,packet,469.46,771.47,2028-03-27,Aisle 12,ambient
+Whole-Grain Organic Brown Sugar 24-Pack,Patanjali Farms,PANT-000425,890100656214,Pantry & Dry Goods,108,jar,366.73,576.93,2028-05-11,Aisle 06,ambient
+Extra-Virgin Soan Papdi Box 300g,Dabur Farms,SNAC-000426,890100656215,Snacks & Confectionery,48,box,379.15,654.49,2026-12-08,Aisle 09,ambient
+Artisan Cinnamon Spice Almond Milk 1L,Urban Roots Milling,DAIR-000427,890100656216,Dairy & Eggs,234,packet,335.92,474.60,2026-09-22,Aisle 03,chilled
+Gourmet Alphonso Mango Ayurvedic Bath Soap 5L,Catch Farms,HOUS-000428,890100656217,Household & Personal Care,92,tube,300.31,485.15,2027-03-26,Aisle 11,ambient
+Country Style Garlic & Herb Avocados 1.5L,Himalayan Farms,FRES-000429,890100656218,Fresh Produce,147,pack,72.21,112.12,2026-09-14,Aisle 02,ambient
+Raw Golden Ginger Surmai Steaks 1L,Nilgiri Harvest,MEAT-000430,890100656219,Meat & Seafood,201,pack,420.88,543.63,2026-09-01,Aisle 05,chilled
+Rustic Papayas 5L,Patanjali Co.,FRES-000431,890100656220,Fresh Produce,41,bunch,20.67,35.95,2026-09-04,Aisle 02,chilled
+Unpolished Alphonso Mango Biodegradable Garbage Bags 5L,Saffola Mills,HOUS-000432,890100656221,Household & Personal Care,161,box,366.63,541.48,2029-01-04,Aisle 12,ambient
+Rustic Masala Chai Floor Disinfectant Pine 200ml,Royal Indian Harvest,HOUS-000433,890100656222,Household & Personal Care,160,bottle,57.55,80.48,2026-08-28,Aisle 12,ambient
+Sweet Pink Himalayan Salt 350g,Nilgiri Milling,PANT-000434,890100656223,Pantry & Dry Goods,156,can,610.55,817.97,2027-07-09,Aisle 07,ambient
+Aged Fruit Muffins 10-Pack,Desi Organics Botanicals,BAKE-000435,890100656224,Bakery & Deli,242,pcs,104.44,175.64,2026-08-30,Aisle 03,chilled
+Wildcrafted Chatpata Masala Chana Dal Polished 4-Pack,Amul Plantations,PANT-000436,890100656225,Pantry & Dry Goods,242,bag,539.29,872.62,2027-06-11,Aisle 07,ambient
+Desi Nagpur Orange Veg Burger Patties 150ml,Saffola Farms,FROZ-000437,890100656226,Frozen Foods,23,pack,251.79,374.41,2027-08-23,Aisle 08,frozen
+Grass-Fed Toor Dal Premium 750ml,Organic Tattva Springs,PANT-000438,890100656227,Pantry & Dry Goods,160,packet,260.08,399.15,2027-03-02,Aisle 06,ambient
+Roasted Bhujia Sev 1kg,Himalayan Kitchens,SNAC-000439,890100656228,Snacks & Confectionery,46,bar,203.04,293.03,2026-11-30,Aisle 10,ambient
+Natural Toasted Sesame Bagel Plain 4pk 10-Pack,SunBrite Organics,BAKE-000440,890100656229,Bakery & Deli,225,pcs,37.72,60.09,2026-09-07,Aisle 03,chilled
+Pure Malai Kulfi Bar 200g,Pure Vedic Springs,FROZ-000441,890100656230,Frozen Foods,24,box,179.20,224.21,2027-04-25,Aisle 08,frozen
+Artisan Tulsi Honey Masala CTC Tea 50g,Ganga Mills,BEVE-000442,890100656231,Beverages,197,box,233.81,354.30,2026-10-10,Aisle 05,ambient
+Traditional Chamomile Herbal Tea 200g,SunBrite Agro,BEVE-000443,890100656232,Beverages,136,box,392.00,619.14,2027-03-25,Aisle 06,chilled
+Spiced Feta Cheese 200ml,Deccan Dairy,DAIR-000444,890100656233,Dairy & Eggs,190,carton,403.20,708.94,2026-09-06,Aisle 03,chilled
+Pure Cardamom Spiced Moong Dal Namkeen 500g,Mother Dairy Farms,SNAC-000445,890100656234,Snacks & Confectionery,32,pack,55.14,90.35,2027-06-13,Aisle 10,ambient
+Cold-Pressed Makhana Crunch Jeera Masala Soda 350g,FarmGold Plantations,BEVE-000446,890100656235,Beverages,239,can,117.94,182.30,2027-05-15,Aisle 06,chilled
+Crisp Pav 6-Pack 200ml,Amul Provisions,BAKE-000447,890100656236,Bakery & Deli,243,pack,87.84,124.99,2026-09-03,Aisle 04,chilled
+Artisan Chatpata Masala Catla Fish Steaks 250ml,Nature Harvest Foods,MEAT-000448,890100656237,Meat & Seafood,190,pack,462.88,599.50,2026-09-03,Aisle 04,chilled
+Whole-Grain Matcha Green Tea Gulab Jamun Tin 24-Pack,Pashmina Goods,SNAC-000449,890100656238,Snacks & Confectionery,37,tub,450.76,761.22,2027-04-25,Aisle 09,ambient
+Stone-Ground Tender Coconut Water 500ml,Nilgiri Agro,BEVE-000450,890100656239,Beverages,96,can,424.76,634.52,2027-04-11,Aisle 05,ambient
+Farm-Fresh Palak Leaves 100g,FarmGold Dairy,FRES-000451,890100656240,Fresh Produce,51,bag,134.94,224.31,2026-09-03,Aisle 01,ambient
+Desi Coconut Cream Guava Chilli Juice 250ml,Catch Springs,BEVE-000452,890100656241,Beverages,144,can,317.30,454.59,2026-12-05,Aisle 05,chilled
+Signature Chatpata Masala Frozen Veg Momos 1kg,Desi Organics Dairy,FROZ-000453,890100656242,Frozen Foods,170,bag,88.12,141.06,2026-08-29,Aisle 08,frozen
+Zero-Sugar Squid Rings Cleaned 250ml,Patanjali Co.,MEAT-000454,890100656243,Meat & Seafood,146,pcs,763.40,1048.28,2026-09-01,Aisle 05,chilled
+Aged Kaju Katli Sweet Box Family Pack,Patanjali Milling,SNAC-000455,890100656244,Snacks & Confectionery,166,bar,233.99,360.45,2026-12-27,Aisle 10,ambient
+Whole-Grain Cinnamon Spice Frozen Samosas 12-Pack,Urban Roots Goods,FROZ-000456,890100656245,Frozen Foods,126,bag,280.37,504.83,2027-04-14,Aisle 08,frozen
+Extra-Virgin Kashmiri Saffron Electrolyte Energy Drink Snack Pack,Fortune Farms,BEVE-000457,890100656246,Beverages,100,box,68.66,100.10,2027-01-06,Aisle 06,ambient
+Gourmet Jalapeno Lime Garlic Naan Frozen 4pk 400g,Himalayan Farms,FROZ-000458,890100656247,Frozen Foods,49,bag,419.09,622.69,2026-12-17,Aisle 08,frozen
+Unpolished Tandoori Smoked California Almonds Family Pack,Tata Provisions,SNAC-000459,890100656248,Snacks & Confectionery,239,bar,276.84,459.61,2026-11-05,Aisle 10,ambient
+Aged Organic Green Tea Snack Pack,Nilgiri Organics,BEVE-000460,890100656249,Beverages,208,pack,225.05,305.69,2027-03-02,Aisle 05,chilled
+Gourmet Vanilla Bean Fruit Cake Slice 1L,Heritage Provisions,BAKE-000461,890100656250,Bakery & Deli,137,pcs,250.93,321.42,2026-09-02,Aisle 04,chilled
+Low-Sodium Garlic Bulbs 330ml,Himalayan Farms,FRES-000462,890100656251,Fresh Produce,34,pack,86.64,114.61,2026-08-29,Aisle 02,ambient
+Desi Red Chilli & Garlic California Almonds 5kg,Tata Milling,SNAC-000463,890100656252,Snacks & Confectionery,25,pack,175.07,234.66,2027-04-30,Aisle 10,ambient
+Signature Mozzarella Shredded 500ml,Amul Plantations,DAIR-000464,890100656253,Dairy & Eggs,61,box,79.31,135.09,2026-08-30,Aisle 02,chilled
+Valley Fresh Organic Green Tea 6-Pack,Urban Roots Dairy,BEVE-000465,890100656254,Beverages,23,pack,27.65,50.24,2027-01-20,Aisle 06,chilled
+Cold-Pressed Matcha Green Tea Pita Bread 1L,Dabur Milling,BAKE-000466,890100656255,Bakery & Deli,113,pcs,211.25,265.63,2026-09-03,Aisle 04,chilled
+Raw Kesar Pista Sweet Potatoes 1kg,Nature Harvest Milling,FRES-000467,890100656256,Fresh Produce,118,bag,143.13,243.18,2026-09-17,Aisle 01,chilled
+Unpolished Guavas 1.5L,Fortune Goods,FRES-000468,890100656257,Fresh Produce,172,bag,26.44,43.13,2026-08-30,Aisle 01,ambient
+Traditional Dark Chocolate Malai Kulfi Bar 250ml,Vedic Fresh Co.,FROZ-000469,890100656258,Frozen Foods,50,packet,46.78,74.88,2026-12-10,Aisle 09,frozen
+Organic Granola Health Bars Value Pack,Urban Roots Botanicals,SNAC-000470,890100656259,Snacks & Confectionery,91,packet,312.86,538.87,2026-11-10,Aisle 10,ambient
+Sun-Dried Kokum Sharbat 1kg,Saffola Kitchens,BEVE-000471,890100656260,Beverages,182,bag,284.32,463.71,2026-08-18,Aisle 06,chilled
+Whole-Grain Cold Brew Coffee 750g,Nature Harvest Foods,BEVE-000472,890100656261,Beverages,174,bottle,110.26,162.83,2026-10-02,Aisle 06,chilled
+Zero-Sugar Fabric Softener Floral 150ml,Himalayan Foods,HOUS-000473,890100656262,Household & Personal Care,154,pack,578.98,1064.25,2027-06-10,Aisle 11,ambient
+Crisp Dry Fruits Trail Mix 750ml,Desi Organics Co.,SNAC-000474,890100656263,Snacks & Confectionery,153,bar,233.96,321.61,2027-01-08,Aisle 09,ambient
+Traditional Cardamom Spiced Watermelon 50g,Mother Dairy Foods,FRES-000475,890100656264,Fresh Produce,178,bag,91.67,157.94,2026-09-17,Aisle 02,ambient
+Cured Sea Salt Mixed Berries Frozen 750g,Himalayan Farms,FROZ-000476,890100656265,Frozen Foods,89,tub,136.31,249.61,2027-07-14,Aisle 08,frozen
+Royal Kachi Ghani Mustard Frozen Paneer Cubes 2kg,Saffola Organics,FROZ-000477,890100656266,Frozen Foods,84,bag,164.18,269.46,2026-10-30,Aisle 09,frozen
+Gluten-Free Fish Fingers Frozen 1kg,Mother Dairy Foods,FROZ-000478,890100656267,Frozen Foods,28,tub,338.65,504.99,2026-11-09,Aisle 08,frozen
+Gluten-Free Iced Lemon Tea 250g,Himalayan Co.,BEVE-000479,890100656268,Beverages,162,bottle,174.38,231.51,2026-12-25,Aisle 06,chilled
+Roasted Hash Browns 6pk 250g,Nilgiri Organics,FROZ-000480,890100656269,Frozen Foods,237,packet,297.46,405.06,2027-07-05,Aisle 09,frozen
+Homestyle Garlic & Herb Poha Thick Flakes 4-Pack,Catch Goods,PANT-000481,890100656270,Pantry & Dry Goods,136,can,280.81,378.84,2027-05-19,Aisle 08,ambient
+Organic Cardamom Spiced Electrolyte Energy Drink 1L,Green Earth Farms,BEVE-000482,890100656271,Beverages,66,bag,199.73,282.22,2026-08-28,Aisle 05,ambient
+Free-Range Lemon Pepper Catla Fish Steaks 4-Pack,Pashmina Agro,MEAT-000483,890100656272,Meat & Seafood,70,kg,425.00,535.75,2026-09-01,Aisle 05,chilled
+Farm-Fresh Makhana Crunch Whole Wheat Atta Bread Family Pack,Nature Harvest Provisions,BAKE-000484,890100656273,Bakery & Deli,247,box,304.42,448.46,2026-09-04,Aisle 04,ambient
+Raw Smoked Chicken Slices 250g,FarmGold Mills,BAKE-000485,890100656274,Bakery & Deli,59,pcs,301.33,541.60,2026-09-10,Aisle 04,ambient
+Natural Lemon Pepper Dishwash Gel Lemon 5L,Nature Harvest Co.,HOUS-000486,890100656275,Household & Personal Care,103,pack,193.95,244.74,2028-08-15,Aisle 12,ambient
+Grass-Fed Mint Lime Liquid Laundry Detergent 300g,Fortune Dairy,HOUS-000487,890100656276,Household & Personal Care,119,tube,207.37,326.80,2029-04-22,Aisle 11,ambient
+Farm-Fresh Mint Lime Frozen Samosas 12-Pack,Everest Naturals,FROZ-000488,890100656277,Frozen Foods,162,packet,211.37,303.91,2027-07-14,Aisle 09,frozen
+Desi Cinnamon Spice 70% Dark Chocolate Bar 4-Pack,Desi Organics Co.,SNAC-000489,890100656278,Snacks & Confectionery,87,tub,434.33,762.15,2027-06-14,Aisle 10,ambient
+Cured Crab Meat Fresh 1L,Heritage Organics,MEAT-000490,890100656279,Meat & Seafood,28,kg,255.60,463.09,2026-08-30,Aisle 05,chilled
+Sweet Truffle Infused Multigrain Tortillas 12-Pack,Himalayan Plantations,BAKE-000491,890100656280,Bakery & Deli,212,box,81.25,132.80,2026-09-09,Aisle 03,ambient
+Farm-Fresh Cinnamon Spice Cream Cheese 4-Pack,Organic Tattva Foods,DAIR-000492,890100656281,Dairy & Eggs,25,pack,513.34,741.40,2026-09-24,Aisle 02,chilled
+Heritage Alphonso Mango Curd Tub (Dahi) 400g,Everest Organics,DAIR-000493,890100656282,Dairy & Eggs,126,pack,330.88,460.02,2026-09-16,Aisle 02,chilled
+Handcrafted Lemon Pepper Ayurvedic Bath Soap 2L,Patanjali Organics,HOUS-000494,890100656283,Household & Personal Care,96,box,212.86,275.20,2029-02-16,Aisle 12,ambient
+Raw Red Chilli & Garlic Green Peas Fresh 10-Pack,Tata Naturals,FRES-000495,890100656284,Fresh Produce,40,kg,22.74,41.46,2026-08-29,Aisle 02,chilled
+Premium Electrolyte Energy Drink 1kg,SunBrite Agro,BEVE-000496,890100656285,Beverages,238,carton,381.39,553.42,2027-03-22,Aisle 05,ambient
+Extra-Virgin Dishwash Gel Lemon 8-Pack,Nature Harvest Milling,HOUS-000497,890100656286,Household & Personal Care,19,box,598.08,897.82,2027-04-22,Aisle 12,ambient
+Handcrafted Dark Chocolate Filter Coffee Beans Family Pack,Tata Botanicals,BEVE-000498,890100656287,Beverages,249,can,251.53,386.75,2027-02-20,Aisle 05,ambient
+Gluten-Free Badam Milk Drink 2L,Pashmina Mills,BEVE-000499,890100656288,Beverages,189,pack,401.83,503.72,2027-04-17,Aisle 06,ambient
+Premium Fresh Chicken Curry Cut Family Pack,Nilgiri Mills,MEAT-000500,890100656289,Meat & Seafood,109,pack,365.35,532.16,2026-09-03,Aisle 04,chilled
