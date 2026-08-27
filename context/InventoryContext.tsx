@@ -381,7 +381,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       const mov: StockMovement = {
         id: 'mov-' + Math.random().toString(36).substring(2, 9),
-        timestamp: 'Just now',
+        timestamp: new Date().toISOString(),
         itemId: targetCustomer.id,
         itemName: targetCustomer.name,
         sku: targetCustomer.phone,
@@ -413,7 +413,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       const mov: StockMovement = {
         id: 'mov-' + Math.random().toString(36).substring(2, 9),
-        timestamp: 'Just now',
+        timestamp: new Date().toISOString(),
         itemId: targetCustomer.id,
         itemName: targetCustomer.name,
         sku: targetCustomer.phone,
@@ -572,7 +572,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const bulkMov: StockMovement = {
       id: 'mov-imp-' + Date.now(),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId: 'bulk-import',
       itemName: replaceExisting
         ? `Catalogue Replaced (${newItems.length} Products)`
@@ -614,7 +614,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const movement: StockMovement = {
       id: 'mov-' + Math.random().toString(36).substring(2, 9),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId: id,
       itemName: newItem.name,
       sku: newItem.sku,
@@ -647,7 +647,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
           const mov: StockMovement = {
             id: 'mov-' + Math.random().toString(36).substring(2, 9),
-            timestamp: 'Just now',
+            timestamp: new Date().toISOString(),
             itemId: id,
             itemName: updated.name,
             sku: updated.sku,
@@ -684,7 +684,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const mov: StockMovement = {
       id: 'mov-' + Math.random().toString(36).substring(2, 9),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId: id,
       itemName: itemToDelete.name,
       sku: itemToDelete.sku,
@@ -732,7 +732,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         const movement: StockMovement = {
           id: 'mov-' + Math.random().toString(36).substring(2, 9),
-          timestamp: 'Just now',
+          timestamp: new Date().toISOString(),
           itemId: item.id,
           itemName: item.name,
           sku: item.sku,
@@ -791,7 +791,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const movement: StockMovement = {
       id: 'mov-' + Math.random().toString(36).substring(2, 9),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId,
       itemName,
       sku: '',
@@ -888,7 +888,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const wastageEntry: WastageLog = {
       id: 'wst-' + Math.random().toString(36).substring(2, 9),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId: item.id,
       itemName: item.name,
       sku: item.sku,
@@ -925,7 +925,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const movement: StockMovement = {
       id: 'mov-' + Math.random().toString(36).substring(2, 9),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId: item.id,
       itemName: item.name,
       sku: item.sku,
@@ -964,7 +964,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const mov: StockMovement = {
       id: 'mov-' + Math.random().toString(36).substring(2, 9),
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       itemId: id,
       itemName: `Purchase Order (${poData.supplierName})`,
       sku: poNum,
@@ -1048,7 +1048,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
           const movement: StockMovement = {
             id: 'mov-' + Math.random().toString(36).substring(2, 9),
-            timestamp: 'Just now',
+            timestamp: new Date().toISOString(),
             itemId: item.id,
             itemName: item.name,
             sku: item.sku,
@@ -1261,7 +1261,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         newMovements.push({
           id: 'mov-' + Math.random().toString(36).substring(2, 9),
-          timestamp: 'Just now',
+          timestamp: new Date().toISOString(),
           itemId: item.id,
           itemName: item.name,
           sku: item.sku,

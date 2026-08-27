@@ -209,6 +209,38 @@ export const AuditView: React.FC = () => {
     });
   };
 
+  // Helper to format exact date and time
+  const formatExactTimestamp = (ts: string) => {
+    if (!ts || ts === 'Just now') {
+      const now = new Date();
+      return {
+        date: now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+      };
+    }
+
+    const d = new Date(ts);
+    if (!isNaN(d.getTime())) {
+      return {
+        date: d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+      };
+    }
+
+    if (ts.includes(',') || ts.includes(':')) {
+      const parts = ts.split(',');
+      return {
+        date: parts[0]?.trim() || new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
+        time: parts[1]?.trim() || ts
+      };
+    }
+
+    return {
+      date: ts,
+      time: ''
+    };
+  };
+
   // Helper for Badge
   const getMovementBadge = (type: MovementType) => {
     switch (type) {
@@ -674,7 +706,17 @@ export const AuditView: React.FC = () => {
                       return (
                         <tr key={mov.id} className="hover:bg-zinc-900/60 transition-colors">
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="font-mono text-zinc-400 text-[11px] block">{mov.timestamp}</span>
+                            <div className="flex flex-col font-mono">
+                              <span className="text-zinc-200 text-xs font-semibold">
+                                {formatExactTimestamp(mov.timestamp).date}
+                              </span>
+                              {formatExactTimestamp(mov.timestamp).time && (
+                                <span className="text-zinc-400 text-[10px] flex items-center gap-1 mt-0.5">
+                                  <Clock className="h-2.5 w-2.5 text-zinc-500" />
+                                  {formatExactTimestamp(mov.timestamp).time}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
                             {getMovementBadge(mov.type)}
