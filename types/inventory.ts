@@ -51,6 +51,21 @@ export interface StoreSettings {
   phone?: string;
 }
 
+export interface Customer {
+  id: string;
+  phone: string; // Primary key / search lookup e.g. "9876543210"
+  name: string;
+  email?: string;
+  address?: string;
+  gstin?: string;
+  totalOrders: number;
+  totalSpent: number;
+  loyaltyPoints?: number;
+  createdAt: string;
+  lastPurchaseDate?: string;
+  notes?: string;
+}
+
 export interface Supplier {
   id: string;
   name: string;

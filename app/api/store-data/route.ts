@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
         purchaseOrders: [],
         stockMovements: [],
         wastageLogs: [],
+        customers: [],
         settings: { storeName: '' },
         isOfflineMode: true
       });
@@ -30,15 +31,17 @@ export async function GET(req: NextRequest) {
       db.collection('purchase_orders').createIndex({ userId: 1 }),
       db.collection('stock_movements').createIndex({ userId: 1, _id: -1 }),
       db.collection('wastage_logs').createIndex({ userId: 1, _id: -1 }),
+      db.collection('customers').createIndex({ userId: 1, phone: 1 }),
       db.collection('store_settings').createIndex({ userId: 1 })
     ]).catch((err) => console.warn('Index creation notice:', err.message));
 
-    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, settingsDoc] = await Promise.all([
+    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, settingsDoc] = await Promise.all([
       db.collection('inventory_items').find({ userId }).toArray(),
       db.collection('suppliers').find({ userId }).toArray(),
       db.collection('purchase_orders').find({ userId }).toArray(),
       db.collection('stock_movements').find({ userId }).sort({ _id: -1 }).limit(100).toArray(),
       db.collection('wastage_logs').find({ userId }).sort({ _id: -1 }).toArray(),
+      db.collection('customers').find({ userId }).toArray(),
       db.collection('store_settings').findOne({ userId })
     ]);
 
@@ -49,6 +52,7 @@ export async function GET(req: NextRequest) {
       purchaseOrders: purchaseOrders.map(({ _id, ...rest }) => rest),
       stockMovements: stockMovements.map(({ _id, ...rest }) => rest),
       wastageLogs: wastageLogs.map(({ _id, ...rest }) => rest),
+      customers: customers.map(({ _id, ...rest }) => rest),
       settings: settingsDoc ? { storeName: settingsDoc.storeName || '' } : { storeName: '' }
     });
   } catch (error: any) {
@@ -59,6 +63,7 @@ export async function GET(req: NextRequest) {
       purchaseOrders: [],
       stockMovements: [],
       wastageLogs: [],
+      customers: [],
       settings: { storeName: '' },
       isOfflineMode: true,
       error: error.message
@@ -80,6 +85,7 @@ export async function POST(req: NextRequest) {
       purchaseOrders, 
       stockMovements, 
       wastageLogs, 
+      customers,
       settings,
       isExplicitClear 
     } = body;
@@ -104,7 +110,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Safeguarded Inventory Items Replacement (Prevents wiping DB on empty initial loads)
+    // 2. Safeguarded Inventory Items Replacement
     if (items !== undefined && Array.isArray(items)) {
       if (items.length > 0 || isExplicitClear === true) {
         await db.collection('inventory_items').deleteMany({ userId });
@@ -150,6 +156,16 @@ export async function POST(req: NextRequest) {
         await db.collection('wastage_logs').deleteMany({ userId });
         if (wastageLogs.length > 0) {
           await db.collection('wastage_logs').insertMany(wastageLogs.map((w) => ({ ...w, userId })));
+        }
+      }
+    }
+
+    // 7. Customers Directory Replacement
+    if (customers !== undefined && Array.isArray(customers)) {
+      if (customers.length > 0 || isExplicitClear === true) {
+        await db.collection('customers').deleteMany({ userId });
+        if (customers.length > 0) {
+          await db.collection('customers').insertMany(customers.map((c) => ({ ...c, userId })));
         }
       }
     }

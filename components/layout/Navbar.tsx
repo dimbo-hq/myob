@@ -18,7 +18,8 @@ import {
   UserPlus,
   FileSpreadsheet,
   RefreshCw,
-  Edit2
+  Edit2,
+  Users
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -28,6 +29,7 @@ interface NavbarProps {
   onOpenImport: () => void;
   onOpenStoreNameModal: () => void;
   onNavigateExpiry: () => void;
+  onNavigateCustomers?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -36,7 +38,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAddProduct,
   onOpenImport,
   onOpenStoreNameModal,
-  onNavigateExpiry
+  onNavigateExpiry,
+  onNavigateCustomers
 }) => {
   const {
     storeName,
@@ -132,10 +135,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">Product</span>
           </button>
 
+          {/* Customers Directory */}
+          {onNavigateCustomers && (
+            <button
+              onClick={onNavigateCustomers}
+              className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900/80 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              title="Customer Directory & Loyalty"
+            >
+              <Users className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Customers</span>
+            </button>
+          )}
+
           {/* POS Terminal */}
           <button
             onClick={onOpenPOS}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-900 hover:bg-white active:scale-95 transition-all shadow-sm"
+            className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-900 hover:bg-white active:scale-95 transition-all shadow-sm cursor-pointer"
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">POS</span>

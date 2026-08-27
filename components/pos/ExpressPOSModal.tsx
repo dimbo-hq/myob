@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useInventory } from '@/context/InventoryContext';
-import { InventoryItem, POSCartItem } from '@/types/inventory';
+import { InventoryItem, POSCartItem, Customer } from '@/types/inventory';
 import { 
   CreditCard, 
   Banknote, 
@@ -17,7 +17,16 @@ import {
   Tag,
   QrCode,
   Store,
-  Layers
+  Layers,
+  User,
+  UserPlus,
+  Phone,
+  Sparkles,
+  Building2,
+  MapPin,
+  ChevronDown,
+  ChevronUp,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ReceiptModal } from './ReceiptModal';
@@ -29,12 +38,29 @@ interface ExpressPOSModalProps {
 }
 
 export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClose }) => {
-  const { items, processPOSSale, getDaysUntilExpiry, storeName } = useInventory();
+  const { 
+    items, 
+    processPOSSale, 
+    lookupCustomerByPhone, 
+    customers, 
+    storeName 
+  } = useInventory();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [cart, setCart] = useState<POSCartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'cash' | 'card'>('upi');
+
+  // Customer State
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
+  const [customerGstin, setCustomerGstin] = useState('');
+  const [matchedCustomer, setMatchedCustomer] = useState<Customer | null>(null);
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [isCustomerCollapsed, setIsCustomerCollapsed] = useState(false);
+
   const [completedOrder, setCompletedOrder] = useState<{
     orderId: string;
     items: POSCartItem[];
@@ -43,7 +69,27 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     tax: number;
     total: number;
     paymentMethod: string;
+    customer?: Customer | null;
   } | null>(null);
+
+  // Live customer lookup on phone input change
+  useEffect(() => {
+    if (!customerPhone || customerPhone.trim().length < 4) {
+      setMatchedCustomer(null);
+      return;
+    }
+
+    const found = lookupCustomerByPhone(customerPhone);
+    if (found) {
+      setMatchedCustomer(found);
+      setCustomerName(found.name);
+      setCustomerEmail(found.email || '');
+      setCustomerAddress(found.address || '');
+      setCustomerGstin(found.gstin || '');
+    } else {
+      setMatchedCustomer(null);
+    }
+  }, [customerPhone, lookupCustomerByPhone]);
 
   if (!isOpen && !completedOrder) return null;
 
@@ -68,7 +114,6 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     discountPercentage: number;
     batch?: typeof item['batches'][0];
   } => {
-    // Find active batch with highest markdown or earliest expiry
     const activeBatches = item.batches
       .filter((b) => b.quantity > 0)
       .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
@@ -153,6 +198,16 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     setCart([]);
   };
 
+  const handleClearCustomer = () => {
+    setCustomerPhone('');
+    setCustomerName('');
+    setCustomerEmail('');
+    setCustomerAddress('');
+    setCustomerGstin('');
+    setMatchedCustomer(null);
+    setShowCustomerForm(false);
+  };
+
   // Calculations
   const subtotal = cart.reduce((acc, curr) => acc + (curr.quantity * curr.item.sellingPrice), 0);
   const totalAfterDiscount = cart.reduce((acc, curr) => acc + curr.total, 0);
@@ -163,7 +218,16 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
   const handleCheckout = () => {
     if (cart.length === 0) return;
 
-    const result = processPOSSale(cart, paymentMethod.toUpperCase());
+    // Prepare customer payload if phone is given
+    const customerPayload = customerPhone.trim() ? {
+      phone: customerPhone.trim(),
+      name: customerName.trim() || 'Valued Customer',
+      email: customerEmail.trim() || undefined,
+      address: customerAddress.trim() || undefined,
+      gstin: customerGstin.trim() || undefined
+    } : null;
+
+    const result = processPOSSale(cart, paymentMethod.toUpperCase(), customerPayload);
     if (result.success) {
       setCompletedOrder({
         orderId: result.orderId,
@@ -172,9 +236,11 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
         discountTotal,
         tax,
         total: grandTotal,
-        paymentMethod: paymentMethod.toUpperCase()
+        paymentMethod: paymentMethod.toUpperCase(),
+        customer: result.customer || null
       });
       setCart([]);
+      handleClearCustomer();
     }
   };
 
@@ -209,12 +275,12 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                   <div>
                     <h2 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
                       Express POS Register
-                      <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {storeName || 'Store Terminal'}
                       </span>
                     </h2>
                     <p className="text-[11px] text-zinc-500">
-                      Click products or search SKU to build order
+                      Select items to build order & link customer by mobile number
                     </p>
                   </div>
                 </div>
@@ -278,46 +344,42 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                         className={`group relative flex flex-col justify-between rounded-xl border p-3 select-none transition-all ${
                           isOutOfStock
                             ? 'border-white/[0.02] bg-zinc-950/20 opacity-40 cursor-not-allowed'
-                            : 'border-white/[0.06] bg-[#121216] hover:border-emerald-500/40 hover:bg-[#16161c] cursor-pointer shadow-sm'
+                            : 'border-white/[0.04] bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-emerald-500/30 active:scale-[0.98] cursor-pointer shadow-sm'
                         }`}
                       >
                         <div>
-                          <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-1">
-                            <span className="truncate font-mono">{item.sku}</span>
-                            {priceInfo.discountPercentage > 0 && (
-                              <span className="font-medium text-amber-400 bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800/40">
-                                -{priceInfo.discountPercentage}% Exp
+                          <div className="flex items-start justify-between gap-1 mb-1">
+                            <span className="text-[10px] text-zinc-500 font-mono truncate max-w-[120px]">
+                              {item.sku}
+                            </span>
+                            {priceInfo.discountPercentage > 0 ? (
+                              <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 border border-amber-500/30">
+                                {priceInfo.discountPercentage}% OFF
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-zinc-500">
+                                {item.currentStock} {item.unit}
                               </span>
                             )}
                           </div>
-
-                          <h4 className="text-xs font-medium text-white line-clamp-2 leading-snug">
+                          <h4 className="text-xs font-semibold text-zinc-100 line-clamp-2 leading-tight">
                             {item.name}
                           </h4>
-                          <span className="text-[10px] text-zinc-400 truncate block mt-0.5">
-                            {item.brand}
-                          </span>
                         </div>
 
-                        <div className="mt-2.5 flex items-end justify-between border-t border-white/[0.04] pt-2">
-                          <div>
-                            <div className="flex items-baseline gap-1.5">
-                              <span className="text-xs font-semibold text-white font-mono">
-                                {formatINR(priceInfo.unitPrice)}
-                              </span>
-                              {priceInfo.discountPercentage > 0 && (
-                                <span className="text-[10px] text-zinc-500 line-through font-mono">
-                                  {formatINR(priceInfo.originalPrice)}
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[10px] text-zinc-500">
-                              {isOutOfStock ? 'Out of stock' : `${item.currentStock} ${item.unit}`}
+                        <div className="mt-3 flex items-baseline justify-between pt-1 border-t border-white/[0.03]">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="font-mono text-sm font-bold text-white">
+                              {formatINR(priceInfo.unitPrice)}
                             </span>
+                            {priceInfo.discountPercentage > 0 && (
+                              <span className="font-mono text-[10px] text-zinc-500 line-through">
+                                {formatINR(priceInfo.originalPrice)}
+                              </span>
+                            )}
                           </div>
-
-                          <span className="flex h-5 w-5 items-center justify-center rounded bg-zinc-800 text-zinc-300 group-hover:bg-emerald-500 group-hover:text-zinc-950 transition-colors">
-                            <Plus className="h-3 w-3" />
+                          <span className="text-[10px] font-medium text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                            + Add
                           </span>
                         </div>
                       </div>
@@ -327,20 +389,23 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
               </div>
             </div>
 
-            {/* RIGHT SIDE: Active Cart & Checkout (Fixed pinned sidebar w-84 to w-96) */}
-            <div className="w-full md:w-84 lg:w-96 shrink-0 flex flex-col bg-[#09090b] h-full overflow-hidden border-t md:border-t-0 md:border-l border-white/[0.06]">
+            {/* RIGHT SIDE: Cart, Customer Lookup, & Checkout (Fixed 380px) */}
+            <div className="w-full md:w-[380px] shrink-0 flex flex-col bg-[#09090c] h-full overflow-hidden">
               {/* Cart Header */}
-              <div className="flex items-center justify-between border-b border-white/[0.06] p-3.5 bg-[#0d0d10] shrink-0">
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3 bg-[#0c0c10] shrink-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">
-                    Cart Items ({cart.reduce((a, c) => a + c.quantity, 0)})
-                  </h3>
+                  <ShoppingCart className="h-4 w-4 text-zinc-400" />
+                  <h3 className="text-xs font-semibold text-white">Active Order</h3>
+                  <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-mono font-medium text-zinc-300">
+                    {cart.reduce((a, c) => a + c.quantity, 0)} items
+                  </span>
                 </div>
+
                 <div className="flex items-center gap-2">
                   {cart.length > 0 && (
                     <button
                       onClick={handleClearCart}
-                      className="text-[11px] text-zinc-500 hover:text-rose-400 transition-colors"
+                      className="text-[11px] text-zinc-400 hover:text-rose-400 transition-colors"
                     >
                       Clear
                     </button>
@@ -351,6 +416,123 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                   >
                     <X className="h-4 w-4" />
                   </button>
+                </div>
+              </div>
+
+              {/* CUSTOMER SEARCH & ENROLLMENT SECTION (Key for Customer Tracking) */}
+              <div className="border-b border-white/[0.06] bg-zinc-950/80 p-3 shrink-0">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="text-[11px] font-semibold text-zinc-200">Customer (Mobile No. Key)</span>
+                  </div>
+                  {matchedCustomer && (
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/50 border border-emerald-800/40 px-1.5 py-0.5 rounded">
+                      <CheckCircle2 className="h-2.5 w-2.5" /> Enrolled ({matchedCustomer.totalOrders} Visits)
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {/* Phone Search Input */}
+                  <div className="relative">
+                    <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+                    <input
+                      type="tel"
+                      placeholder="Enter Customer Mobile No. (e.g. 9876543210)"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      className="w-full rounded-lg border border-white/[0.08] bg-zinc-900 pl-8 pr-7 py-1.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none font-mono"
+                    />
+                    {customerPhone && (
+                      <button
+                        onClick={handleClearCustomer}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Customer Information Preview / Inline Form */}
+                  {customerPhone.trim().length >= 4 && (
+                    <div className="rounded-lg border border-white/[0.06] bg-zinc-900/60 p-2 text-xs space-y-1.5">
+                      {matchedCustomer ? (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-semibold text-zinc-100 flex items-center gap-1.5">
+                              {matchedCustomer.name}
+                              <span className="text-[10px] text-zinc-500 font-mono">({matchedCustomer.phone})</span>
+                            </div>
+                            <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                              Total Spent: <span className="text-emerald-400 font-semibold">{formatINR(matchedCustomer.totalSpent)}</span>
+                              {matchedCustomer.gstin && <span className="ml-2 text-zinc-500">• GST: {matchedCustomer.gstin}</span>}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowCustomerForm(!showCustomerForm)}
+                            className="text-[10px] text-zinc-400 hover:text-zinc-200 underline"
+                          >
+                            {showCustomerForm ? 'Done' : 'Edit'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] text-amber-400 font-medium flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" /> New Customer
+                            </span>
+                            <span className="text-[10px] text-zinc-500">Collect details once</span>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Customer Full Name *"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            className="w-full rounded border border-white/[0.08] bg-zinc-950 px-2 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                          />
+                        </div>
+                      )}
+
+                      {/* Extended Details Dropdown for GSTIN, Address, Email */}
+                      {(showCustomerForm || (!matchedCustomer && customerPhone.trim().length >= 8)) && (
+                        <div className="pt-1.5 border-t border-white/[0.04] space-y-1.5">
+                          {matchedCustomer && (
+                            <input
+                              type="text"
+                              placeholder="Customer Name"
+                              value={customerName}
+                              onChange={(e) => setCustomerName(e.target.value)}
+                              className="w-full rounded border border-white/[0.08] bg-zinc-950 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                            />
+                          )}
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <input
+                              type="text"
+                              placeholder="GSTIN (Optional)"
+                              value={customerGstin}
+                              onChange={(e) => setCustomerGstin(e.target.value.toUpperCase())}
+                              className="w-full rounded border border-white/[0.08] bg-zinc-950 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none font-mono"
+                            />
+                            <input
+                              type="email"
+                              placeholder="Email (Optional)"
+                              value={customerEmail}
+                              onChange={(e) => setCustomerEmail(e.target.value)}
+                              className="w-full rounded border border-white/[0.08] bg-zinc-950 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Billing Address (Optional)"
+                            value={customerAddress}
+                            onChange={(e) => setCustomerAddress(e.target.value)}
+                            className="w-full rounded border border-white/[0.08] bg-zinc-950 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -395,7 +577,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleUpdateQuantity(idx, -1)}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg border border-white/[0.06] bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:scale-95"
+                            className="flex h-6 w-6 items-center justify-center rounded-lg border border-white/[0.06] bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:scale-95 cursor-pointer"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
@@ -405,7 +587,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                           <button
                             onClick={() => handleUpdateQuantity(idx, 1)}
                             disabled={cartItem.quantity >= cartItem.item.currentStock}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg border border-white/[0.06] bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:scale-95 disabled:opacity-40"
+                            className="flex h-6 w-6 items-center justify-center rounded-lg border border-white/[0.06] bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:scale-95 disabled:opacity-40 cursor-pointer"
                           >
                             <Plus className="h-3 w-3" />
                           </button>
@@ -413,7 +595,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
                         <button
                           onClick={() => handleRemoveFromCart(idx)}
-                          className="text-zinc-500 hover:text-rose-400 p-1 transition-colors"
+                          className="text-zinc-500 hover:text-rose-400 p-1 transition-colors cursor-pointer"
                           title="Remove item"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -457,7 +639,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                     <button
                       key={m.id}
                       onClick={() => setPaymentMethod(m.id as any)}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-xl border py-2 text-[11px] font-medium transition-all ${
+                      className={`flex flex-col items-center justify-center gap-1 rounded-xl border py-2 text-[11px] font-medium transition-all cursor-pointer ${
                         paymentMethod === m.id
                           ? 'border-emerald-500/40 bg-emerald-950/40 text-emerald-300 font-semibold'
                           : 'border-white/[0.04] bg-zinc-900/60 text-zinc-500 hover:text-zinc-300'
@@ -475,7 +657,10 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                   className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-xs font-bold text-zinc-900 hover:bg-white active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-lg cursor-pointer"
                 >
                   <Check className="h-4 w-4" />
-                  <span>Charge {formatINR(grandTotal)}</span>
+                  <span>
+                    Charge {formatINR(grandTotal)}
+                    {matchedCustomer ? ` (${matchedCustomer.name.split(' ')[0]})` : customerName.trim() ? ` (${customerName.trim().split(' ')[0]})` : ''}
+                  </span>
                 </button>
               </div>
             </div>
@@ -494,6 +679,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
           tax={completedOrder.tax}
           total={completedOrder.total}
           paymentMethod={completedOrder.paymentMethod}
+          customer={completedOrder.customer}
         />
       )}
     </>

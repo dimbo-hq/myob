@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import { useInventory } from '@/context/InventoryContext';
-import { POSCartItem } from '@/types/inventory';
-import { Printer, CheckCircle2, X, Download, Loader2 } from 'lucide-react';
+import { POSCartItem, Customer } from '@/types/inventory';
+import { Printer, CheckCircle2, X, Download, Loader2, User, Phone, MapPin, ReceiptText } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatINR } from '@/lib/currency';
 import jsPDF from 'jspdf';
@@ -19,6 +19,7 @@ interface ReceiptModalProps {
   tax: number;
   total: number;
   paymentMethod: string;
+  customer?: Customer | null;
 }
 
 // Crisp SVG Barcode that renders in screen, canvas, and print
@@ -68,7 +69,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   discountTotal,
   tax,
   total,
-  paymentMethod
+  paymentMethod,
+  customer
 }) => {
   const { storeName } = useInventory();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -111,7 +113,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [80, 140 + items.length * 8]
+        format: [80, 150 + items.length * 8 + (customer ? 20 : 0)]
       });
 
       pdf.setFont('courier', 'bold');
@@ -124,42 +126,55 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       pdf.text(`Receipt #: ${orderId}`, 5, 22);
       pdf.text(`Date: ${new Date().toLocaleDateString()}`, 5, 27);
       pdf.text(`Payment: ${paymentMethod.toUpperCase()}`, 5, 32);
-      pdf.line(5, 35, 75, 35);
 
-      let y = 41;
+      let currentY = 37;
+      if (customer) {
+        pdf.text(`Customer: ${customer.name}`, 5, currentY);
+        currentY += 4;
+        pdf.text(`Mobile: ${customer.phone}`, 5, currentY);
+        currentY += 4;
+        if (customer.gstin) {
+          pdf.text(`GSTIN: ${customer.gstin}`, 5, currentY);
+          currentY += 4;
+        }
+      }
+
+      pdf.line(5, currentY, 75, currentY);
+      currentY += 5;
+
       items.forEach((ci) => {
         pdf.setFont('courier', 'bold');
-        pdf.text(ci.item.name.substring(0, 22), 5, y);
-        pdf.text(`Rs. ${ci.total.toFixed(2)}`, 75, y, { align: 'right' });
-        y += 4;
+        pdf.text(ci.item.name.substring(0, 22), 5, currentY);
+        pdf.text(`Rs. ${ci.total.toFixed(2)}`, 75, currentY, { align: 'right' });
+        currentY += 4;
         pdf.setFont('courier', 'normal');
-        pdf.text(`${ci.quantity} x Rs. ${ci.unitPrice.toFixed(2)}`, 5, y);
-        y += 5;
+        pdf.text(`${ci.quantity} x Rs. ${ci.unitPrice.toFixed(2)}`, 5, currentY);
+        currentY += 5;
       });
 
-      pdf.line(5, y, 75, y);
-      y += 5;
-      pdf.text(`Subtotal:`, 5, y);
-      pdf.text(`Rs. ${subtotal.toFixed(2)}`, 75, y, { align: 'right' });
-      y += 4;
+      pdf.line(5, currentY, 75, currentY);
+      currentY += 5;
+      pdf.text(`Subtotal:`, 5, currentY);
+      pdf.text(`Rs. ${subtotal.toFixed(2)}`, 75, currentY, { align: 'right' });
+      currentY += 4;
       if (discountTotal > 0) {
-        pdf.text(`Savings:`, 5, y);
-        pdf.text(`-Rs. ${discountTotal.toFixed(2)}`, 75, y, { align: 'right' });
-        y += 4;
+        pdf.text(`Savings:`, 5, currentY);
+        pdf.text(`-Rs. ${discountTotal.toFixed(2)}`, 75, currentY, { align: 'right' });
+        currentY += 4;
       }
-      pdf.text(`GST (5%):`, 5, y);
-      pdf.text(`Rs. ${tax.toFixed(2)}`, 75, y, { align: 'right' });
-      y += 6;
+      pdf.text(`GST (5%):`, 5, currentY);
+      pdf.text(`Rs. ${tax.toFixed(2)}`, 75, currentY, { align: 'right' });
+      currentY += 6;
 
       pdf.setFont('courier', 'bold');
       pdf.setFontSize(11);
-      pdf.text(`TOTAL: Rs. ${total.toFixed(2)}`, 5, y);
-      y += 10;
+      pdf.text(`TOTAL: Rs. ${total.toFixed(2)}`, 5, currentY);
+      currentY += 10;
 
       pdf.setFontSize(8);
       pdf.setFont('courier', 'normal');
-      pdf.text(`* ${orderId} *`, 40, y, { align: 'center' });
-      pdf.text(`Thank you for shopping!`, 40, y + 5, { align: 'center' });
+      pdf.text(`* ${orderId} *`, 40, currentY, { align: 'center' });
+      pdf.text(`Thank you for shopping!`, 40, currentY + 5, { align: 'center' });
 
       pdf.save(`Receipt-${orderId}.pdf`);
     } finally {
@@ -280,7 +295,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             <div className="bg-zinc-900 px-5 py-3.5 text-center text-white font-sans border-b border-zinc-800">
               <div className="flex justify-between items-center mb-1.5">
                 <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Paid in Full
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Tax Invoice / Receipt
                 </span>
                 <button
                   onClick={onClose}
@@ -294,13 +309,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <h2 className="text-base font-black tracking-tight uppercase text-white">{displayName}</h2>
               </div>
               <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
-                myob Retail Intelligence OS
+                Mind Your Own Business (myob)
               </p>
             </div>
 
             {/* Receipt Body */}
             <div className="p-5 text-xs space-y-3 font-mono">
-              {/* Meta info */}
+              {/* Order Meta info */}
               <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 text-slate-600 text-[11px]">
                 <div className="flex justify-between">
                   <span>Receipt #:</span>
@@ -315,13 +330,47 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   <span className="font-bold text-slate-900">{paymentMethod.toUpperCase()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Cashier Terminal:</span>
+                  <span>Terminal:</span>
                   <span>POS-01 (Express Lane)</span>
                 </div>
               </div>
 
+              {/* Customer Information Section (If Provided) */}
+              {customer && (
+                <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 bg-slate-50 p-2 rounded-lg text-slate-700 text-[11px]">
+                  <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-200 pb-1 mb-1">
+                    <span className="flex items-center gap-1">
+                      <User className="h-3 w-3 text-slate-600" /> Billed To:
+                    </span>
+                    <span className="text-emerald-700 font-semibold">{customer.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Mobile No:</span>
+                    <span className="font-semibold text-slate-900">{customer.phone}</span>
+                  </div>
+                  {customer.gstin && (
+                    <div className="flex justify-between">
+                      <span>GSTIN:</span>
+                      <span className="font-mono text-slate-900">{customer.gstin}</span>
+                    </div>
+                  )}
+                  {customer.address && (
+                    <div className="flex justify-between">
+                      <span>Address:</span>
+                      <span className="text-slate-600 truncate max-w-[170px]">{customer.address}</span>
+                    </div>
+                  )}
+                  {customer.totalOrders > 1 && (
+                    <div className="flex justify-between text-[10px] text-emerald-600 font-sans pt-0.5">
+                      <span>Loyalty Visit:</span>
+                      <span>#{customer.totalOrders} order</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Line Items */}
-              <div className="space-y-1.5 border-b border-dashed border-slate-300 pb-2.5 max-h-52 overflow-y-auto">
+              <div className="space-y-1.5 border-b border-dashed border-slate-300 pb-2.5 max-h-48 overflow-y-auto">
                 {items.map((cartItem, idx) => (
                   <div key={idx} className="space-y-0.5 text-xs">
                     <div className="flex justify-between font-bold text-slate-800">
@@ -373,7 +422,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               <div className="text-center pt-1 space-y-1.5 border-t border-dashed border-slate-300">
                 <BarcodeSvg value={orderId} />
                 <p className="text-[10px] text-slate-600 font-sans">
-                  Thank you for shopping at {displayName}!
+                  {customer ? `Thank you for your visit, ${customer.name.split(' ')[0]}!` : `Thank you for shopping at ${displayName}!`}
                 </p>
               </div>
             </div>

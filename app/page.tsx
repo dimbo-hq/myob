@@ -9,6 +9,7 @@ import { DashboardView } from '@/components/dashboard/DashboardView';
 import { InventoryView } from '@/components/inventory/InventoryView';
 import { ExpiryView } from '@/components/expiry/ExpiryView';
 import { ReorderView } from '@/components/reorder/ReorderView';
+import { CustomersView } from '@/components/customers/CustomersView';
 import { AuditView } from '@/components/audit/AuditView';
 import { ExpressPOSModal } from '@/components/pos/ExpressPOSModal';
 import { TimeSimulatorModal } from '@/components/common/TimeSimulatorModal';
@@ -29,12 +30,13 @@ import {
   Package, 
   Clock, 
   Truck, 
+  Users,
   Activity,
   Boxes
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
-type TabKey = 'dashboard' | 'inventory' | 'expiry' | 'reorder' | 'audit';
+type TabKey = 'dashboard' | 'inventory' | 'expiry' | 'reorder' | 'customers' | 'audit';
 
 function AuthenticatedStoreApp() {
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
@@ -48,7 +50,7 @@ function AuthenticatedStoreApp() {
   const [isStoreNameModalOpen, setIsStoreNameModalOpen] = useState(false);
   const [hasPromptedStoreName, setHasPromptedStoreName] = useState(false);
 
-  const { items, summary, storeName, isLoadingData } = useInventory();
+  const { items, customers, summary, storeName, isLoadingData } = useInventory();
 
   // Prompt for store name on first login if not set yet
   useEffect(() => {
@@ -97,6 +99,12 @@ function AuthenticatedStoreApp() {
         : null
     },
     {
+      id: 'customers' as TabKey,
+      label: 'Customers',
+      icon: <Users className="h-3.5 w-3.5" />,
+      badge: customers.length > 0 ? `${customers.length}` : null
+    },
+    {
       id: 'audit' as TabKey,
       label: 'Activity Ledger',
       icon: <Activity className="h-3.5 w-3.5" />,
@@ -118,6 +126,7 @@ function AuthenticatedStoreApp() {
         onOpenImport={() => setIsImportOpen(true)}
         onOpenStoreNameModal={() => setIsStoreNameModalOpen(true)}
         onNavigateExpiry={() => handleTabChange('expiry')}
+        onNavigateCustomers={() => handleTabChange('customers')}
       />
 
       {/* Main Content Area */}
@@ -203,6 +212,8 @@ function AuthenticatedStoreApp() {
                 {activeTab === 'expiry' && <ExpiryView />}
 
                 {activeTab === 'reorder' && <ReorderView />}
+
+                {activeTab === 'customers' && <CustomersView onOpenPOSForCustomer={() => setIsPOSOpen(true)} />}
 
                 {activeTab === 'audit' && <AuditView />}
               </motion.div>

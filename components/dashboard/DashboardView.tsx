@@ -30,7 +30,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Activity,
-  Check
+  Check,
+  Users
 } from 'lucide-react';
 import { StatCard } from '../common/StatCard';
 import { StockStatusBadge } from '../common/Badge';
@@ -51,7 +52,7 @@ import {
 } from 'recharts';
 
 interface DashboardViewProps {
-  onNavigate: (tab: 'inventory' | 'expiry' | 'reorder' | 'audit') => void;
+  onNavigate: (tab: 'inventory' | 'expiry' | 'reorder' | 'customers' | 'audit') => void;
   onOpenPOS: () => void;
   onOpenTimeSimulator: () => void;
   onOpenAddProduct: () => void;
@@ -278,6 +279,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               <span>Express POS</span>
+            </button>
+
+            <button
+              onClick={() => onNavigate('customers')}
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
+            >
+              <Users className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Customers ({summary.totalCustomersCount})</span>
             </button>
 
             <button

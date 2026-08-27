@@ -8,6 +8,7 @@ import {
   PurchaseOrder,
   StockMovement,
   WastageLog,
+  Customer,
   POSCartItem,
   ToastMessage,
   BatchInfo,
@@ -30,6 +31,7 @@ interface InventoryContextType {
   purchaseOrders: PurchaseOrder[];
   stockMovements: StockMovement[];
   wastageLogs: WastageLog[];
+  customers: Customer[];
   storeName: string;
   simulatedDateOffset: number;
   toasts: ToastMessage[];
@@ -38,6 +40,10 @@ interface InventoryContextType {
   
   // Store Settings
   updateStoreName: (name: string) => void;
+  
+  // Customer Operations
+  lookupCustomerByPhone: (phone: string) => Customer | undefined;
+  addOrUpdateCustomer: (customerData: { phone: string; name: string; email?: string; address?: string; gstin?: string; notes?: string }) => Customer;
   
   // Expiry & Status Helpers
   getDaysUntilExpiry: (expiryDateStr: string) => number;
@@ -58,6 +64,7 @@ interface InventoryContextType {
     expiredCount: number;
     atRiskLossValue: number;
     pendingOrdersCount: number;
+    totalCustomersCount: number;
   };
   
   // Item Operations
@@ -87,7 +94,11 @@ interface InventoryContextType {
   autoGenerateReorderPOs: () => number;
   
   // POS & Sales
-  processPOSSale: (cartItems: POSCartItem[], paymentMethod: string) => { success: boolean; orderId: string };
+  processPOSSale: (
+    cartItems: POSCartItem[], 
+    paymentMethod: string,
+    customerInfo?: { phone: string; name?: string; email?: string; address?: string; gstin?: string } | null
+  ) => { success: boolean; orderId: string; customer?: Customer | null };
   
   // Simulator & Utilities
   advanceSimulatedDays: (days: number) => void;
@@ -111,6 +122,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [wastageLogs, setWastageLogs] = useState<WastageLog[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [storeName, setStoreName] = useState<string>('');
   const [simulatedDateOffset, setSimulatedDateOffset] = useState<number>(0);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -169,6 +181,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setPurchaseOrders(cachedData.purchaseOrders || []);
             setStockMovements(cachedData.stockMovements || []);
             setWastageLogs(cachedData.wastageLogs || []);
+            setCustomers(cachedData.customers || []);
             if (cachedData.settings?.storeName) {
               setStoreName(cachedData.settings.storeName);
             }
@@ -185,12 +198,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           const hasDbItems = data.items && data.items.length > 0;
           const hasDbStoreName = data.settings?.storeName && data.settings.storeName.trim() !== '';
 
-          if (hasDbItems || hasDbStoreName) {
+          if (hasDbItems || hasDbStoreName || (data.customers && data.customers.length > 0)) {
             setItems(data.items || []);
             setSuppliers(data.suppliers || []);
             setPurchaseOrders(data.purchaseOrders || []);
             setStockMovements(data.stockMovements || []);
             setWastageLogs(data.wastageLogs || []);
+            setCustomers(data.customers || []);
             if (data.settings?.storeName) {
               setStoreName(data.settings.storeName);
             }
@@ -206,6 +220,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setPurchaseOrders([]);
             setStockMovements([]);
             setWastageLogs([]);
+            setCustomers([]);
             setStoreName('');
           }
         }
@@ -228,6 +243,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       newPOs: PurchaseOrder[],
       newMovements: StockMovement[],
       newWastage: WastageLog[],
+      newCustomers: Customer[],
       currentStoreName: string,
       isExplicitClear?: boolean
     ) => {
@@ -243,6 +259,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         purchaseOrders: newPOs,
         stockMovements: newMovements,
         wastageLogs: newWastage,
+        customers: newCustomers,
         settings: { storeName: currentStoreName }
       });
 
@@ -260,6 +277,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               purchaseOrders: newPOs,
               stockMovements: newMovements,
               wastageLogs: newWastage,
+              customers: newCustomers,
               settings: { storeName: currentStoreName },
               isExplicitClear: isExplicitClear || false
             })
@@ -279,8 +297,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (isLoadingData || !isSignedIn || !isInitialLoadCompleteRef.current || !hasUserMutatedRef.current) {
       return;
     }
-    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, storeName);
-  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
+    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName);
+  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
 
   // Toast Helpers
   const addToast = useCallback((toastData: Omit<ToastMessage, 'id' | 'timestamp'>) => {
@@ -310,6 +328,63 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       message: `Store workspace renamed to "${name}".`
     });
   }, [addToast]);
+
+  // Helper to normalize phone numbers (removes spaces, dashes, country code prefix)
+  const normalizePhone = useCallback((phone: string): string => {
+    return phone.replace(/[^0-9]/g, '').slice(-10);
+  }, []);
+
+  // Customer Lookup By Phone (Key for customer identification)
+  const lookupCustomerByPhone = useCallback((phone: string): Customer | undefined => {
+    const cleanPhone = normalizePhone(phone);
+    if (!cleanPhone || cleanPhone.length < 4) return undefined;
+    return customers.find((c) => {
+      const cPhoneClean = normalizePhone(c.phone);
+      return cPhoneClean === cleanPhone || c.phone.replace(/[^0-9]/g, '').includes(cleanPhone);
+    });
+  }, [customers, normalizePhone]);
+
+  // Add or Update Customer
+  const addOrUpdateCustomer = useCallback((customerData: { phone: string; name: string; email?: string; address?: string; gstin?: string; notes?: string }): Customer => {
+    hasUserMutatedRef.current = true;
+    const cleanPhone = normalizePhone(customerData.phone) || customerData.phone.trim();
+    
+    const existingIdx = customers.findIndex((c) => normalizePhone(c.phone) === cleanPhone);
+    let targetCustomer: Customer;
+
+    if (existingIdx !== -1) {
+      targetCustomer = {
+        ...customers[existingIdx],
+        name: customerData.name || customers[existingIdx].name,
+        email: customerData.email ?? customers[existingIdx].email,
+        address: customerData.address ?? customers[existingIdx].address,
+        gstin: customerData.gstin ?? customers[existingIdx].gstin,
+        notes: customerData.notes ?? customers[existingIdx].notes
+      };
+      setCustomers((prev) => {
+        const next = [...prev];
+        next[existingIdx] = targetCustomer;
+        return next;
+      });
+    } else {
+      targetCustomer = {
+        id: 'cust-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+        phone: customerData.phone.trim(),
+        name: customerData.name.trim(),
+        email: customerData.email?.trim(),
+        address: customerData.address?.trim(),
+        gstin: customerData.gstin?.trim(),
+        totalOrders: 0,
+        totalSpent: 0,
+        loyaltyPoints: 0,
+        createdAt: new Date().toISOString(),
+        notes: customerData.notes?.trim()
+      };
+      setCustomers((prev) => [targetCustomer, ...prev]);
+    }
+
+    return targetCustomer;
+  }, [customers, normalizePhone]);
 
   // Expiry Calculations considering simulated date offset
   const getDaysUntilExpiry = useCallback((expiryDateStr: string): number => {
@@ -414,9 +489,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       expiringSoonCount,
       expiredCount,
       atRiskLossValue: Math.round(atRiskLossValue * 100) / 100,
-      pendingOrdersCount
+      pendingOrdersCount,
+      totalCustomersCount: customers.length
     };
-  }, [items, purchaseOrders, getDaysUntilExpiry]);
+  }, [items, purchaseOrders, customers, getDaysUntilExpiry]);
 
   // Seed sample supermarket data into isolated user workspace in MongoDB
   const seedSampleData = useCallback(async () => {
@@ -467,13 +543,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const clearAllInventory = useCallback(() => {
     hasUserMutatedRef.current = true;
     setItems([]);
-    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, true);
+    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName, true);
     addToast({
       type: 'info',
       title: 'Catalogue Reset',
       message: 'All inventory products have been removed.'
     });
-  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, storeName, syncToMongoDB, addToast]);
+  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName, syncToMongoDB, addToast]);
 
   // Item Actions
   const addItem = useCallback((itemData: Omit<InventoryItem, 'id'>): string => {
@@ -992,14 +1068,60 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return newPOs.length;
   }, [items, suppliers, addToast]);
 
-  // Process POS Sale
-  const processPOSSale = useCallback((cartItems: POSCartItem[], paymentMethod: string): { success: boolean; orderId: string } => {
+  // Process POS Sale with Customer Linkage
+  const processPOSSale = useCallback((
+    cartItems: POSCartItem[], 
+    paymentMethod: string,
+    customerInfo?: { phone: string; name?: string; email?: string; address?: string; gstin?: string } | null
+  ): { success: boolean; orderId: string; customer?: Customer | null } => {
     hasUserMutatedRef.current = true;
-    if (cartItems.length === 0) return { success: false, orderId: '' };
+    if (cartItems.length === 0) return { success: false, orderId: '', customer: null };
 
     const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     const updatedItems = [...items];
     const newMovements: StockMovement[] = [];
+    const totalSaleAmount = cartItems.reduce((acc, ci) => acc + ci.total, 0);
+
+    // Link or Enroll Customer
+    let associatedCustomer: Customer | null = null;
+    if (customerInfo && customerInfo.phone && customerInfo.phone.trim() !== '') {
+      const cleanPhone = normalizePhone(customerInfo.phone) || customerInfo.phone.trim();
+      const existing = customers.find((c) => normalizePhone(c.phone) === cleanPhone || c.phone.trim() === customerInfo.phone.trim());
+
+      if (existing) {
+        associatedCustomer = {
+          ...existing,
+          name: customerInfo.name?.trim() || existing.name,
+          email: customerInfo.email?.trim() ?? existing.email,
+          address: customerInfo.address?.trim() ?? existing.address,
+          gstin: customerInfo.gstin?.trim() ?? existing.gstin,
+          totalOrders: existing.totalOrders + 1,
+          totalSpent: Math.round((existing.totalSpent + totalSaleAmount) * 100) / 100,
+          loyaltyPoints: (existing.loyaltyPoints || 0) + Math.floor(totalSaleAmount / 100),
+          lastPurchaseDate: new Date().toISOString()
+        };
+        setCustomers((prev) => prev.map((c) => c.id === existing.id ? associatedCustomer! : c));
+      } else {
+        associatedCustomer = {
+          id: 'cust-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+          phone: customerInfo.phone.trim(),
+          name: customerInfo.name?.trim() || 'Valued Customer',
+          email: customerInfo.email?.trim(),
+          address: customerInfo.address?.trim(),
+          gstin: customerInfo.gstin?.trim(),
+          totalOrders: 1,
+          totalSpent: Math.round(totalSaleAmount * 100) / 100,
+          loyaltyPoints: Math.floor(totalSaleAmount / 100),
+          createdAt: new Date().toISOString(),
+          lastPurchaseDate: new Date().toISOString()
+        };
+        setCustomers((prev) => [associatedCustomer!, ...prev]);
+      }
+    }
+
+    const customerLabel = associatedCustomer 
+      ? ` (${associatedCustomer.name} • ${associatedCustomer.phone})`
+      : '';
 
     cartItems.forEach((cartItem) => {
       const idx = updatedItems.findIndex((it) => it.id === cartItem.item.id);
@@ -1044,7 +1166,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           previousStock: item.currentStock,
           newStock,
           batchNumber: cartItem.batch?.batchNumber,
-          reason: `POS Sale #${orderId} (${paymentMethod})`,
+          reason: `POS Sale #${orderId} (${paymentMethod})${customerLabel}`,
           performedBy: user?.fullName || 'POS Cashier #1',
           unitCost: item.costPrice,
           financialImpact: cartItem.total
@@ -1058,11 +1180,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     addToast({
       type: 'success',
       title: 'Sale Processed',
-      message: `Receipt #${orderId} completed via ${paymentMethod}. Inventory auto-deducted.`
+      message: `Receipt #${orderId} completed via ${paymentMethod}${associatedCustomer ? ` for ${associatedCustomer.name}` : ''}. Inventory auto-deducted.`
     });
 
-    return { success: true, orderId };
-  }, [items, user, addToast]);
+    return { success: true, orderId, customer: associatedCustomer };
+  }, [items, customers, user, normalizePhone, addToast]);
 
   // Simulator Controls
   const advanceSimulatedDays = useCallback((days: number) => {
@@ -1089,6 +1211,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setPurchaseOrders([]);
     setStockMovements([]);
     setWastageLogs([]);
+    setCustomers([]);
     setSimulatedDateOffset(0);
 
     addToast({
@@ -1106,12 +1229,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         purchaseOrders,
         stockMovements,
         wastageLogs,
+        customers,
         storeName,
         simulatedDateOffset,
         toasts,
         isLoadingData,
         isSyncing,
         updateStoreName,
+        lookupCustomerByPhone,
+        addOrUpdateCustomer,
         getDaysUntilExpiry,
         getEffectiveBatchStatus,
         getItemStatus,
