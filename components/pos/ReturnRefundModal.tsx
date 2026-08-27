@@ -62,8 +62,6 @@ export const ReturnRefundModal: React.FC<ReturnRefundModalProps> = ({
     }
   }, [initialOrderNumber, salesOrders]);
 
-  if (!isOpen) return null;
-
   // Search orders matching query
   const matchingOrders = useMemo(() => {
     const q = orderQuery.toLowerCase().trim();
@@ -153,6 +151,8 @@ export const ReturnRefundModal: React.FC<ReturnRefundModalProps> = ({
       setCompletedRefund(result.refundRecord);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
