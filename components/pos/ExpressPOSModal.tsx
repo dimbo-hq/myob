@@ -401,10 +401,10 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="relative flex h-[92vh] w-full max-w-7xl flex-col lg:flex-row overflow-hidden rounded-2xl border border-white/[0.08] bg-[#09090b] shadow-2xl z-10"
+            className="relative flex h-[94vh] max-h-[920px] w-full max-w-[96vw] xl:max-w-7xl flex-col lg:flex-row overflow-hidden rounded-2xl border border-white/[0.08] bg-[#09090b] shadow-2xl z-10"
           >
             {/* Left Panel: Catalog Browser & Quick Barcode Scanner */}
-            <div className="flex flex-1 flex-col border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[#0c0c0e]">
+            <div className="flex flex-1 flex-col min-w-0 min-h-0 border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[#0c0c0e]">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-white/[0.06] p-3.5 sm:p-4">
                 <div className="flex items-center gap-2.5">
@@ -478,13 +478,13 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
               </div>
 
               {/* Product Grid */}
-              <div className="flex-1 overflow-y-auto p-3.5">
+              <div className="flex-1 overflow-y-auto min-h-0 p-3.5">
                 {filteredItems.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center text-zinc-500">
                     <p className="text-xs">No products match your search.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5">
                     {filteredItems.map((item) => {
                       const priceInfo = getItemEffectivePrice(item);
                       const isOutOfStock = item.currentStock <= 0;
@@ -550,9 +550,9 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
             </div>
 
             {/* Right Panel: POS Cart, Customer Enrollment, Change Return & Split Tender */}
-            <div className="flex w-full lg:w-[420px] xl:w-[460px] flex-col bg-[#09090b] shrink-0">
+            <div className="flex w-full lg:w-[380px] xl:w-[420px] flex-col bg-zinc-950 shrink-0 min-h-0 border-l border-white/[0.06]">
               {/* Customer Linkage / Mobile Fast-Lookup Strip */}
-              <div className="border-b border-white/[0.06] bg-zinc-950 p-3 space-y-2">
+              <div className="border-b border-white/[0.06] bg-zinc-900/70 p-3 space-y-2 shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
                     <User className="h-3.5 w-3.5 text-emerald-400" />
@@ -567,7 +567,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                   {customerPhone && (
                     <button
                       onClick={handleClearCustomer}
-                      className="text-[10px] text-zinc-500 hover:text-zinc-300"
+                      className="text-[10px] text-zinc-500 hover:text-zinc-300 cursor-pointer"
                     >
                       Clear
                     </button>
@@ -582,12 +582,12 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                       placeholder="Customer Mobile No. (e.g. 9876...)"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
-                      className="w-full rounded-lg border border-white/[0.08] bg-zinc-900 pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none font-mono"
+                      className="w-full rounded-lg border border-white/[0.08] bg-zinc-950 pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none font-mono"
                     />
                   </div>
 
                   {matchedCustomer ? (
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2 flex items-center justify-between text-xs">
+                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2 flex items-center justify-between text-xs">
                       <div>
                         <div className="font-semibold text-emerald-300">{matchedCustomer.name}</div>
                         <div className="text-[10px] text-zinc-400">
@@ -603,7 +603,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                         placeholder="Customer Full Name (New Member)"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full rounded-lg border border-white/[0.08] bg-zinc-900 px-2.5 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-white/[0.08] bg-zinc-950 px-2.5 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
                   )}
@@ -611,7 +611,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
               </div>
 
               {/* Cart Items List */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              <div className="flex-1 overflow-y-auto min-h-0 p-3 space-y-2 bg-[#09090b]">
                 {cart.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center text-zinc-500 p-6">
                     <div className="h-12 w-12 rounded-2xl bg-zinc-900 border border-white/[0.06] flex items-center justify-center mb-2.5">
@@ -690,7 +690,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
               </div>
 
               {/* Checkout Controls (Pinned Bottom) */}
-              <div className="border-t border-white/[0.06] bg-[#0c0c10] p-3.5 space-y-3 shrink-0">
+              <div className="border-t border-white/[0.08] bg-zinc-950 p-3.5 space-y-2.5 shrink-0">
                 {/* Financial Breakdown */}
                 <div className="space-y-1 text-xs text-zinc-400">
                   <div className="flex justify-between">
