@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { InventoryProvider, useInventory } from '@/context/InventoryContext';
 import { Show } from '@clerk/nextjs';
 import { LandingPage } from '@/components/landing/LandingPage';
@@ -19,19 +19,28 @@ import { EmptyStoreOnboarding } from '@/components/common/EmptyStoreOnboarding';
 import { ToastContainer } from '@/components/common/ToastContainer';
 import { DashboardSkeleton } from '@/components/common/DashboardSkeleton';
 import { 
+  InventorySkeleton, 
+  ExpirySkeleton, 
+  ReorderSkeleton, 
+  AuditSkeleton 
+} from '@/components/common/TabSkeletons';
+import { 
   BarChart3, 
   Package, 
   Clock, 
   Truck, 
   Activity,
-  Loader2
+  Boxes
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 type TabKey = 'dashboard' | 'inventory' | 'expiry' | 'reorder' | 'audit';
 
 function AuthenticatedStoreApp() {
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
+  const [pendingTab, setPendingTab] = useState<TabKey>('dashboard');
+  const [isPending, startTransition] = useTransition();
+
   const [isPOSOpen, setIsPOSOpen] = useState(false);
   const [isTimeSimOpen, setIsTimeSimOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
@@ -49,6 +58,14 @@ function AuthenticatedStoreApp() {
     }
   }, [isLoadingData, storeName, hasPromptedStoreName]);
 
+  const handleTabChange = (tab: TabKey) => {
+    if (tab === activeTab) return;
+    setPendingTab(tab);
+    startTransition(() => {
+      setActiveTab(tab);
+    });
+  };
+
   const navigationTabs = [
     {
       id: 'dashboard' as TabKey,
@@ -60,23 +77,23 @@ function AuthenticatedStoreApp() {
       id: 'inventory' as TabKey,
       label: 'Inventory Catalogue',
       icon: <Package className="h-3.5 w-3.5" />,
-      badge: summary.totalItemsCount > 0 ? `${summary.totalItemsCount}` : null
+      badge: items.length > 0 ? `${items.length}` : null
     },
     {
       id: 'expiry' as TabKey,
       label: 'Expiry & Markdowns',
       icon: <Clock className="h-3.5 w-3.5" />,
-      badge: summary.expiringSoonCount + summary.expiredCount > 0
-        ? `${summary.expiringSoonCount + summary.expiredCount}`
+      badge: summary.expiringSoonCount + summary.expiredCount > 0 
+        ? `${summary.expiringSoonCount + summary.expiredCount}` 
         : null,
-      isWarning: true
+      isWarning: summary.expiringSoonCount + summary.expiredCount > 0
     },
     {
       id: 'reorder' as TabKey,
       label: 'Replenishment & POs',
       icon: <Truck className="h-3.5 w-3.5" />,
-      badge: summary.outOfStockCount + summary.lowStockCount > 0
-        ? `${summary.outOfStockCount + summary.lowStockCount}`
+      badge: summary.lowStockCount + summary.outOfStockCount > 0 
+        ? `${summary.lowStockCount + summary.outOfStockCount}` 
         : null
     },
     {
@@ -100,7 +117,7 @@ function AuthenticatedStoreApp() {
         onOpenAddProduct={() => setIsAddProductOpen(true)}
         onOpenImport={() => setIsImportOpen(true)}
         onOpenStoreNameModal={() => setIsStoreNameModalOpen(true)}
-        onNavigateExpiry={() => setActiveTab('expiry')}
+        onNavigateExpiry={() => handleTabChange('expiry')}
       />
 
       {/* Main Content Area */}
@@ -114,14 +131,14 @@ function AuthenticatedStoreApp() {
         ) : (
           <>
             {/* Linear-style Segmented Control Bar */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none border-b border-white/[0.06]">
+            <div className="flex items-center gap-1.5 border-b border-white/[0.06] pb-3 overflow-x-auto scrollbar-none">
               {navigationTabs.map((tab) => {
-                const isActive = activeTab === tab.id;
+                const isActive = (isPending ? pendingTab : activeTab) === tab.id;
 
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabChange(tab.id)}
                     className={`relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
                       isActive
                         ? 'text-white'
@@ -158,18 +175,23 @@ function AuthenticatedStoreApp() {
               })}
             </div>
 
-            {/* Tab Views */}
-            <AnimatePresence mode="wait">
+            {/* Tab Views with Instant Transition & Smooth Tab Skeletons */}
+            {isPending ? (
+              pendingTab === 'inventory' ? <InventorySkeleton /> :
+              pendingTab === 'expiry' ? <ExpirySkeleton /> :
+              pendingTab === 'reorder' ? <ReorderSkeleton /> :
+              pendingTab === 'audit' ? <AuditSkeleton /> :
+              <DashboardSkeleton />
+            ) : (
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
               >
                 {activeTab === 'dashboard' && (
                   <DashboardView
-                    onNavigate={(tab) => setActiveTab(tab)}
+                    onNavigate={(tab) => handleTabChange(tab)}
                     onOpenPOS={() => setIsPOSOpen(true)}
                     onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
                     onOpenAddProduct={() => setIsAddProductOpen(true)}
@@ -184,7 +206,7 @@ function AuthenticatedStoreApp() {
 
                 {activeTab === 'audit' && <AuditView />}
               </motion.div>
-            </AnimatePresence>
+            )}
           </>
         )}
       </main>
@@ -223,7 +245,6 @@ function AuthenticatedStoreApp() {
       <StoreNameModal
         isOpen={isStoreNameModalOpen}
         onClose={() => setIsStoreNameModalOpen(false)}
-        isInitialPrompt={!storeName}
       />
 
       <ToastContainer />
@@ -237,7 +258,6 @@ export default function Home() {
       <Show when="signed-out">
         <LandingPage />
       </Show>
-
       <Show when="signed-in">
         <AuthenticatedStoreApp />
       </Show>
