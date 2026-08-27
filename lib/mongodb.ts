@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 
-const uri = process.env.MONGODB_URI || 'mongodb+srv://admin-bimbok:bimbok123@cluster0.1w1cxot.mongodb.net/myob-db?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
 const options = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 4000,
@@ -15,6 +15,11 @@ declare global {
 }
 
 export async function getDatabase(): Promise<Db | null> {
+  if (!uri) {
+    console.warn('⚠️ MONGODB_URI is not set in environment variables.');
+    return null;
+  }
+
   const dbName = process.env.MONGODB_DB || 'myob-db';
 
   try {
