@@ -17,6 +17,7 @@ import { ImportModal } from '@/components/inventory/ImportModal';
 import { StoreNameModal } from '@/components/common/StoreNameModal';
 import { EmptyStoreOnboarding } from '@/components/common/EmptyStoreOnboarding';
 import { ToastContainer } from '@/components/common/ToastContainer';
+import { DashboardSkeleton } from '@/components/common/DashboardSkeleton';
 import { 
   BarChart3, 
   Package, 
@@ -87,12 +88,7 @@ function AuthenticatedStoreApp() {
   ];
 
   if (isLoadingData) {
-    return (
-      <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center text-zinc-500 gap-3">
-        <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
-        <span className="text-xs font-medium">Connecting to isolated MongoDB store...</span>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
