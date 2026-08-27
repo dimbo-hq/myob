@@ -7,7 +7,7 @@ import { Printer, CheckCircle2, X, Download, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatINR } from '@/lib/currency';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -78,13 +78,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
   const displayName = storeName ? storeName.toUpperCase() : 'MYOB STORE';
 
-  // 1. Direct PDF Download with html2canvas + jsPDF
+  // 1. Direct PDF Download with html2canvas-pro (supports Tailwind v4 lab/oklch colors)
   const handleDownloadPDF = async () => {
     if (!receiptRef.current) return;
     setIsGeneratingPDF(true);
 
     try {
-      // Capture only the receipt node with high DPI
+      // Capture only the receipt node
       const canvas = await html2canvas(receiptRef.current, {
         scale: 3,
         useCORS: true,
@@ -105,7 +105,63 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       pdf.addImage(imgData, 'PNG', 0, 2, imgWidth, imgHeight);
       pdf.save(`Receipt-${orderId}.pdf`);
     } catch (error) {
-      console.error('Error generating receipt PDF:', error);
+      console.warn('Canvas PDF export warning, falling back to direct vector PDF:', error);
+
+      // Resilient Vector PDF Fallback
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [80, 140 + items.length * 8]
+      });
+
+      pdf.setFont('courier', 'bold');
+      pdf.setFontSize(14);
+      pdf.text(displayName, 40, 10, { align: 'center' });
+
+      pdf.setFontSize(9);
+      pdf.setFont('courier', 'normal');
+      pdf.text('myob Retail OS', 40, 15, { align: 'center' });
+      pdf.text(`Receipt #: ${orderId}`, 5, 22);
+      pdf.text(`Date: ${new Date().toLocaleDateString()}`, 5, 27);
+      pdf.text(`Payment: ${paymentMethod.toUpperCase()}`, 5, 32);
+      pdf.line(5, 35, 75, 35);
+
+      let y = 41;
+      items.forEach((ci) => {
+        pdf.setFont('courier', 'bold');
+        pdf.text(ci.item.name.substring(0, 22), 5, y);
+        pdf.text(`Rs. ${ci.total.toFixed(2)}`, 75, y, { align: 'right' });
+        y += 4;
+        pdf.setFont('courier', 'normal');
+        pdf.text(`${ci.quantity} x Rs. ${ci.unitPrice.toFixed(2)}`, 5, y);
+        y += 5;
+      });
+
+      pdf.line(5, y, 75, y);
+      y += 5;
+      pdf.text(`Subtotal:`, 5, y);
+      pdf.text(`Rs. ${subtotal.toFixed(2)}`, 75, y, { align: 'right' });
+      y += 4;
+      if (discountTotal > 0) {
+        pdf.text(`Savings:`, 5, y);
+        pdf.text(`-Rs. ${discountTotal.toFixed(2)}`, 75, y, { align: 'right' });
+        y += 4;
+      }
+      pdf.text(`GST (5%):`, 5, y);
+      pdf.text(`Rs. ${tax.toFixed(2)}`, 75, y, { align: 'right' });
+      y += 6;
+
+      pdf.setFont('courier', 'bold');
+      pdf.setFontSize(11);
+      pdf.text(`TOTAL: Rs. ${total.toFixed(2)}`, 5, y);
+      y += 10;
+
+      pdf.setFontSize(8);
+      pdf.setFont('courier', 'normal');
+      pdf.text(`* ${orderId} *`, 40, y, { align: 'center' });
+      pdf.text(`Thank you for shopping!`, 40, y + 5, { align: 'center' });
+
+      pdf.save(`Receipt-${orderId}.pdf`);
     } finally {
       setIsGeneratingPDF(false);
     }
