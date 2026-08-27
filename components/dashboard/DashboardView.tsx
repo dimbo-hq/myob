@@ -24,7 +24,13 @@ import {
   RefreshCw,
   FastForward,
   ChevronRight,
-  TrendingDown
+  TrendingDown,
+  Building2,
+  FileSpreadsheet,
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  Check
 } from 'lucide-react';
 import { StatCard } from '../common/StatCard';
 import { StockStatusBadge } from '../common/Badge';
@@ -51,10 +57,10 @@ interface DashboardViewProps {
   onOpenAddProduct: () => void;
 }
 
-// Department Color Palette for Premium Dark Mode
+// 9 Department Neon Color Mapping
 const DEPARTMENT_COLORS: Record<string, string> = {
   'Fresh Produce': '#10b981', // Emerald
-  'Dairy & Eggs': '#38bdf8', // Sky
+  'Dairy & Eggs': '#38bdf8', // Sky Blue
   'Bakery & Deli': '#f59e0b', // Amber
   'Meat & Seafood': '#f43f5e', // Rose
   'Beverages': '#a855f7', // Purple
@@ -76,11 +82,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     stockMovements,
     applySmartExpiryMarkdowns,
     getDaysUntilExpiry,
-    simulatedDateOffset
+    simulatedDateOffset,
+    storeName
   } = useInventory();
 
   const [pieMetric, setPieMetric] = useState<'value' | 'stock' | 'count'>('value');
-  const [chartView, setChartView] = useState<'breakdown' | 'expiryHorizon' | 'margins'>('breakdown');
+  const [chartView, setChartView] = useState<'breakdown' | 'expiryHorizon' | 'margins' | 'velocity'>('breakdown');
+  const [hasAppliedAI, setHasAppliedAI] = useState(false);
 
   // Urgent expiring items (< 3 days)
   const urgentExpiringItems = useMemo(() => {
@@ -105,9 +113,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       .sort((a, b) => a.currentStock - b.currentStock);
   }, [items]);
 
-  // Category Aggregations for Charts
+  // Department Aggregations
   const departmentChartData = useMemo(() => {
-    const map: Record<string, { name: string; count: number; stock: number; value: number; cost: number; marginTotal: number }> = {};
+    const map: Record<string, { name: string; count: number; stock: number; value: number; cost: number; marginTotal: number; weeklySalesTotal: number }> = {};
     
     items.forEach((i) => {
       if (!map[i.category]) {
@@ -117,13 +125,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           stock: 0,
           value: 0,
           cost: 0,
-          marginTotal: 0
+          marginTotal: 0,
+          weeklySalesTotal: 0
         };
       }
       map[i.category].count += 1;
       map[i.category].stock += i.currentStock;
       map[i.category].value += i.currentStock * i.sellingPrice;
       map[i.category].cost += i.currentStock * i.costPrice;
+      map[i.category].weeklySalesTotal += i.salesVelocity?.weeklySales || Math.round(i.currentStock * 0.2);
       const margin = i.sellingPrice > 0 ? ((i.sellingPrice - i.costPrice) / i.sellingPrice) * 100 : 0;
       map[i.category].marginTotal += margin;
     });
@@ -133,12 +143,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       value: Math.round(d.value),
       stock: d.stock,
       count: d.count,
+      weeklySales: d.weeklySalesTotal,
       avgMargin: d.count > 0 ? Math.round(d.marginTotal / d.count) : 0,
       color: DEPARTMENT_COLORS[d.name] || '#71717a'
     })).sort((a, b) => b.value - a.value);
   }, [items]);
 
-  // Expiry Horizon Distribution
+  // Expiry Horizon Data
   const expiryHorizonData = useMemo(() => {
     let expiredUnits = 0;
     let criticalUnits = 0;
@@ -160,13 +171,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
 
     return [
-      { horizon: 'Expired (<0d)', units: expiredUnits, fill: '#f43f5e' },
-      { horizon: 'Critical (<48h)', units: criticalUnits, fill: '#fb923c' },
-      { horizon: 'Warning (3-7d)', units: warningUnits, fill: '#facc15' },
-      { horizon: 'Optimal (8-30d)', units: safeUnits, fill: '#22d3ee' },
-      { horizon: 'Long Life (>30d)', units: longLifeUnits, fill: '#34d399' }
+      { horizon: 'Expired (<0d)', units: expiredUnits, fill: '#f43f5e', label: 'Expired' },
+      { horizon: 'Critical (<48h)', units: criticalUnits, fill: '#fb923c', label: 'Clearance' },
+      { horizon: 'Warning (3-7d)', units: warningUnits, fill: '#facc15', label: 'Early Markdown' },
+      { horizon: 'Optimal (8-30d)', units: safeUnits, fill: '#22d3ee', label: 'Fresh' },
+      { horizon: 'Long Life (>30d)', units: longLifeUnits, fill: '#34d399', label: 'Stable' }
     ];
   }, [items, getDaysUntilExpiry]);
+
+  // Handle AI Auto Markdown with visual feedback
+  const handleTriggerAIMarkdown = () => {
+    const updatedCount = applySmartExpiryMarkdowns();
+    setHasAppliedAI(true);
+    setTimeout(() => setHasAppliedAI(false), 3000);
+  };
 
   // Stock health ratio
   const inStockPct = summary.totalItemsCount > 0 
@@ -178,7 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="rounded-xl border border-white/10 bg-[#121215]/95 backdrop-blur-md p-3 text-xs shadow-2xl space-y-1.5 min-w-[160px]">
+        <div className="rounded-xl border border-white/10 bg-[#121215]/95 backdrop-blur-md p-3 text-xs shadow-2xl space-y-1.5 min-w-[170px]">
           <div className="flex items-center gap-2 font-semibold text-white">
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: data.color || data.fill }} />
             <span>{data.name || data.horizon}</span>
@@ -214,6 +232,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-amber-400">{data.avgMargin}%</span>
               </div>
             )}
+            {data.weeklySales !== undefined && (
+              <div className="flex justify-between text-zinc-300">
+                <span className="text-zinc-500">Est. Sales:</span>
+                <span className="text-cyan-400">~{data.weeklySales.toLocaleString()} units/wk</span>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -222,8 +246,79 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="space-y-5">
-      {/* 1. TOP KPI STAT STRIP */}
+    <div className="space-y-5 animate-fadeIn">
+      {/* 1. BRAND HERO & STORE COMMAND CENTER HEADER */}
+      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-gradient-to-r from-[#121217] via-[#0f0f14] to-[#14141c] relative overflow-hidden shadow-xl">
+        {/* Subtle background ambient glows */}
+        <div className="absolute top-0 right-1/4 w-96 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-80 h-32 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                <span className="lowercase font-extrabold text-white">myob</span>
+                <span className="text-xs font-mono font-normal text-zinc-400">• Mind Your Own Business</span>
+              </span>
+              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Active Store OS</span>
+              </span>
+            </div>
+            <p className="text-xs text-zinc-400 max-w-2xl">
+              Real-time supermarket intelligence, automated FIFO batch clearance, multi-tenant inventory control & express POS for <span className="font-semibold text-zinc-200">{storeName || 'Your Store'}</span>.
+            </p>
+          </div>
+
+          {/* Quick Action Commands */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={onOpenPOS}
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-2 text-xs font-bold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              <span>Express POS</span>
+            </button>
+
+            <button
+              onClick={onOpenAddProduct}
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5 text-zinc-400" />
+              <span>+ Product</span>
+            </button>
+
+            <button
+              onClick={handleTriggerAIMarkdown}
+              disabled={hasAppliedAI}
+              className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-950/30 px-3 py-2 text-xs font-medium text-amber-400 hover:bg-amber-950/60 active:scale-95 transition-all cursor-pointer"
+            >
+              {hasAppliedAI ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="text-emerald-400">Markdowns Synced!</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="h-3.5 w-3.5 text-amber-400" />
+                  <span>AI Markdowns</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={onOpenTimeSimulator}
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-900/60 px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-all cursor-pointer"
+              title="Fast forward or rewind simulated store calendar"
+            >
+              <FastForward className="h-3.5 w-3.5" />
+              <span>Sim Date ({simulatedDateOffset > 0 ? `+${simulatedDateOffset}d` : 'Today'})</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. TOP 4 KPI STAT STRIP WITH DYNAMIC METRICS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatCard
           title="Total Store Valuation"
@@ -235,14 +330,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <StatCard
           title="Inventory Stock Health"
-          value={`${inStockPct}% Optimal`}
+          value={`${inStockPct}% In-Stock`}
           subtitle={`${summary.outOfStockCount} out of stock • ${summary.lowStockCount} low buffer`}
           trend={summary.outOfStockCount > 0 ? { value: `${summary.outOfStockCount} Stockouts`, isPositive: false } : { value: 'Well Balanced', isPositive: true }}
           onClick={() => onNavigate('reorder')}
         />
 
         <StatCard
-          title="At-Risk Perishable Exposure"
+          title="At-Risk Perishable Value"
           value={formatINR(summary.atRiskLossValue)}
           subtitle={`${summary.expiringSoonCount + summary.expiredCount} batches near or past date`}
           trend={summary.expiringSoonCount > 0 ? { value: 'Markdowns Active', isNeutral: true } : { value: 'Zero Spoilage', isPositive: true }}
@@ -253,44 +348,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           title="Replenishment Orders"
           value={`${summary.pendingOrdersCount} In Transit`}
           subtitle="Loading bay shipment pipeline"
-          trend={{ value: 'Supplier Sync', isPositive: true }}
+          trend={{ value: 'Vendor Active', isPositive: true }}
           onClick={() => onNavigate('reorder')}
         />
       </div>
 
-      {/* 2. INTERACTIVE VISUALIZER HUB */}
-      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-[#0f0f13] space-y-4">
-        {/* Chart Header & Controls */}
+      {/* 3. CENTER INTERACTIVE VISUALIZER HUB */}
+      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-[#0f0f13] space-y-4 shadow-xl">
+        {/* Chart Header & Tab Selectors */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-purple-500/20 border border-emerald-500/30 text-emerald-400">
               <BarChart3 className="h-4 w-4" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
                 Store Analytics & Inventory Visualizer
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">Live Real-Time</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">Real-Time MongoDB</span>
               </h3>
               <p className="text-[11px] text-zinc-400">
-                Multi-dimensional breakdown across departments, asset valuations, and shelf-life horizons
+                Live multi-dimensional analytics across departments, asset valuations, and shelf-life curves
               </p>
             </div>
           </div>
 
-          {/* Tab Selector */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-950/60 p-1">
+          {/* Interactive Visualizer Views */}
+          <div className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-950/60 p-1 overflow-x-auto scrollbar-none">
             {[
               { id: 'breakdown', label: 'Department Share', icon: <PieIcon className="h-3 w-3" /> },
               { id: 'expiryHorizon', label: 'Expiry Horizon', icon: <Calendar className="h-3 w-3" /> },
-              { id: 'margins', label: 'Margin Matrix', icon: <Percent className="h-3 w-3" /> }
+              { id: 'margins', label: 'Gross Margin %', icon: <Percent className="h-3 w-3" /> },
+              { id: 'velocity', label: 'Weekly Velocity', icon: <Activity className="h-3 w-3" /> }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setChartView(tab.id as any)}
-                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
                   chartView === tab.id
-                    ? 'bg-zinc-800 text-white font-semibold shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-zinc-800 text-white font-semibold shadow-sm border border-white/[0.08]'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
                 }`}
               >
                 {tab.icon}
@@ -303,16 +399,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* VIEW 1: Department Donut & Valuation Distribution */}
         {chartView === 'breakdown' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pt-2">
-            {/* Left: Donut Chart with Center KPI */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[260px]">
-              <ResponsiveContainer width="100%" height={260}>
+            {/* Left: Donut Chart with Center KPI HUD */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[270px]">
+              <ResponsiveContainer width="100%" height={270}>
                 <PieChart>
                   <Pie
                     data={departmentChartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={72}
-                    outerRadius={105}
+                    innerRadius={76}
+                    outerRadius={110}
                     paddingAngle={3}
                     dataKey={pieMetric}
                     stroke="#0f0f13"
@@ -326,7 +422,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </PieChart>
               </ResponsiveContainer>
 
-              {/* Center Donut Label */}
+              {/* Center Donut HUD */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                 <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
                   {pieMetric === 'value' ? 'Total Value' : pieMetric === 'stock' ? 'Total Units' : 'Total SKUs'}
@@ -341,14 +437,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-[10px] text-emerald-400 font-medium">{departmentChartData.length} Departments</span>
               </div>
 
-              {/* Metric Toggle */}
-              <div className="flex gap-1 mt-1 rounded-lg border border-white/[0.04] bg-zinc-950/40 p-0.5 text-[11px]">
+              {/* Metric Selector Pills */}
+              <div className="flex gap-1 mt-2 rounded-lg border border-white/[0.04] bg-zinc-950/60 p-0.5 text-[11px]">
                 {(['value', 'stock', 'count'] as const).map((m) => (
                   <button
                     key={m}
                     onClick={() => setPieMetric(m)}
-                    className={`rounded px-2 py-0.5 capitalize transition-all ${
-                      pieMetric === m ? 'bg-zinc-800 text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
+                    className={`rounded px-2.5 py-1 capitalize transition-all cursor-pointer ${
+                      pieMetric === m ? 'bg-zinc-800 text-white font-medium shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
                     {m === 'value' ? '₹ Valuation' : m === 'stock' ? 'Units' : 'SKUs'}
@@ -367,11 +463,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 return (
                   <div
                     key={dept.name}
-                    className="rounded-xl border border-white/[0.04] bg-zinc-900/40 p-2.5 hover:border-white/[0.08] hover:bg-zinc-900/60 transition-all group"
+                    className="rounded-xl border border-white/[0.04] bg-zinc-900/40 p-2.5 hover:border-white/[0.08] hover:bg-zinc-900/60 transition-all group cursor-default"
                   >
                     <div className="flex items-center justify-between text-xs mb-1.5">
                       <div className="flex items-center gap-2 truncate pr-2">
-                        <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: dept.color }} />
+                        <span className="h-2 w-2 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: dept.color }} />
                         <span className="font-medium text-zinc-200 truncate">{dept.name}</span>
                       </div>
                       <span className="font-mono font-semibold text-white">
@@ -397,18 +493,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         )}
 
-        {/* VIEW 2: Expiry Horizon Bar Chart */}
+        {/* VIEW 2: Expiry Horizon Bar Graph */}
         {chartView === 'expiryHorizon' && (
           <div className="space-y-4 pt-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">Perishable Shelf-Life Curve</h4>
-                <p className="text-[11px] text-zinc-500">Distribution of stock units categorized by days remaining to expiry</p>
+                <p className="text-[11px] text-zinc-500">Distribution of store batches grouped by days remaining to expiry</p>
               </div>
 
               <button
-                onClick={() => applySmartExpiryMarkdowns()}
-                className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-all shadow-sm"
+                onClick={handleTriggerAIMarkdown}
+                className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-all shadow-sm cursor-pointer"
               >
                 <Zap className="h-3.5 w-3.5" />
                 <span>Auto-Apply Markdowns</span>
@@ -433,12 +529,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         )}
 
-        {/* VIEW 3: Margin & Profitability Matrix */}
+        {/* VIEW 3: Margin Matrix */}
         {chartView === 'margins' && (
           <div className="space-y-4 pt-2">
             <div>
               <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">Gross Profit Margin Matrix</h4>
-              <p className="text-[11px] text-zinc-500">Average profit markup percentage achieved across each retail department</p>
+              <p className="text-[11px] text-zinc-500">Average profit markup achieved across each supermarket department</p>
             </div>
 
             <div className="h-64 w-full">
@@ -458,12 +554,38 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
         )}
+
+        {/* VIEW 4: Weekly Velocity */}
+        {chartView === 'velocity' && (
+          <div className="space-y-4 pt-2">
+            <div>
+              <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">Department Sales Velocity</h4>
+              <p className="text-[11px] text-zinc-500">Estimated weekly unit consumption and turnover drivers</p>
+            </div>
+
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={departmentChartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                  <XAxis dataKey="name" stroke="#71717a" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                  <RechartsTooltip content={<CustomTooltip />} />
+                  <Bar dataKey="weeklySales" radius={[6, 6, 0, 0]}>
+                    {departmentChartData.map((entry, index) => (
+                      <Cell key={`vel-bar-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 3. OPERATIONAL RADAR & REAL-TIME HUBS */}
+      {/* 4. OPERATIONAL RADARS (PERISHABLE RADAR & REORDER BUFFER) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left: Perishable Expiry Radar */}
-        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08]">
+        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08] shadow-lg">
           <div>
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-3.5">
               <div className="flex items-center gap-2">
@@ -482,7 +604,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <button
                 onClick={() => onNavigate('expiry')}
-                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
               >
                 Clearance Hub →
               </button>
@@ -494,7 +616,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="py-8 text-center text-xs text-zinc-500">
                   <CheckCircle2 className="h-5 w-5 text-emerald-500 mx-auto mb-1.5" />
                   <div className="font-medium text-zinc-300">All Perishables Fresh</div>
-                  <div className="text-zinc-500 text-[11px] mt-0.5">No products expiring in the next 3 days.</div>
+                  <div className="text-zinc-500 text-[11px] mt-0.5">Zero products expiring in the next 3 days.</div>
                 </div>
               ) : (
                 urgentExpiringItems.slice(0, 4).map(({ item, batch, days }, index) => {
@@ -520,7 +642,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0">
                         <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium ${
                           isExp
                             ? 'bg-rose-950/60 text-rose-400 border border-rose-800/40'
@@ -539,7 +661,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3.5 pt-3 border-t border-white/[0.04]">
             <button
               onClick={() => onNavigate('expiry')}
-              className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <span>View Expiry & Markdown Hub</span>
               <ArrowRight className="h-3 w-3" />
@@ -548,7 +670,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Right: Stock Buffer & Replenishment Radar */}
-        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08]">
+        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08] shadow-lg">
           <div>
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-3.5">
               <div className="flex items-center gap-2">
@@ -567,7 +689,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <button
                 onClick={() => onNavigate('reorder')}
-                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+                className="text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
               >
                 Reorder Hub →
               </button>
@@ -615,7 +737,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3.5 pt-3 border-t border-white/[0.04]">
             <button
               onClick={() => onNavigate('reorder')}
-              className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <span>View Supplier Purchase Orders</span>
               <ArrowRight className="h-3 w-3" />
@@ -624,8 +746,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 4. RECENT STORE ACTIVITY & QUICK OPERATOR HUB */}
-      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-[#0f0f13] space-y-3">
+      {/* 5. RECENT STORE ACTIVITY & LIVE STREAM */}
+      <div className="surface-card rounded-2xl p-5 border border-white/[0.08] bg-[#0f0f13] space-y-3 shadow-lg">
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
@@ -633,7 +755,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
             <div>
               <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">
-                Live Store Activity & Audit Trail
+                Live Store Activity & Audit Stream
               </h3>
               <p className="text-[11px] text-zinc-500">Real-time inventory changes, POS checkouts, and adjustments</p>
             </div>
@@ -641,7 +763,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <button
             onClick={() => onNavigate('audit')}
-            className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+            className="text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
           >
             Full Ledger →
           </button>

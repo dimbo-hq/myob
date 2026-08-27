@@ -55,9 +55,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Store className="h-4 w-4" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold tracking-tight text-white lowercase">
-              myob
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold tracking-tight text-white lowercase leading-tight">
+                myob
+              </span>
+              <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest leading-none hidden md:block">
+                Mind Your Own Business
+              </span>
+            </div>
 
             {/* Clickable Store Name */}
             <button

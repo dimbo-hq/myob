@@ -214,7 +214,9 @@ function AuthenticatedStoreApp() {
       {/* Footer */}
       <footer className="border-t border-white/[0.05] py-4 text-center text-xs text-zinc-600">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span className="lowercase font-semibold text-zinc-400">myob <span className="text-zinc-600 font-normal">• Supermarket & Retail OS</span></span>
+          <span className="lowercase font-semibold text-zinc-400">
+            myob <span className="text-zinc-500 font-normal font-sans">• Mind Your Own Business (Retail Intelligence OS)</span>
+          </span>
           <span className="font-mono text-[11px] text-zinc-600">
             {storeName ? `${storeName} • ` : ''}Multi-Tenant Isolated MongoDB Database
           </span>
