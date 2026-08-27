@@ -182,7 +182,53 @@ export type MovementType =
   | 'WASTE_DAMAGED' 
   | 'MARKDOWN_APPLIED' 
   | 'RETURN'
-  | 'INITIAL_COUNT';
+  | 'INITIAL_COUNT'
+  | 'PRODUCT_CREATED'
+  | 'PRODUCT_UPDATED'
+  | 'PRODUCT_DELETED'
+  | 'BULK_IMPORT'
+  | 'PO_CREATED'
+  | 'CUSTOMER_ENROLLED'
+  | 'CUSTOMER_UPDATED';
+
+export interface SalesOrderItem {
+  itemId: string;
+  itemName: string;
+  sku: string;
+  category?: string;
+  quantity: number;
+  unit: UnitType | string;
+  unitPrice: number;
+  originalPrice: number;
+  appliedDiscountPercentage: number;
+  total: number;
+  batchNumber?: string;
+}
+
+export interface SalesOrder {
+  id: string;
+  orderNumber: string; // e.g. "ORD-849201"
+  timestamp: string; // ISO string or human readable
+  customer?: {
+    id?: string;
+    phone: string;
+    name: string;
+    email?: string;
+    address?: string;
+    gstin?: string;
+  } | null;
+  items: SalesOrderItem[];
+  itemCount: number;
+  totalUnits: number;
+  subtotal: number;
+  discountTotal: number;
+  tax: number;
+  total: number;
+  paymentMethod: string; // UPI, CASH, CARD
+  cashierName: string;
+  status: 'completed' | 'refunded' | 'cancelled';
+  notes?: string;
+}
 
 export interface StockMovement {
   id: string;

@@ -9,6 +9,8 @@ import {
   StockMovement,
   WastageLog,
   Customer,
+  SalesOrder,
+  SalesOrderItem,
   POSCartItem,
   ToastMessage,
   BatchInfo,
@@ -32,6 +34,7 @@ interface InventoryContextType {
   stockMovements: StockMovement[];
   wastageLogs: WastageLog[];
   customers: Customer[];
+  salesOrders: SalesOrder[];
   storeName: string;
   simulatedDateOffset: number;
   toasts: ToastMessage[];
@@ -65,6 +68,8 @@ interface InventoryContextType {
     atRiskLossValue: number;
     pendingOrdersCount: number;
     totalCustomersCount: number;
+    totalSalesOrdersCount: number;
+    totalLifetimeRevenue: number;
   };
   
   // Item Operations
@@ -123,6 +128,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [wastageLogs, setWastageLogs] = useState<WastageLog[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([]);
   const [storeName, setStoreName] = useState<string>('');
   const [simulatedDateOffset, setSimulatedDateOffset] = useState<number>(0);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -182,6 +188,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setStockMovements(cachedData.stockMovements || []);
             setWastageLogs(cachedData.wastageLogs || []);
             setCustomers(cachedData.customers || []);
+            setSalesOrders(cachedData.salesOrders || []);
             if (cachedData.settings?.storeName) {
               setStoreName(cachedData.settings.storeName);
             }
@@ -198,13 +205,14 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           const hasDbItems = data.items && data.items.length > 0;
           const hasDbStoreName = data.settings?.storeName && data.settings.storeName.trim() !== '';
 
-          if (hasDbItems || hasDbStoreName || (data.customers && data.customers.length > 0)) {
+          if (hasDbItems || hasDbStoreName || (data.customers && data.customers.length > 0) || (data.salesOrders && data.salesOrders.length > 0)) {
             setItems(data.items || []);
             setSuppliers(data.suppliers || []);
             setPurchaseOrders(data.purchaseOrders || []);
             setStockMovements(data.stockMovements || []);
             setWastageLogs(data.wastageLogs || []);
             setCustomers(data.customers || []);
+            setSalesOrders(data.salesOrders || []);
             if (data.settings?.storeName) {
               setStoreName(data.settings.storeName);
             }
@@ -221,6 +229,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setStockMovements([]);
             setWastageLogs([]);
             setCustomers([]);
+            setSalesOrders([]);
             setStoreName('');
           }
         }
@@ -244,6 +253,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       newMovements: StockMovement[],
       newWastage: WastageLog[],
       newCustomers: Customer[],
+      newSalesOrders: SalesOrder[],
       currentStoreName: string,
       isExplicitClear?: boolean
     ) => {
@@ -260,6 +270,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         stockMovements: newMovements,
         wastageLogs: newWastage,
         customers: newCustomers,
+        salesOrders: newSalesOrders,
         settings: { storeName: currentStoreName }
       });
 
@@ -278,6 +289,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               stockMovements: newMovements,
               wastageLogs: newWastage,
               customers: newCustomers,
+              salesOrders: newSalesOrders,
               settings: { storeName: currentStoreName },
               isExplicitClear: isExplicitClear || false
             })
@@ -297,8 +309,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (isLoadingData || !isSignedIn || !isInitialLoadCompleteRef.current || !hasUserMutatedRef.current) {
       return;
     }
-    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName);
-  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
+    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName);
+  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
 
   // Toast Helpers
   const addToast = useCallback((toastData: Omit<ToastMessage, 'id' | 'timestamp'>) => {
@@ -366,6 +378,23 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         next[existingIdx] = targetCustomer;
         return next;
       });
+
+      const mov: StockMovement = {
+        id: 'mov-' + Math.random().toString(36).substring(2, 9),
+        timestamp: 'Just now',
+        itemId: targetCustomer.id,
+        itemName: targetCustomer.name,
+        sku: targetCustomer.phone,
+        type: 'CUSTOMER_UPDATED',
+        quantityDelta: 0,
+        previousStock: 0,
+        newStock: 0,
+        reason: `Customer profile updated for ${targetCustomer.name} (Phone: ${targetCustomer.phone})`,
+        performedBy: user?.fullName || 'Store Manager',
+        unitCost: 0,
+        financialImpact: 0
+      };
+      setStockMovements((prev) => [mov, ...prev]);
     } else {
       targetCustomer = {
         id: 'cust-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
@@ -381,10 +410,27 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         notes: customerData.notes?.trim()
       };
       setCustomers((prev) => [targetCustomer, ...prev]);
+
+      const mov: StockMovement = {
+        id: 'mov-' + Math.random().toString(36).substring(2, 9),
+        timestamp: 'Just now',
+        itemId: targetCustomer.id,
+        itemName: targetCustomer.name,
+        sku: targetCustomer.phone,
+        type: 'CUSTOMER_ENROLLED',
+        quantityDelta: 0,
+        previousStock: 0,
+        newStock: 0,
+        reason: `New customer enrolled: ${targetCustomer.name} (Phone: ${targetCustomer.phone})`,
+        performedBy: user?.fullName || 'POS Cashier',
+        unitCost: 0,
+        financialImpact: 0
+      };
+      setStockMovements((prev) => [mov, ...prev]);
     }
 
     return targetCustomer;
-  }, [customers, normalizePhone]);
+  }, [customers, user, normalizePhone]);
 
   // Expiry Calculations considering simulated date offset
   const getDaysUntilExpiry = useCallback((expiryDateStr: string): number => {
@@ -477,6 +523,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ['pending', 'sent', 'in-transit'].includes(po.status)
     ).length;
 
+    const totalSalesOrdersCount = salesOrders.length;
+    const totalLifetimeRevenue = Math.round(salesOrders.reduce((a, o) => a + o.total, 0) * 100) / 100;
+
     return {
       totalItemsCount: items.length,
       totalStockUnits,
@@ -490,9 +539,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       expiredCount,
       atRiskLossValue: Math.round(atRiskLossValue * 100) / 100,
       pendingOrdersCount,
-      totalCustomersCount: customers.length
+      totalCustomersCount: customers.length,
+      totalSalesOrdersCount,
+      totalLifetimeRevenue
     };
-  }, [items, purchaseOrders, customers, getDaysUntilExpiry]);
+  }, [items, purchaseOrders, customers, salesOrders, getDaysUntilExpiry]);
 
   // Seed sample supermarket data into isolated user workspace in MongoDB
   const seedSampleData = useCallback(async () => {
@@ -527,7 +578,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         ? `Catalogue Replaced (${newItems.length} Products)`
         : `Spreadsheet Import (${newItems.length} Products Added)`,
       sku: 'BULK-IMPORT',
-      type: 'INITIAL_COUNT',
+      type: 'BULK_IMPORT',
       quantityDelta: newItems.reduce((a, c) => a + c.currentStock, 0),
       previousStock: 0,
       newStock: newItems.reduce((a, c) => a + c.currentStock, 0),
@@ -543,13 +594,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const clearAllInventory = useCallback(() => {
     hasUserMutatedRef.current = true;
     setItems([]);
-    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName, true);
+    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName, true);
     addToast({
       type: 'info',
       title: 'Catalogue Reset',
       message: 'All inventory products have been removed.'
     });
-  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, customers, storeName, syncToMongoDB, addToast]);
+  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName, syncToMongoDB, addToast]);
 
   // Item Actions
   const addItem = useCallback((itemData: Omit<InventoryItem, 'id'>): string => {
@@ -561,24 +612,22 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
     setItems((prev) => [newItem, ...prev]);
 
-    if (newItem.currentStock > 0) {
-      const movement: StockMovement = {
-        id: 'mov-' + Math.random().toString(36).substring(2, 9),
-        timestamp: 'Just now',
-        itemId: id,
-        itemName: newItem.name,
-        sku: newItem.sku,
-        type: 'INITIAL_COUNT',
-        quantityDelta: newItem.currentStock,
-        previousStock: 0,
-        newStock: newItem.currentStock,
-        reason: 'New product creation with initial stock count',
-        performedBy: user?.fullName || 'Store Manager',
-        unitCost: newItem.costPrice,
-        financialImpact: newItem.currentStock * newItem.costPrice
-      };
-      setStockMovements((prev) => [movement, ...prev]);
-    }
+    const movement: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: 'Just now',
+      itemId: id,
+      itemName: newItem.name,
+      sku: newItem.sku,
+      type: 'PRODUCT_CREATED',
+      quantityDelta: newItem.currentStock,
+      previousStock: 0,
+      newStock: newItem.currentStock,
+      reason: `New product '${newItem.name}' added with ${newItem.currentStock} ${newItem.unit} initial stock`,
+      performedBy: user?.fullName || 'Store Manager',
+      unitCost: newItem.costPrice,
+      financialImpact: newItem.currentStock * newItem.costPrice
+    };
+    setStockMovements((prev) => [movement, ...prev]);
 
     addToast({
       type: 'success',
@@ -594,7 +643,26 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setItems((prev) =>
       prev.map((item) => {
         if (item.id === id) {
-          return { ...item, ...updates };
+          const updated = { ...item, ...updates };
+
+          const mov: StockMovement = {
+            id: 'mov-' + Math.random().toString(36).substring(2, 9),
+            timestamp: 'Just now',
+            itemId: id,
+            itemName: updated.name,
+            sku: updated.sku,
+            type: 'PRODUCT_UPDATED',
+            quantityDelta: 0,
+            previousStock: item.currentStock,
+            newStock: updated.currentStock,
+            reason: `Product specs, pricing, or stock parameters modified for '${updated.name}'`,
+            performedBy: user?.fullName || 'Store Manager',
+            unitCost: updated.costPrice,
+            financialImpact: 0
+          };
+          setStockMovements((mPrev) => [mov, ...mPrev]);
+
+          return updated;
         }
         return item;
       })
@@ -605,7 +673,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       title: 'Item Updated',
       message: 'Product specs and stock properties saved.'
     });
-  }, [addToast]);
+  }, [user, addToast]);
 
   const deleteItem = useCallback((id: string) => {
     hasUserMutatedRef.current = true;
@@ -613,12 +681,30 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!itemToDelete) return;
 
     setItems((prev) => prev.filter((i) => i.id !== id));
+
+    const mov: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: 'Just now',
+      itemId: id,
+      itemName: itemToDelete.name,
+      sku: itemToDelete.sku,
+      type: 'PRODUCT_DELETED',
+      quantityDelta: -itemToDelete.currentStock,
+      previousStock: itemToDelete.currentStock,
+      newStock: 0,
+      reason: `Product '${itemToDelete.name}' (${itemToDelete.sku}) deleted from catalogue`,
+      performedBy: user?.fullName || 'Store Manager',
+      unitCost: itemToDelete.costPrice,
+      financialImpact: -(itemToDelete.currentStock * itemToDelete.costPrice)
+    };
+    setStockMovements((prev) => [mov, ...prev]);
+
     addToast({
       type: 'warning',
       title: 'Item Deleted',
       message: `"${itemToDelete.name}" removed from inventory catalogue.`
     });
-  }, [items, addToast]);
+  }, [items, user, addToast]);
 
   // Adjust Stock
   const adjustStock = useCallback((
@@ -876,6 +962,23 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     setPurchaseOrders((prev) => [newPO, ...prev]);
 
+    const mov: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: 'Just now',
+      itemId: id,
+      itemName: `Purchase Order (${poData.supplierName})`,
+      sku: poNum,
+      type: 'PO_CREATED',
+      quantityDelta: poData.items.reduce((a, c) => a + c.orderedQty, 0),
+      previousStock: 0,
+      newStock: 0,
+      reason: `Draft Purchase Order ${poNum} created for ${poData.supplierName} (${poData.items.length} line items)`,
+      performedBy: user?.fullName || 'Procurement Team',
+      unitCost: 0,
+      financialImpact: poData.totalAmount
+    };
+    setStockMovements((prev) => [mov, ...prev]);
+
     addToast({
       type: 'success',
       title: 'Purchase Order Created',
@@ -883,7 +986,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
 
     return id;
-  }, [addToast]);
+  }, [user, addToast]);
 
   const updatePOStatus = useCallback((poId: string, status: POStatus) => {
     hasUserMutatedRef.current = true;
@@ -1068,7 +1171,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return newPOs.length;
   }, [items, suppliers, addToast]);
 
-  // Process POS Sale with Customer Linkage
+  // Process POS Sale with Customer Linkage and Sales Order Generation
   const processPOSSale = useCallback((
     cartItems: POSCartItem[], 
     paymentMethod: string,
@@ -1123,6 +1226,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ? ` (${associatedCustomer.name} • ${associatedCustomer.phone})`
       : '';
 
+    // 1. Deduct Stock & Generate Movement Records
     cartItems.forEach((cartItem) => {
       const idx = updatedItems.findIndex((it) => it.id === cartItem.item.id);
       if (idx !== -1) {
@@ -1174,8 +1278,53 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     });
 
+    // 2. Build Complete Sales Order Transaction Record
+    const orderItems: SalesOrderItem[] = cartItems.map((ci) => ({
+      itemId: ci.item.id,
+      itemName: ci.item.name,
+      sku: ci.item.sku,
+      category: ci.item.category,
+      quantity: ci.quantity,
+      unit: ci.item.unit,
+      unitPrice: ci.unitPrice,
+      originalPrice: ci.item.sellingPrice,
+      appliedDiscountPercentage: ci.appliedDiscountPercentage,
+      total: Math.round(ci.total * 100) / 100,
+      batchNumber: ci.batch?.batchNumber
+    }));
+
+    const grossSubtotal = cartItems.reduce((acc, ci) => acc + (ci.quantity * ci.item.sellingPrice), 0);
+    const totalDiscount = cartItems.reduce((acc, ci) => acc + Math.max(0, (ci.item.sellingPrice - ci.unitPrice) * ci.quantity), 0);
+    const taxAmount = Math.round(totalSaleAmount * 0.05 * 100) / 100;
+    const finalTotal = Math.round((totalSaleAmount + taxAmount) * 100) / 100;
+
+    const newSalesOrder: SalesOrder = {
+      id: orderId,
+      orderNumber: orderId,
+      timestamp: new Date().toISOString(),
+      customer: associatedCustomer ? {
+        id: associatedCustomer.id,
+        phone: associatedCustomer.phone,
+        name: associatedCustomer.name,
+        email: associatedCustomer.email,
+        address: associatedCustomer.address,
+        gstin: associatedCustomer.gstin
+      } : null,
+      items: orderItems,
+      itemCount: cartItems.length,
+      totalUnits: cartItems.reduce((acc, ci) => acc + ci.quantity, 0),
+      subtotal: Math.round(grossSubtotal * 100) / 100,
+      discountTotal: Math.round(totalDiscount * 100) / 100,
+      tax: taxAmount,
+      total: finalTotal,
+      paymentMethod: paymentMethod.toUpperCase(),
+      cashierName: user?.fullName || 'POS Cashier #1',
+      status: 'completed'
+    };
+
     setItems(updatedItems);
     setStockMovements((prev) => [...newMovements, ...prev]);
+    setSalesOrders((prev) => [newSalesOrder, ...prev]);
 
     addToast({
       type: 'success',
@@ -1212,6 +1361,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setStockMovements([]);
     setWastageLogs([]);
     setCustomers([]);
+    setSalesOrders([]);
     setSimulatedDateOffset(0);
 
     addToast({
@@ -1230,6 +1380,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         stockMovements,
         wastageLogs,
         customers,
+        salesOrders,
         storeName,
         simulatedDateOffset,
         toasts,

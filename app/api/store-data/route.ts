@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
         stockMovements: [],
         wastageLogs: [],
         customers: [],
+        salesOrders: [],
         settings: { storeName: '' },
         isOfflineMode: true
       });
@@ -32,16 +33,19 @@ export async function GET(req: NextRequest) {
       db.collection('stock_movements').createIndex({ userId: 1, _id: -1 }),
       db.collection('wastage_logs').createIndex({ userId: 1, _id: -1 }),
       db.collection('customers').createIndex({ userId: 1, phone: 1 }),
+      db.collection('sales_orders').createIndex({ userId: 1, _id: -1 }),
+      db.collection('sales_orders').createIndex({ userId: 1, 'customer.phone': 1 }),
       db.collection('store_settings').createIndex({ userId: 1 })
     ]).catch((err) => console.warn('Index creation notice:', err.message));
 
-    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, settingsDoc] = await Promise.all([
+    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, settingsDoc] = await Promise.all([
       db.collection('inventory_items').find({ userId }).toArray(),
       db.collection('suppliers').find({ userId }).toArray(),
       db.collection('purchase_orders').find({ userId }).toArray(),
-      db.collection('stock_movements').find({ userId }).sort({ _id: -1 }).limit(100).toArray(),
+      db.collection('stock_movements').find({ userId }).sort({ _id: -1 }).limit(200).toArray(),
       db.collection('wastage_logs').find({ userId }).sort({ _id: -1 }).toArray(),
       db.collection('customers').find({ userId }).toArray(),
+      db.collection('sales_orders').find({ userId }).sort({ _id: -1 }).limit(250).toArray(),
       db.collection('store_settings').findOne({ userId })
     ]);
 
@@ -53,6 +57,7 @@ export async function GET(req: NextRequest) {
       stockMovements: stockMovements.map(({ _id, ...rest }) => rest),
       wastageLogs: wastageLogs.map(({ _id, ...rest }) => rest),
       customers: customers.map(({ _id, ...rest }) => rest),
+      salesOrders: salesOrders.map(({ _id, ...rest }) => rest),
       settings: settingsDoc ? { storeName: settingsDoc.storeName || '' } : { storeName: '' }
     });
   } catch (error: any) {
@@ -64,6 +69,7 @@ export async function GET(req: NextRequest) {
       stockMovements: [],
       wastageLogs: [],
       customers: [],
+      salesOrders: [],
       settings: { storeName: '' },
       isOfflineMode: true,
       error: error.message
@@ -86,6 +92,7 @@ export async function POST(req: NextRequest) {
       stockMovements, 
       wastageLogs, 
       customers,
+      salesOrders,
       settings,
       isExplicitClear 
     } = body;
@@ -166,6 +173,16 @@ export async function POST(req: NextRequest) {
         await db.collection('customers').deleteMany({ userId });
         if (customers.length > 0) {
           await db.collection('customers').insertMany(customers.map((c) => ({ ...c, userId })));
+        }
+      }
+    }
+
+    // 8. Sales Orders History Replacement
+    if (salesOrders !== undefined && Array.isArray(salesOrders)) {
+      if (salesOrders.length > 0 || isExplicitClear === true) {
+        await db.collection('sales_orders').deleteMany({ userId });
+        if (salesOrders.length > 0) {
+          await db.collection('sales_orders').insertMany(salesOrders.map((o) => ({ ...o, userId })));
         }
       }
     }
