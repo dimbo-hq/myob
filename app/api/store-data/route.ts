@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
         wastageLogs: [],
         customers: [],
         salesOrders: [],
+        refundRecords: [],
+        zReports: [],
         settings: { storeName: '' },
         isOfflineMode: true
       });
@@ -35,10 +37,12 @@ export async function GET(req: NextRequest) {
       db.collection('customers').createIndex({ userId: 1, phone: 1 }),
       db.collection('sales_orders').createIndex({ userId: 1, _id: -1 }),
       db.collection('sales_orders').createIndex({ userId: 1, 'customer.phone': 1 }),
+      db.collection('refund_records').createIndex({ userId: 1, _id: -1 }),
+      db.collection('z_reports').createIndex({ userId: 1, reportDate: -1 }),
       db.collection('store_settings').createIndex({ userId: 1 })
     ]).catch((err) => console.warn('Index creation notice:', err.message));
 
-    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, settingsDoc] = await Promise.all([
+    const [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, refundRecords, zReports, settingsDoc] = await Promise.all([
       db.collection('inventory_items').find({ userId }).toArray(),
       db.collection('suppliers').find({ userId }).toArray(),
       db.collection('purchase_orders').find({ userId }).toArray(),
@@ -46,6 +50,8 @@ export async function GET(req: NextRequest) {
       db.collection('wastage_logs').find({ userId }).sort({ _id: -1 }).toArray(),
       db.collection('customers').find({ userId }).toArray(),
       db.collection('sales_orders').find({ userId }).sort({ _id: -1 }).limit(250).toArray(),
+      db.collection('refund_records').find({ userId }).sort({ _id: -1 }).limit(100).toArray(),
+      db.collection('z_reports').find({ userId }).sort({ _id: -1 }).limit(60).toArray(),
       db.collection('store_settings').findOne({ userId })
     ]);
 
@@ -58,6 +64,8 @@ export async function GET(req: NextRequest) {
       wastageLogs: wastageLogs.map(({ _id, ...rest }) => rest),
       customers: customers.map(({ _id, ...rest }) => rest),
       salesOrders: salesOrders.map(({ _id, ...rest }) => rest),
+      refundRecords: refundRecords.map(({ _id, ...rest }) => rest),
+      zReports: zReports.map(({ _id, ...rest }) => rest),
       settings: settingsDoc ? { storeName: settingsDoc.storeName || '' } : { storeName: '' }
     });
   } catch (error: any) {
@@ -70,6 +78,8 @@ export async function GET(req: NextRequest) {
       wastageLogs: [],
       customers: [],
       salesOrders: [],
+      refundRecords: [],
+      zReports: [],
       settings: { storeName: '' },
       isOfflineMode: true,
       error: error.message
@@ -93,6 +103,8 @@ export async function POST(req: NextRequest) {
       wastageLogs, 
       customers,
       salesOrders,
+      refundRecords,
+      zReports,
       settings,
       isExplicitClear 
     } = body;
@@ -183,6 +195,26 @@ export async function POST(req: NextRequest) {
         await db.collection('sales_orders').deleteMany({ userId });
         if (salesOrders.length > 0) {
           await db.collection('sales_orders').insertMany(salesOrders.map((o) => ({ ...o, userId })));
+        }
+      }
+    }
+
+    // 9. Refund Records Replacement
+    if (refundRecords !== undefined && Array.isArray(refundRecords)) {
+      if (refundRecords.length > 0 || isExplicitClear === true) {
+        await db.collection('refund_records').deleteMany({ userId });
+        if (refundRecords.length > 0) {
+          await db.collection('refund_records').insertMany(refundRecords.map((r) => ({ ...r, userId })));
+        }
+      }
+    }
+
+    // 10. Z-Reports (Day-Close) Replacement
+    if (zReports !== undefined && Array.isArray(zReports)) {
+      if (zReports.length > 0 || isExplicitClear === true) {
+        await db.collection('z_reports').deleteMany({ userId });
+        if (zReports.length > 0) {
+          await db.collection('z_reports').insertMany(zReports.map((z) => ({ ...z, userId })));
         }
       }
     }

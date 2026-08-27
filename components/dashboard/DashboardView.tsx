@@ -31,7 +31,9 @@ import {
   ArrowDownRight,
   Activity,
   Check,
-  Users
+  Users,
+  Moon,
+  RotateCcw
 } from 'lucide-react';
 import { StatCard } from '../common/StatCard';
 import { StockStatusBadge } from '../common/Badge';
@@ -56,6 +58,8 @@ interface DashboardViewProps {
   onOpenPOS: () => void;
   onOpenTimeSimulator: () => void;
   onOpenAddProduct: () => void;
+  onOpenZReport?: () => void;
+  onOpenReturns?: () => void;
 }
 
 // 9 Department Neon Color Mapping
@@ -75,7 +79,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
   onOpenPOS,
   onOpenTimeSimulator,
-  onOpenAddProduct
+  onOpenAddProduct,
+  onOpenZReport,
+  onOpenReturns
 }) => {
   const {
     items,
@@ -314,6 +320,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </>
               )}
             </button>
+
+            {onOpenReturns && (
+              <button
+                onClick={onOpenReturns}
+                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
+                title="1-Click Return / Refund by Receipt"
+              >
+                <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+                <span>Returns</span>
+              </button>
+            )}
+
+            {onOpenZReport && (
+              <button
+                onClick={onOpenZReport}
+                className="flex items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-950/30 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-950/60 active:scale-95 transition-all cursor-pointer"
+                title="End-of-Day Shift Close & Cash Drawer Reconciliation"
+              >
+                <Moon className="h-3.5 w-3.5 text-indigo-400" />
+                <span>Day Close (Z-Report)</span>
+              </button>
+            )}
 
             <button
               onClick={onOpenTimeSimulator}

@@ -224,9 +224,78 @@ export interface SalesOrder {
   discountTotal: number;
   tax: number;
   total: number;
-  paymentMethod: string; // UPI, CASH, CARD
+  paymentMethod: string; // UPI, CASH, CARD, SPLIT
+  paymentBreakdown?: {
+    cash?: number;
+    upi?: number;
+    card?: number;
+  };
+  cashChange?: {
+    tendered?: number;
+    changeDue?: number;
+  };
   cashierName: string;
-  status: 'completed' | 'refunded' | 'cancelled';
+  status: 'completed' | 'refunded' | 'partially_refunded' | 'cancelled';
+  notes?: string;
+}
+
+export interface RefundItem {
+  itemId: string;
+  itemName: string;
+  sku: string;
+  quantity: number;
+  unit: UnitType | string;
+  unitPrice: number;
+  refundAmount: number;
+  returnToInventory: boolean;
+  batchNumber?: string;
+}
+
+export interface RefundRecord {
+  id: string;
+  refundNumber: string; // e.g. "REF-109283"
+  originalOrderNumber: string;
+  timestamp: string;
+  customer?: {
+    phone: string;
+    name: string;
+    gstin?: string;
+  } | null;
+  items: RefundItem[];
+  totalRefundAmount: number;
+  refundMethod: 'CASH' | 'UPI' | 'STORE_CREDIT' | 'CARD' | string;
+  reason: string;
+  processedBy: string;
+}
+
+export interface ZReportRecord {
+  id: string;
+  reportDate: string; // YYYY-MM-DD
+  generatedAt: string; // ISO string
+  storeName: string;
+  totalOrdersCount: number;
+  totalUnitsSold: number;
+  grossSales: number;
+  totalDiscounts: number;
+  netSales: number;
+  taxCollected: number;
+  grandTotal: number;
+  paymentBreakdown: {
+    cash: number;
+    upi: number;
+    card: number;
+    split: number;
+  };
+  cashDrawer: {
+    openingCash: number;
+    expectedCash: number;
+    countedCash: number;
+    discrepancy: number; // discrepancy = countedCash - expectedCash
+  };
+  refundsCount: number;
+  totalRefundsAmount: number;
+  topSellingItems: { name: string; quantity: number; revenue: number }[];
+  closedBy: string;
   notes?: string;
 }
 

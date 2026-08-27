@@ -19,7 +19,8 @@ import {
   FileSpreadsheet,
   RefreshCw,
   Edit2,
-  Users
+  Users,
+  Moon
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -30,6 +31,8 @@ interface NavbarProps {
   onOpenStoreNameModal: () => void;
   onNavigateExpiry: () => void;
   onNavigateCustomers?: () => void;
+  onOpenZReport?: () => void;
+  onOpenReturns?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -39,7 +42,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenImport,
   onOpenStoreNameModal,
   onNavigateExpiry,
-  onNavigateCustomers
+  onNavigateCustomers,
+  onOpenZReport,
+  onOpenReturns
 }) => {
   const {
     storeName,
@@ -147,10 +152,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
+          {/* Customer Returns & Refunds */}
+          {onOpenReturns && (
+            <button
+              onClick={onOpenReturns}
+              className="hidden lg:flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900/80 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              title="Process Customer Return / Refund"
+            >
+              <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+              <span>Returns</span>
+            </button>
+          )}
+
+          {/* End-of-Day Z-Report */}
+          {onOpenZReport && (
+            <button
+              onClick={onOpenZReport}
+              className="hidden sm:flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-950/40 px-2.5 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/50 hover:text-white transition-all cursor-pointer"
+              title="End-of-Day Shift Close & Cash Reconciliation"
+            >
+              <Moon className="h-3.5 w-3.5 text-indigo-400" />
+              <span className="hidden md:inline">Day Close</span>
+            </button>
+          )}
+
           {/* POS Terminal */}
           <button
             onClick={onOpenPOS}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-900 hover:bg-white active:scale-95 transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-white active:scale-95 transition-all shadow-sm cursor-pointer"
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">POS</span>

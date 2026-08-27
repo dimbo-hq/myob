@@ -11,6 +11,9 @@ import {
   Customer,
   SalesOrder,
   SalesOrderItem,
+  RefundRecord,
+  RefundItem,
+  ZReportRecord,
   POSCartItem,
   ToastMessage,
   BatchInfo,
@@ -35,6 +38,8 @@ interface InventoryContextType {
   wastageLogs: WastageLog[];
   customers: Customer[];
   salesOrders: SalesOrder[];
+  refundRecords: RefundRecord[];
+  zReports: ZReportRecord[];
   storeName: string;
   simulatedDateOffset: number;
   toasts: ToastMessage[];
@@ -70,6 +75,7 @@ interface InventoryContextType {
     totalCustomersCount: number;
     totalSalesOrdersCount: number;
     totalLifetimeRevenue: number;
+    totalRefundsCount: number;
   };
   
   // Item Operations
@@ -102,9 +108,28 @@ interface InventoryContextType {
   processPOSSale: (
     cartItems: POSCartItem[], 
     paymentMethod: string,
-    customerInfo?: { phone: string; name?: string; email?: string; address?: string; gstin?: string } | null
+    customerInfo?: { phone: string; name?: string; email?: string; address?: string; gstin?: string } | null,
+    paymentDetails?: {
+      paymentBreakdown?: { cash?: number; upi?: number; card?: number };
+      cashChange?: { tendered?: number; changeDue?: number };
+    }
   ) => { success: boolean; orderId: string; customer?: Customer | null };
   
+  // Returns & Refunds
+  processOrderReturn: (
+    orderNumber: string,
+    returnedItems: { itemId: string; quantity: number; returnToInventory: boolean; reason: string }[],
+    refundMethod: string,
+    notes?: string
+  ) => { success: boolean; refundRecord: RefundRecord | null };
+  
+  // End-of-Day Z-Report
+  generateZReport: (
+    openingCash: number,
+    countedCash: number,
+    notes?: string
+  ) => ZReportRecord;
+
   // Simulator & Utilities
   advanceSimulatedDays: (days: number) => void;
   resetSimulatedDate: () => void;
@@ -129,6 +154,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [wastageLogs, setWastageLogs] = useState<WastageLog[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([]);
+  const [refundRecords, setRefundRecords] = useState<RefundRecord[]>([]);
+  const [zReports, setZReports] = useState<ZReportRecord[]>([]);
   const [storeName, setStoreName] = useState<string>('');
   const [simulatedDateOffset, setSimulatedDateOffset] = useState<number>(0);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -189,6 +216,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setWastageLogs(cachedData.wastageLogs || []);
             setCustomers(cachedData.customers || []);
             setSalesOrders(cachedData.salesOrders || []);
+            setRefundRecords(cachedData.refundRecords || []);
+            setZReports(cachedData.zReports || []);
             if (cachedData.settings?.storeName) {
               setStoreName(cachedData.settings.storeName);
             }
@@ -213,6 +242,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setWastageLogs(data.wastageLogs || []);
             setCustomers(data.customers || []);
             setSalesOrders(data.salesOrders || []);
+            setRefundRecords(data.refundRecords || []);
+            setZReports(data.zReports || []);
             if (data.settings?.storeName) {
               setStoreName(data.settings.storeName);
             }
@@ -230,6 +261,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setWastageLogs([]);
             setCustomers([]);
             setSalesOrders([]);
+            setRefundRecords([]);
+            setZReports([]);
             setStoreName('');
           }
         }
@@ -254,6 +287,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       newWastage: WastageLog[],
       newCustomers: Customer[],
       newSalesOrders: SalesOrder[],
+      newRefunds: RefundRecord[],
+      newZReports: ZReportRecord[],
       currentStoreName: string,
       isExplicitClear?: boolean
     ) => {
@@ -271,6 +306,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         wastageLogs: newWastage,
         customers: newCustomers,
         salesOrders: newSalesOrders,
+        refundRecords: newRefunds,
+        zReports: newZReports,
         settings: { storeName: currentStoreName }
       });
 
@@ -290,6 +327,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               wastageLogs: newWastage,
               customers: newCustomers,
               salesOrders: newSalesOrders,
+              refundRecords: newRefunds,
+              zReports: newZReports,
               settings: { storeName: currentStoreName },
               isExplicitClear: isExplicitClear || false
             })
@@ -309,8 +348,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (isLoadingData || !isSignedIn || !isInitialLoadCompleteRef.current || !hasUserMutatedRef.current) {
       return;
     }
-    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName);
-  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
+    syncToMongoDB(items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, refundRecords, zReports, storeName);
+  }, [items, suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, refundRecords, zReports, storeName, isLoadingData, isSignedIn, syncToMongoDB]);
 
   // Toast Helpers
   const addToast = useCallback((toastData: Omit<ToastMessage, 'id' | 'timestamp'>) => {
@@ -540,10 +579,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       atRiskLossValue: Math.round(atRiskLossValue * 100) / 100,
       pendingOrdersCount,
       totalCustomersCount: customers.length,
-      totalSalesOrdersCount,
-      totalLifetimeRevenue
+      totalSalesOrdersCount: salesOrders.length,
+      totalLifetimeRevenue,
+      totalRefundsCount: refundRecords.length
     };
-  }, [items, purchaseOrders, customers, salesOrders, getDaysUntilExpiry]);
+  }, [items, purchaseOrders, customers, salesOrders, refundRecords, getDaysUntilExpiry]);
 
   // Seed sample supermarket data into isolated user workspace in MongoDB
   const seedSampleData = useCallback(async () => {
@@ -594,13 +634,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const clearAllInventory = useCallback(() => {
     hasUserMutatedRef.current = true;
     setItems([]);
-    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName, true);
+    syncToMongoDB([], suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, refundRecords, zReports, storeName, true);
     addToast({
       type: 'info',
       title: 'Catalogue Reset',
       message: 'All inventory products have been removed.'
     });
-  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, storeName, syncToMongoDB, addToast]);
+  }, [suppliers, purchaseOrders, stockMovements, wastageLogs, customers, salesOrders, refundRecords, zReports, storeName, syncToMongoDB, addToast]);
 
   // Item Actions
   const addItem = useCallback((itemData: Omit<InventoryItem, 'id'>): string => {
@@ -1171,11 +1211,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return newPOs.length;
   }, [items, suppliers, addToast]);
 
-  // Process POS Sale with Customer Linkage and Sales Order Generation
+  // Process POS Sale with Customer Linkage, Split/Cash Tender and Sales Order Generation
   const processPOSSale = useCallback((
     cartItems: POSCartItem[], 
     paymentMethod: string,
-    customerInfo?: { phone: string; name?: string; email?: string; address?: string; gstin?: string } | null
+    customerInfo?: { phone: string; name?: string; email?: string; address?: string; gstin?: string } | null,
+    paymentDetails?: {
+      paymentBreakdown?: { cash?: number; upi?: number; card?: number };
+      cashChange?: { tendered?: number; changeDue?: number };
+    }
   ): { success: boolean; orderId: string; customer?: Customer | null } => {
     hasUserMutatedRef.current = true;
     if (cartItems.length === 0) return { success: false, orderId: '', customer: null };
@@ -1226,12 +1270,12 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ? ` (${associatedCustomer.name} • ${associatedCustomer.phone})`
       : '';
 
-    // 1. Deduct Stock & Generate Movement Records
+    // 1. Deduct Stock & Generate Movement Records (Supports Decimal Quantities)
     cartItems.forEach((cartItem) => {
       const idx = updatedItems.findIndex((it) => it.id === cartItem.item.id);
       if (idx !== -1) {
         const item = updatedItems[idx];
-        const newStock = Math.max(0, item.currentStock - cartItem.quantity);
+        const newStock = Math.max(0, Math.round((item.currentStock - cartItem.quantity) * 1000) / 1000);
 
         let remainingQtyToDeduct = cartItem.quantity;
         const updatedBatches = item.batches.map((b) => {
@@ -1239,11 +1283,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (cartItem.batch && b.id === cartItem.batch.id) {
             const deduct = Math.min(b.quantity, remainingQtyToDeduct);
             remainingQtyToDeduct -= deduct;
-            return { ...b, quantity: Math.max(0, b.quantity - deduct) };
+            return { ...b, quantity: Math.max(0, Math.round((b.quantity - deduct) * 1000) / 1000) };
           } else if (!cartItem.batch && b.quantity > 0) {
             const deduct = Math.min(b.quantity, remainingQtyToDeduct);
             remainingQtyToDeduct -= deduct;
-            return { ...b, quantity: Math.max(0, b.quantity - deduct) };
+            return { ...b, quantity: Math.max(0, Math.round((b.quantity - deduct) * 1000) / 1000) };
           }
           return b;
         });
@@ -1312,12 +1356,14 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       } : null,
       items: orderItems,
       itemCount: cartItems.length,
-      totalUnits: cartItems.reduce((acc, ci) => acc + ci.quantity, 0),
+      totalUnits: Math.round(cartItems.reduce((acc, ci) => acc + ci.quantity, 0) * 100) / 100,
       subtotal: Math.round(grossSubtotal * 100) / 100,
       discountTotal: Math.round(totalDiscount * 100) / 100,
       tax: taxAmount,
       total: finalTotal,
       paymentMethod: paymentMethod.toUpperCase(),
+      paymentBreakdown: paymentDetails?.paymentBreakdown,
+      cashChange: paymentDetails?.cashChange,
       cashierName: user?.fullName || 'POS Cashier #1',
       status: 'completed'
     };
@@ -1334,6 +1380,341 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     return { success: true, orderId, customer: associatedCustomer };
   }, [items, customers, user, normalizePhone, addToast]);
+
+  // Process Item Return & Refund by Receipt ID
+  const processOrderReturn = useCallback((
+    orderNumber: string,
+    returnedItems: { itemId: string; quantity: number; returnToInventory: boolean; reason: string }[],
+    refundMethod: string,
+    notes?: string
+  ): { success: boolean; refundRecord: RefundRecord | null } => {
+    hasUserMutatedRef.current = true;
+    const orderIndex = salesOrders.findIndex((o) => o.orderNumber === orderNumber);
+    if (orderIndex === -1) {
+      addToast({
+        type: 'warning',
+        title: 'Order Not Found',
+        message: `Receipt #${orderNumber} could not be located in records.`
+      });
+      return { success: false, refundRecord: null };
+    }
+
+    const order = salesOrders[orderIndex];
+    let totalRefundAmount = 0;
+    const refundItemsList: RefundItem[] = [];
+    const newMovements: StockMovement[] = [];
+    const newWastage: WastageLog[] = [];
+    const updatedItems = [...items];
+
+    returnedItems.forEach((ret) => {
+      const orderItem = order.items.find((i) => i.itemId === ret.itemId);
+      if (!orderItem || ret.quantity <= 0) return;
+
+      const itemRefund = Math.round(orderItem.unitPrice * ret.quantity * 100) / 100;
+      totalRefundAmount += itemRefund;
+
+      refundItemsList.push({
+        itemId: ret.itemId,
+        itemName: orderItem.itemName,
+        sku: orderItem.sku,
+        quantity: ret.quantity,
+        unit: orderItem.unit,
+        unitPrice: orderItem.unitPrice,
+        refundAmount: itemRefund,
+        returnToInventory: ret.returnToInventory,
+        batchNumber: orderItem.batchNumber
+      });
+
+      const invItemIndex = updatedItems.findIndex((it) => it.id === ret.itemId);
+      if (invItemIndex !== -1) {
+        const invItem = updatedItems[invItemIndex];
+
+        if (ret.returnToInventory) {
+          // Restock to inventory
+          const newStock = Math.round((invItem.currentStock + ret.quantity) * 1000) / 1000;
+          let updatedBatches = [...invItem.batches];
+          if (orderItem.batchNumber && updatedBatches.some((b) => b.batchNumber === orderItem.batchNumber)) {
+            updatedBatches = updatedBatches.map((b) =>
+              b.batchNumber === orderItem.batchNumber
+                ? { ...b, quantity: Math.round((b.quantity + ret.quantity) * 1000) / 1000 }
+                : b
+            );
+          } else {
+            // Add restock batch
+            updatedBatches = [
+              {
+                id: 'b-ret-' + Math.random().toString(36).substring(2, 7),
+                batchNumber: orderItem.batchNumber || 'RESTOCK-' + Date.now().toString().slice(-4),
+                quantity: ret.quantity,
+                expiryDate: getRelativeDate(30),
+                costPrice: invItem.costPrice,
+                markdownPercentage: 0,
+                status: 'safe'
+              },
+              ...updatedBatches
+            ];
+          }
+
+          updatedItems[invItemIndex] = {
+            ...invItem,
+            currentStock: newStock,
+            batches: updatedBatches
+          };
+
+          newMovements.push({
+            id: 'mov-' + Math.random().toString(36).substring(2, 9),
+            timestamp: new Date().toISOString(),
+            itemId: invItem.id,
+            itemName: invItem.name,
+            sku: invItem.sku,
+            type: 'RETURN',
+            quantityDelta: ret.quantity,
+            previousStock: invItem.currentStock,
+            newStock,
+            batchNumber: orderItem.batchNumber,
+            reason: `Customer Return for #${orderNumber}: ${ret.reason} (Restocked)`,
+            performedBy: user?.fullName || 'POS Supervisor',
+            unitCost: invItem.costPrice,
+            financialImpact: -itemRefund
+          });
+        } else {
+          // Damaged/Defective item -> Log to Wastage
+          const wastageEntry: WastageLog = {
+            id: 'wst-ret-' + Math.random().toString(36).substring(2, 9),
+            timestamp: new Date().toISOString(),
+            itemId: invItem.id,
+            itemName: invItem.name,
+            sku: invItem.sku,
+            batchNumber: orderItem.batchNumber || 'DEFECT-RET',
+            quantity: ret.quantity,
+            unit: (invItem.unit as any) || 'pcs',
+            reason: 'damaged',
+            unitCost: invItem.costPrice,
+            totalLoss: Math.round(ret.quantity * invItem.costPrice * 100) / 100,
+            disposalMethod: 'supplier_claim',
+            recordedBy: user?.fullName || 'POS Supervisor',
+            notes: `Returned from Order #${orderNumber} (Defective/Damaged: ${ret.reason})`
+          };
+          newWastage.push(wastageEntry);
+
+          newMovements.push({
+            id: 'mov-' + Math.random().toString(36).substring(2, 9),
+            timestamp: new Date().toISOString(),
+            itemId: invItem.id,
+            itemName: invItem.name,
+            sku: invItem.sku,
+            type: 'WASTE_DAMAGED',
+            quantityDelta: 0,
+            previousStock: invItem.currentStock,
+            newStock: invItem.currentStock,
+            batchNumber: orderItem.batchNumber,
+            reason: `Customer Return #${orderNumber} Defect Write-off (${ret.reason})`,
+            performedBy: user?.fullName || 'POS Supervisor',
+            unitCost: invItem.costPrice,
+            financialImpact: -itemRefund
+          });
+        }
+      }
+    });
+
+    if (refundItemsList.length === 0) {
+      addToast({
+        type: 'warning',
+        title: 'No Items Selected',
+        message: 'Please specify items and quantities to return.'
+      });
+      return { success: false, refundRecord: null };
+    }
+
+    // Add tax (5%) to refund amount
+    const taxRefund = Math.round(totalRefundAmount * 0.05 * 100) / 100;
+    const finalRefundTotal = Math.round((totalRefundAmount + taxRefund) * 100) / 100;
+
+    const refNum = `REF-${Math.floor(100000 + Math.random() * 900000)}`;
+    const newRefundRecord: RefundRecord = {
+      id: 'ref-' + Date.now(),
+      refundNumber: refNum,
+      originalOrderNumber: orderNumber,
+      timestamp: new Date().toISOString(),
+      customer: order.customer ? {
+        phone: order.customer.phone,
+        name: order.customer.name,
+        gstin: order.customer.gstin
+      } : null,
+      items: refundItemsList,
+      totalRefundAmount: finalRefundTotal,
+      refundMethod,
+      reason: notes || 'Customer Item Return',
+      processedBy: user?.fullName || 'POS Supervisor'
+    };
+
+    // Update original order status
+    const totalReturnedUnits = refundItemsList.reduce((a, c) => a + c.quantity, 0);
+    const orderTotalUnits = order.totalUnits;
+    const newStatus = totalReturnedUnits >= orderTotalUnits ? 'refunded' : 'partially_refunded';
+
+    setSalesOrders((prev) =>
+      prev.map((o) =>
+        o.orderNumber === orderNumber
+          ? { ...o, status: newStatus, notes: (o.notes ? o.notes + ' | ' : '') + `Refund ${refNum} (${refundMethod})` }
+          : o
+      )
+    );
+
+    setItems(updatedItems);
+    if (newWastage.length > 0) setWastageLogs((prev) => [...newWastage, ...prev]);
+    setStockMovements((prev) => [...newMovements, ...prev]);
+    setRefundRecords((prev) => [newRefundRecord, ...prev]);
+
+    // Adjust customer metrics if applicable
+    if (order.customer?.phone) {
+      const cleanPhone = normalizePhone(order.customer.phone);
+      setCustomers((prev) =>
+        prev.map((c) =>
+          normalizePhone(c.phone) === cleanPhone
+            ? { ...c, totalSpent: Math.max(0, Math.round((c.totalSpent - finalRefundTotal) * 100) / 100) }
+            : c
+        )
+      );
+    }
+
+    addToast({
+      type: 'info',
+      title: 'Return Processed',
+      message: `Refund #${refNum} processed for ₹${finalRefundTotal.toFixed(2)} via ${refundMethod}.`
+    });
+
+    return { success: true, refundRecord: newRefundRecord };
+  }, [salesOrders, items, user, normalizePhone, addToast]);
+
+  // Generate End-of-Day Z-Report Shift Reconciliation
+  const generateZReport = useCallback((
+    openingCash: number,
+    countedCash: number,
+    notes?: string
+  ): ZReportRecord => {
+    hasUserMutatedRef.current = true;
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    // Filter today's completed orders
+    const todayOrders = salesOrders.filter((o) => {
+      const oDate = o.timestamp ? o.timestamp.slice(0, 10) : '';
+      return oDate === todayStr && o.status !== 'cancelled';
+    });
+
+    const totalOrdersCount = todayOrders.length;
+    const totalUnitsSold = todayOrders.reduce((a, o) => a + o.totalUnits, 0);
+    const grossSales = todayOrders.reduce((a, o) => a + o.subtotal, 0);
+    const totalDiscounts = todayOrders.reduce((a, o) => a + o.discountTotal, 0);
+    const taxCollected = todayOrders.reduce((a, o) => a + o.tax, 0);
+    const grandTotal = todayOrders.reduce((a, o) => a + o.total, 0);
+    const netSales = grossSales - totalDiscounts;
+
+    // Payment breakdown
+    let cashSales = 0;
+    let upiSales = 0;
+    let cardSales = 0;
+    let splitSales = 0;
+
+    todayOrders.forEach((o) => {
+      if (o.paymentMethod === 'CASH') cashSales += o.total;
+      else if (o.paymentMethod === 'UPI') upiSales += o.total;
+      else if (o.paymentMethod === 'CARD') cardSales += o.total;
+      else if (o.paymentMethod === 'SPLIT' && o.paymentBreakdown) {
+        cashSales += o.paymentBreakdown.cash || 0;
+        upiSales += o.paymentBreakdown.upi || 0;
+        cardSales += o.paymentBreakdown.card || 0;
+        splitSales += o.total;
+      } else {
+        cashSales += o.total;
+      }
+    });
+
+    // Today's refunds
+    const todayRefunds = refundRecords.filter((r) => r.timestamp.slice(0, 10) === todayStr);
+    const refundsCount = todayRefunds.length;
+    const totalRefundsAmount = todayRefunds.reduce((a, r) => a + r.totalRefundAmount, 0);
+    const cashRefunds = todayRefunds
+      .filter((r) => r.refundMethod === 'CASH')
+      .reduce((a, r) => a + r.totalRefundAmount, 0);
+
+    const expectedCash = Math.round((openingCash + cashSales - cashRefunds) * 100) / 100;
+    const discrepancy = Math.round((countedCash - expectedCash) * 100) / 100;
+
+    // Top selling items
+    const itemMap: Record<string, { name: string; quantity: number; revenue: number }> = {};
+    todayOrders.forEach((o) => {
+      o.items.forEach((it) => {
+        if (!itemMap[it.itemId]) {
+          itemMap[it.itemId] = { name: it.itemName, quantity: 0, revenue: 0 };
+        }
+        itemMap[it.itemId].quantity += it.quantity;
+        itemMap[it.itemId].revenue += it.total;
+      });
+    });
+
+    const topSellingItems = Object.values(itemMap)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    const zRecord: ZReportRecord = {
+      id: 'zrep-' + Date.now(),
+      reportDate: todayStr,
+      generatedAt: new Date().toISOString(),
+      storeName: storeName || 'Supermarket POS',
+      totalOrdersCount,
+      totalUnitsSold,
+      grossSales: Math.round(grossSales * 100) / 100,
+      totalDiscounts: Math.round(totalDiscounts * 100) / 100,
+      netSales: Math.round(netSales * 100) / 100,
+      taxCollected: Math.round(taxCollected * 100) / 100,
+      grandTotal: Math.round(grandTotal * 100) / 100,
+      paymentBreakdown: {
+        cash: Math.round(cashSales * 100) / 100,
+        upi: Math.round(upiSales * 100) / 100,
+        card: Math.round(cardSales * 100) / 100,
+        split: Math.round(splitSales * 100) / 100
+      },
+      cashDrawer: {
+        openingCash,
+        expectedCash,
+        countedCash,
+        discrepancy
+      },
+      refundsCount,
+      totalRefundsAmount: Math.round(totalRefundsAmount * 100) / 100,
+      topSellingItems,
+      closedBy: user?.fullName || 'Store Manager',
+      notes
+    };
+
+    setZReports((prev) => [zRecord, ...prev]);
+
+    const mov: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: new Date().toISOString(),
+      itemId: zRecord.id,
+      itemName: `Register Day Close (Z-Report)`,
+      sku: todayStr,
+      type: 'ADJUSTMENT',
+      quantityDelta: 0,
+      previousStock: 0,
+      newStock: 0,
+      reason: `Day-End Z-Report generated: Total Sales ₹${grandTotal.toFixed(2)}, Cash Discrepancy ₹${discrepancy >= 0 ? '+' : ''}${discrepancy.toFixed(2)}`,
+      performedBy: user?.fullName || 'Store Manager',
+      unitCost: 0,
+      financialImpact: grandTotal
+    };
+    setStockMovements((prev) => [mov, ...prev]);
+
+    addToast({
+      type: discrepancy === 0 ? 'success' : discrepancy > 0 ? 'info' : 'warning',
+      title: 'Day Close Z-Report Saved',
+      message: `Shift closed. Register ${discrepancy === 0 ? 'Perfect Balanced' : discrepancy > 0 ? `Over by ₹${discrepancy}` : `Short by ₹${Math.abs(discrepancy)}`}.`
+    });
+
+    return zRecord;
+  }, [salesOrders, refundRecords, storeName, user, addToast]);
 
   // Simulator Controls
   const advanceSimulatedDays = useCallback((days: number) => {
@@ -1362,6 +1743,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setWastageLogs([]);
     setCustomers([]);
     setSalesOrders([]);
+    setRefundRecords([]);
+    setZReports([]);
     setSimulatedDateOffset(0);
 
     addToast({
@@ -1381,6 +1764,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         wastageLogs,
         customers,
         salesOrders,
+        refundRecords,
+        zReports,
         storeName,
         simulatedDateOffset,
         toasts,
@@ -1407,6 +1792,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         receivePurchaseOrder,
         autoGenerateReorderPOs,
         processPOSSale,
+        processOrderReturn,
+        generateZReport,
         advanceSimulatedDays,
         resetSimulatedDate,
         resetToDemoData,

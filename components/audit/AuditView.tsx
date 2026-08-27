@@ -82,6 +82,7 @@ export const AuditView: React.FC = () => {
     { id: 'PRODUCT_DELETED', label: 'Product Deletions' },
     { id: 'RESTOCK', label: 'Restocks & Receipts' },
     { id: 'PO_CREATED', label: 'Purchase Orders' },
+    { id: 'RETURN', label: 'Returns & Refunds' },
     { id: 'ADJUSTMENT', label: 'Cycle Count Audits' },
     { id: 'MARKDOWN_APPLIED', label: 'AI Markdowns' },
     { id: 'WASTE_EXPIRED', label: 'Wastage Disposals' },
@@ -256,6 +257,8 @@ export const AuditView: React.FC = () => {
         return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Restock / GRN</span>;
       case 'PO_CREATED':
         return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">PO Created</span>;
+      case 'RETURN':
+        return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">Refund / Return</span>;
       case 'MARKDOWN_APPLIED':
         return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">AI Markdown</span>;
       case 'WASTE_EXPIRED':

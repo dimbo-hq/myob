@@ -12,6 +12,8 @@ import { ReorderView } from '@/components/reorder/ReorderView';
 import { CustomersView } from '@/components/customers/CustomersView';
 import { AuditView } from '@/components/audit/AuditView';
 import { ExpressPOSModal } from '@/components/pos/ExpressPOSModal';
+import { ReturnRefundModal } from '@/components/pos/ReturnRefundModal';
+import { ZReportModal } from '@/components/dashboard/ZReportModal';
 import { TimeSimulatorModal } from '@/components/common/TimeSimulatorModal';
 import { AddEditItemModal } from '@/components/inventory/AddEditItemModal';
 import { ImportModal } from '@/components/inventory/ImportModal';
@@ -44,6 +46,8 @@ function AuthenticatedStoreApp() {
   const [isPending, startTransition] = useTransition();
 
   const [isPOSOpen, setIsPOSOpen] = useState(false);
+  const [isReturnsOpen, setIsReturnsOpen] = useState(false);
+  const [isZReportOpen, setIsZReportOpen] = useState(false);
   const [isTimeSimOpen, setIsTimeSimOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -127,6 +131,8 @@ function AuthenticatedStoreApp() {
         onOpenStoreNameModal={() => setIsStoreNameModalOpen(true)}
         onNavigateExpiry={() => handleTabChange('expiry')}
         onNavigateCustomers={() => handleTabChange('customers')}
+        onOpenZReport={() => setIsZReportOpen(true)}
+        onOpenReturns={() => setIsReturnsOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -204,6 +210,8 @@ function AuthenticatedStoreApp() {
                     onOpenPOS={() => setIsPOSOpen(true)}
                     onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
                     onOpenAddProduct={() => setIsAddProductOpen(true)}
+                    onOpenZReport={() => setIsZReportOpen(true)}
+                    onOpenReturns={() => setIsReturnsOpen(true)}
                   />
                 )}
 
@@ -238,6 +246,16 @@ function AuthenticatedStoreApp() {
       <ExpressPOSModal
         isOpen={isPOSOpen}
         onClose={() => setIsPOSOpen(false)}
+      />
+
+      <ReturnRefundModal
+        isOpen={isReturnsOpen}
+        onClose={() => setIsReturnsOpen(false)}
+      />
+
+      <ZReportModal
+        isOpen={isZReportOpen}
+        onClose={() => setIsZReportOpen(false)}
       />
 
       <TimeSimulatorModal
