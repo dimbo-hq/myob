@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🛒 MYOB (Mind Your Own Business)
+
 ### **The Next-Generation Supermarket Operating System & Retail POS**
 
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.3.3-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -40,12 +41,12 @@
 
 Traditional retail Point-of-Sale systems struggle with inventory fragmentation, batch expiry losses, slow scanning latency, and brittle cloud synchronization. **MYOB** was architected from the ground up to solve these mission-critical challenges with a unified, cloud-native reactive architecture:
 
-* **⚡ Ultra-Low Latency POS**: Sub-10ms laser barcode lookups, instantaneous `<Enter>` key add-to-cart, and instant vector PDF receipt rendering.
-* **🏷️ Automated FIFO Expiry Markdown**: Proactively protects profit margins by calculating staged discount tiers (15% → 30% → 50% → 75%) on products nearing expiration date.
-* **👥 Customer CRM & Loyalty Intelligence**: Instant lookup by phone number, auto-accumulated lifetime spend metrics, VIP loyalty badge tagging, and itemized purchase history.
-* **💰 End-of-Day Shift Close (Z-Report)**: Automated register reconciliation, cash drawer discrepancy auditing (Over/Short), and multi-tender breakdown (Cash, UPI, Card, Split).
-* **🔄 Automated Replenishment Requisitions**: Dynamic reorder threshold calculation with 1-click Purchase Order generation grouped by wholesale vendor.
-* **☁️ Multi-Tenant Cloud Architecture**: Complete tenant isolation powered by Clerk authentication, chunked streaming MongoDB Atlas synchronization, and offline IndexedDB persistence.
+- **⚡ Ultra-Low Latency POS**: Sub-10ms laser barcode lookups, instantaneous `<Enter>` key add-to-cart, and instant vector PDF receipt rendering.
+- **🏷️ Automated FIFO Expiry Markdown**: Proactively protects profit margins by calculating staged discount tiers (15% → 30% → 50% → 75%) on products nearing expiration date.
+- **👥 Customer CRM & Loyalty Intelligence**: Instant lookup by phone number, auto-accumulated lifetime spend metrics, VIP loyalty badge tagging, and itemized purchase history.
+- **💰 End-of-Day Shift Close (Z-Report)**: Automated register reconciliation, cash drawer discrepancy auditing (Over/Short), and multi-tender breakdown (Cash, UPI, Card, Split).
+- **🔄 Automated Replenishment Requisitions**: Dynamic reorder threshold calculation with 1-click Purchase Order generation grouped by wholesale vendor.
+- **☁️ Multi-Tenant Cloud Architecture**: Complete tenant isolation powered by Clerk authentication, chunked streaming MongoDB Atlas synchronization, and offline IndexedDB persistence.
 
 ---
 
@@ -111,7 +112,7 @@ sequenceDiagram
     participant State as In-Memory State
     participant FIFO as FIFO Batch Engine
     participant DB as IndexedDB & MongoDB Atlas
-    
+
     Cashier->>POS: Scan Barcode / Search Item / Weighed Scale (kg)
     POS->>State: Search 100% In-Memory Catalogue (<1ms)
     State->>FIFO: Identify Earliest Expiring Batch
@@ -136,7 +137,7 @@ flowchart LR
     DateCheck -->|3 to 7 Days| Warning[🟡 Warning Zone: Automatic -15% to -30% Markdown]
     DateCheck -->|1 to 2 Days| Critical[🟠 Critical Zone: Automatic -50% to -75% Flash Clearance]
     DateCheck -->|Past Expiry| Expired[🔴 Expired: Lock POS Billing ➔ Log Spoilage Write-off]
-    
+
     Warning --> PrintTag[🏷️ Print In-Store Markdown Barcode Tag]
     Critical --> PrintTag
     Expired --> WasteLog[📋 Wastage Ledger: Compost / Supplier Claim]
@@ -156,16 +157,16 @@ flowchart LR
 
 <div align="center">
 
-| Module | Feature Capabilities | Performance SLA |
-| :--- | :--- | :--- |
+| Module                        | Feature Capabilities                                                                                               | Performance SLA   |
+| :---------------------------- | :----------------------------------------------------------------------------------------------------------------- | :---------------- |
 | **⚡ Express Checkout (POS)** | Barcode hardware scanning, weighted decimal quantities (`kg`, `g`, `L`), cash calculator, split tender, e-receipts | `< 10ms` response |
-| **📦 Smart Catalogue** | Multi-batch FIFO tracking, temperature zones (`ambient`, `chilled`, `frozen`), custom aisle/shelf tracking | `50,000+` SKUs |
-| **🏷️ Expiry Engine** | Automated shelf-life detection, staged dynamic markdowns, printable discount shelf tags, spoilage logs | Real-time |
-| **👥 Customer Intelligence** | Mobile-indexed CRM, VIP customer tiering, lifetime spend aggregation, full receipt history drawer | Instant Lookup |
-| **💰 Day-Close Z-Report** | Opening float auditing, multi-tender reconciliation, register over/short discrepancy analysis, shift report | Zero Math Error |
-| **🔄 Replenishment POs** | Reorder point automation, safety buffer alerts, 1-click vendor PO creation, goods receipt note (GRN) | Automated |
-| **↩️ Return & Refund Suite** | Order receipt lookup, restock vs defect/damaged routing, automatic customer metric adjustments | Double-entry |
-| **🛡️ Danger Zone** | Permanent store wipe with MongoDB cascade delete, localStorage & IndexedDB flush, confirmation lock | Zero Orphan Data |
+| **📦 Smart Catalogue**        | Multi-batch FIFO tracking, temperature zones (`ambient`, `chilled`, `frozen`), custom aisle/shelf tracking         | `50,000+` SKUs    |
+| **🏷️ Expiry Engine**          | Automated shelf-life detection, staged dynamic markdowns, printable discount shelf tags, spoilage logs             | Real-time         |
+| **👥 Customer Intelligence**  | Mobile-indexed CRM, VIP customer tiering, lifetime spend aggregation, full receipt history drawer                  | Instant Lookup    |
+| **💰 Day-Close Z-Report**     | Opening float auditing, multi-tender reconciliation, register over/short discrepancy analysis, shift report        | Zero Math Error   |
+| **🔄 Replenishment POs**      | Reorder point automation, safety buffer alerts, 1-click vendor PO creation, goods receipt note (GRN)               | Automated         |
+| **↩️ Return & Refund Suite**  | Order receipt lookup, restock vs defect/damaged routing, automatic customer metric adjustments                     | Double-entry      |
+| **🛡️ Danger Zone**            | Permanent store wipe with MongoDB cascade delete, localStorage & IndexedDB flush, confirmation lock                | Zero Orphan Data  |
 
 </div>
 
@@ -174,36 +175,43 @@ flowchart LR
 <div align="center">
 
 ### 1. 🛒 Express Point-of-Sale (POS)
+
 Hardware laser scanner ready. Type or scan any barcode, press **`<Enter>`** to instantly add to cart with fractional weights (`1.450 kg`). Supports **Cash Change Calculation**, **UPI QR Code**, **Card Tap/Swipe**, and **Split Payments**. Generates vector-crisp receipts with printable SVG barcodes and downloadable PDFs.
 
 <br />
 
 ### 2. 📦 Product Catalogue & Multi-Batch Tracking
+
 Track unlimited products categorized across 9 retail departments. Every product supports multiple concurrent stock batches, each with its own batch number, lot cost, expiry date, and markdown percentage.
 
 <br />
 
 ### 3. 🏷️ FIFO Shelf-Life & Dynamic Markdowns
+
 Automates grocery clearance pricing. Products nearing expiration automatically receive tiered markdowns (`-15%`, `-30%`, `-50%`, `-75%`) during checkout, reducing retail spoilage write-offs by up to 40%.
 
 <br />
 
 ### 4. 👥 Customer CRM & Loyalty Directory
+
 Index customers seamlessly by their 10-digit mobile number. Track lifetime store spend, order frequency, business GSTIN for B2B tax invoicing, and billing addresses. View an instant slide-over drawer with the customer's lifetime purchase history.
 
 <br />
 
 ### 5. 💰 End-of-Day Shift Close (Z-Report)
+
 Eliminate cash register variance. The Z-Report audits the opening float against actual collected cash, UPI payments, and card charges, flagging discrepancies with over/short accounting warnings and printable shift closure reports.
 
 <br />
 
 ### 6. 🔄 Replenishment & Automated Purchase Orders
+
 Calculates inventory velocity and alerts when stock dips below safety thresholds. Generates itemized Purchase Orders grouped by vendor with 1-click receiving and Goods Receipt Note (GRN) batch intake.
 
 <br />
 
 ### 7. 🛡️ High-Security Store Wipe (Danger Zone)
+
 Permanently purges tenant data across cloud MongoDB Atlas collections and browser IndexedDB caches with a confirmation security lock (`DELETE`), returning the workspace to a clean onboarding state.
 
 </div>
@@ -245,6 +253,7 @@ flowchart TD
 </div>
 
 ### 🚀 How MYOB scales to enterprise datasets:
+
 1. **IndexedDB Client Storage Layer (`lib/offlineStorage.ts`)**:
    Replaces the browser's 5MB synchronous `localStorage` limit with high-capacity, non-blocking asynchronous IndexedDB.
 2. **Chunked HTTP Streaming Protocol (`context/InventoryContext.tsx`)**:
@@ -264,18 +273,18 @@ flowchart TD
 
 <div align="center">
 
-| Layer | Technologies Used | Purpose |
-| :--- | :--- | :--- |
-| **Framework** | **Next.js 16.3.3 (App Router & Turbopack)** | Fullstack React server components & optimized production builds |
-| **UI & Core** | **React 19.2.8 + TypeScript 5** | Reactive component architecture and strict type safety |
-| **Styling** | **Tailwind CSS 4.0** | Modern dark-mode surface palette and typography |
-| **Motion** | **Motion 13.1.1 (Framer Motion)** | Spring-physics drawer animations and modal transitions |
-| **Authentication** | **Clerk 7.8.2** | Multi-tenant auth, session tokens, and tenant user identification |
-| **Database** | **MongoDB Atlas 7.6.0** | Cloud document database with tenant-isolated indexing |
-| **Client Storage** | **Browser-Native IndexedDB** | Unlimited offline persistence and sub-millisecond local backups |
-| **Spreadsheets** | **PapaParse + SheetJS (XLSX)** | High-speed CSV/Excel catalogue importing and exporting |
-| **Documents** | **jsPDF 4.2.1 + html2canvas-pro** | Client-side vector thermal receipt and Z-report generation |
-| **Icons** | **Lucide React** | Lightweight, modern icon library |
+| Layer              | Technologies Used                           | Purpose                                                           |
+| :----------------- | :------------------------------------------ | :---------------------------------------------------------------- |
+| **Framework**      | **Next.js 16.3.3 (App Router & Turbopack)** | Fullstack React server components & optimized production builds   |
+| **UI & Core**      | **React 19.2.8 + TypeScript 5**             | Reactive component architecture and strict type safety            |
+| **Styling**        | **Tailwind CSS 4.0**                        | Modern dark-mode surface palette and typography                   |
+| **Motion**         | **Motion 13.1.1 (Framer Motion)**           | Spring-physics drawer animations and modal transitions            |
+| **Authentication** | **Clerk 7.8.2**                             | Multi-tenant auth, session tokens, and tenant user identification |
+| **Database**       | **MongoDB Atlas 7.6.0**                     | Cloud document database with tenant-isolated indexing             |
+| **Client Storage** | **Browser-Native IndexedDB**                | Unlimited offline persistence and sub-millisecond local backups   |
+| **Spreadsheets**   | **PapaParse + SheetJS (XLSX)**              | High-speed CSV/Excel catalogue importing and exporting            |
+| **Documents**      | **jsPDF 4.2.1 + html2canvas-pro**           | Client-side vector thermal receipt and Z-report generation        |
+| **Icons**          | **Lucide React**                            | Lightweight, modern icon library                                  |
 
 </div>
 
@@ -298,9 +307,12 @@ All API routes are tenant-isolated and enforce Clerk authentication headers.
 </div>
 
 #### `1. GET /api/store-data`
+
 Retrieves all store data for the authenticated tenant.
-* **Headers**: `Authorization: Bearer <clerk_token>`
-* **Response `(200 OK)`**:
+
+- **Headers**: `Authorization: Bearer <clerk_token>`
+- **Response `(200 OK)`**:
+
 ```json
 {
   "userId": "user_3ISt27JQb9O5C1JWttQs4MpFIbQ",
@@ -320,8 +332,11 @@ Retrieves all store data for the authenticated tenant.
 <br />
 
 #### `2. POST /api/store-data` (Standard & Chunked Modes)
+
 Synchronizes mutations or streams large inventory datasets.
-* **Standard Mode Payload**:
+
+- **Standard Mode Payload**:
+
 ```json
 {
   "items": [...],
@@ -331,7 +346,9 @@ Synchronizes mutations or streams large inventory datasets.
   "isExplicitClear": false
 }
 ```
-* **Chunked Stream Mode Payload**:
+
+- **Chunked Stream Mode Payload**:
+
 ```json
 {
   "isChunked": true,
@@ -343,8 +360,11 @@ Synchronizes mutations or streams large inventory datasets.
 <br />
 
 #### `3. DELETE /api/store-data` (Danger Zone Wipe)
+
 Permanently cascades and deletes all tenant documents across all MongoDB collections.
-* **Response `(200 OK)`**:
+
+- **Response `(200 OK)`**:
+
 ```json
 {
   "success": true,
@@ -391,29 +411,35 @@ MONGODB_DB_NAME=myob_supermarket_prod
 </div>
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/dimbo-hq/myob.git
 cd myob
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Setup Environment Variables
+
 ```bash
 cp .env.example .env.local
 # Fill in your Clerk and MongoDB Atlas keys in .env.local
 ```
 
 ### 4. Run Development Server
+
 ```bash
 npm run dev
 ```
+
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### 5. Build for Production
+
 ```bash
 npm run build
 npm run start
@@ -429,60 +455,98 @@ npm run start
 
 ```
 myob/
-├── 📁 app/                          # Next.js 16 App Router
-│   ├── 📁 api/
-│   │   └── 📁 store-data/           # Multi-tenant sync & wipe endpoint
-│   │       └── route.ts
-│   ├── favicon.ico
-│   ├── globals.css                 # Tailwind CSS 4 theme & color variables
-│   ├── layout.tsx                  # Root layout & Clerk Provider wrapper
-│   └── page.tsx                    # Main reactive workspace controller
-├── 📁 components/                   # Modular UI Components
-│   ├── 📁 audit/                   # Activity Ledger & movement audit
-│   │   └── AuditView.tsx
-│   ├── 📁 common/                  # Reusable UI & Modal components
-│   │   ├── Badge.tsx               # Status & temperature badges
-│   │   ├── EmptyStoreOnboarding.tsx# Onboarding 2-card action hub
-│   │   ├── StatCard.tsx            # KPI Stat metric cards
-│   │   ├── StoreNameModal.tsx      # Custom store branding modal
-│   │   ├── TimeSimulatorModal.tsx  # Time-travel FIFO tester
-│   │   └── WipeStoreModal.tsx      # Permanent store wipe modal
-│   ├── 📁 customers/               # CRM & Loyalty intelligence
-│   │   └── CustomersView.tsx
-│   ├── 📁 dashboard/               # Executive KPI dashboard & Z-Report
-│   │   ├── DashboardView.tsx
-│   │   └── ZReportModal.tsx        # Shift reconciliation modal
-│   ├── 📁 expiry/                  # FIFO Expiry & Dynamic Markdowns
-│   │   ├── ExpiryView.tsx
-│   │   ├── MarkdownLabelModal.tsx  # Shelf barcode tag printer
-│   │   └── WasteLogModal.tsx       # Spoilage write-off modal
-│   ├── 📁 inventory/               # Product catalogue & Batch manager
-│   │   ├── AddEditItemModal.tsx    # Product SKU form
-│   │   ├── BatchDetailsModal.tsx   # Lot & batch breakdown
-│   │   ├── ImportModal.tsx         # CSV / Excel bulk parser
-│   │   ├── InventoryView.tsx       # Virtualized table & grid catalogue
-│   │   └── QuickAdjustModal.tsx    # Cycle-count audit adjust
-│   ├── 📁 layout/                  # Navigation & Slide-over Drawers
-│   │   ├── Navbar.tsx              # Minimal decluttered header
-│   │   └── OperationsDrawer.tsx    # Slide-over operations control hub
-│   ├── 📁 pos/                     # Point-of-Sale & Returns
-│   │   ├── ExpressPOSModal.tsx     # Sub-10ms Express checkout counter
-│   │   ├── ReceiptModal.tsx        # Vector PDF receipt generator
-│   │   └── ReturnRefundModal.tsx   # Item returns & defect routing
-│   └── 📁 reorder/                 # Replenishment & Vendor POs
-│       ├── CreatePOModal.tsx       # Manual purchase order creator
-│       ├── GoodsReceiptModal.tsx   # GRN batch intake modal
-│       └── ReorderView.tsx         # Replenishment recommendations
-├── 📁 context/
-│   └── InventoryContext.tsx        # Central Reactive State Engine
-├── 📁 lib/
-│   ├── currency.ts                 # INR (₹) formatting & safety helpers
-│   ├── dateUtils.ts                # Relative date & expiry calculation
-│   ├── mongodb.ts                  # Cached MongoDB client connection pool
-│   └── offlineStorage.ts           # Native IndexedDB high-capacity storage
-├── 📁 types/
-│   └── inventory.ts                # Complete TypeScript data contracts
-└── 📄 package.json
+├── AGENTS.md
+├── app
+│   ├── api
+│   │   └── store-data
+│   │       └── route.ts
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── icon.png
+│   ├── layout.tsx
+│   └── page.tsx
+├── CLAUDE.md
+├── components
+│   ├── audit
+│   │   └── AuditView.tsx
+│   ├── common
+│   │   ├── Badge.tsx
+│   │   ├── DashboardSkeleton.tsx
+│   │   ├── EmptyStoreOnboarding.tsx
+│   │   ├── StatCard.tsx
+│   │   ├── StoreNameModal.tsx
+│   │   ├── TabSkeletons.tsx
+│   │   ├── TimeSimulatorModal.tsx
+│   │   ├── ToastContainer.tsx
+│   │   └── WipeStoreModal.tsx
+│   ├── customers
+│   │   └── CustomersView.tsx
+│   ├── dashboard
+│   │   ├── DashboardView.tsx
+│   │   └── ZReportModal.tsx
+│   ├── expiry
+│   │   ├── ExpiryView.tsx
+│   │   ├── MarkdownLabelModal.tsx
+│   │   └── WasteLogModal.tsx
+│   ├── inventory
+│   │   ├── AddEditItemModal.tsx
+│   │   ├── BatchDetailsModal.tsx
+│   │   ├── ImportModal.tsx
+│   │   ├── InventoryView.tsx
+│   │   └── QuickAdjustModal.tsx
+│   ├── landing
+│   │   └── LandingPage.tsx
+│   ├── layout
+│   │   ├── Navbar.tsx
+│   │   └── OperationsDrawer.tsx
+│   ├── pos
+│   │   ├── ExpressPOSModal.tsx
+│   │   ├── ReceiptModal.tsx
+│   │   └── ReturnRefundModal.tsx
+│   └── reorder
+│       ├── CreatePOModal.tsx
+│       ├── GoodsReceiptModal.tsx
+│       └── ReorderView.tsx
+├── context
+│   └── InventoryContext.tsx
+├── data
+│   └── initialData.ts
+├── datasets
+│   ├── README.md
+│   ├── supermarket_10000_items.csv
+│   ├── supermarket_1000_items.csv
+│   ├── supermarket_2000_items.csv
+│   ├── supermarket_3000_items.csv
+│   ├── supermarket_4000_items.csv
+│   ├── supermarket_50000_items.csv
+│   ├── supermarket_5000_items.csv
+│   └── supermarket_500_items.csv
+├── eslint.config.mjs
+├── lib
+│   ├── currency.ts
+│   ├── dateUtils.ts
+│   ├── mongodb.ts
+│   └── offlineStorage.ts
+├── next.config.ts
+├── package.json
+├── package-lock.json
+├── postcss.config.mjs
+├── proxy.ts
+├── public
+│   ├── favicon.ico
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── logo.png
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── README.md
+├── scripts
+│   └── generate_datasets.py
+├── supermarket_2000_items.csv
+├── tsconfig.json
+└── types
+    └── inventory.ts
 ```
 
 </div>
