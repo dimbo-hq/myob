@@ -449,8 +449,6 @@ npm run start
 
 <br />
 
-<div align="center">
-
 ## 📂 Project Directory Structure
 
 ```
@@ -548,8 +546,6 @@ myob/
 └── types
     └── inventory.ts
 ```
-
-</div>
 
 ---
 
