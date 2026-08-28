@@ -14,6 +14,7 @@ import {
   Edit2, 
   FastForward, 
   RefreshCw, 
+  Trash2,
   Store, 
   Layers, 
   Clock, 
@@ -373,24 +374,26 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
                     <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
                   </button>
 
-                  {/* Reset Demo Data */}
+                  {/* Clear Store Data */}
                   <button
                     onClick={() => {
-                      onClose();
-                      resetToDemoData();
+                      if (window.confirm('Are you sure you want to clear all store catalogue and transaction data? This cannot be undone.')) {
+                        onClose();
+                        resetToDemoData();
+                      }
                     }}
                     className="w-full flex items-center justify-between rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 text-left hover:bg-rose-500/10 transition-all group cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                        <RefreshCw className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </div>
                       <div>
                         <div className="text-xs font-semibold text-rose-300 group-hover:text-rose-200">
-                          Reset Store Demo Data
+                          Clear Store Catalogue
                         </div>
                         <div className="text-[11px] text-zinc-400">
-                          Reload sample catalogue with produce, eggs & grocery items
+                          Wipe store products and logs to start fresh with a new import
                         </div>
                       </div>
                     </div>
