@@ -87,6 +87,16 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// Safe batch insert helper to avoid BSON 16MB packet limits on MongoDB Atlas
+async function chunkedInsertMany(collection: any, docs: any[], chunkSize = 1500) {
+  for (let i = 0; i < docs.length; i += chunkSize) {
+    const chunk = docs.slice(i, i + chunkSize);
+    if (chunk.length > 0) {
+      await collection.insertMany(chunk, { ordered: false });
+    }
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -95,6 +105,87 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const db = await getDatabase();
+    if (!db) {
+      return NextResponse.json({
+        success: true,
+        isOfflineMode: true,
+        message: 'Saved to local workspace.'
+      });
+    }
+
+    // High-Scale Chunked Sync Mode (For 3,000 to 500,000+ items)
+    if (body.isChunked) {
+      const { 
+        action, 
+        chunk, 
+        settings, 
+        suppliers, 
+        purchaseOrders, 
+        stockMovements, 
+        wastageLogs, 
+        customers, 
+        salesOrders, 
+        refundRecords, 
+        zReports 
+      } = body;
+
+      if (action === 'init_sync') {
+        await db.collection('inventory_items').deleteMany({ userId });
+
+        if (settings && typeof settings.storeName === 'string') {
+          await db.collection('store_settings').updateOne(
+            { userId },
+            { $set: { userId, storeName: settings.storeName, updatedAt: new Date().toISOString() } },
+            { upsert: true }
+          );
+        }
+        if (Array.isArray(suppliers)) {
+          await db.collection('suppliers').deleteMany({ userId });
+          if (suppliers.length > 0) await chunkedInsertMany(db.collection('suppliers'), suppliers.map((s) => ({ ...s, userId })));
+        }
+        if (Array.isArray(purchaseOrders)) {
+          await db.collection('purchase_orders').deleteMany({ userId });
+          if (purchaseOrders.length > 0) await chunkedInsertMany(db.collection('purchase_orders'), purchaseOrders.map((p) => ({ ...p, userId })));
+        }
+        if (Array.isArray(stockMovements)) {
+          await db.collection('stock_movements').deleteMany({ userId });
+          if (stockMovements.length > 0) await chunkedInsertMany(db.collection('stock_movements'), stockMovements.map((m) => ({ ...m, userId })));
+        }
+        if (Array.isArray(wastageLogs)) {
+          await db.collection('wastage_logs').deleteMany({ userId });
+          if (wastageLogs.length > 0) await chunkedInsertMany(db.collection('wastage_logs'), wastageLogs.map((w) => ({ ...w, userId })));
+        }
+        if (Array.isArray(customers)) {
+          await db.collection('customers').deleteMany({ userId });
+          if (customers.length > 0) await chunkedInsertMany(db.collection('customers'), customers.map((c) => ({ ...c, userId })));
+        }
+        if (Array.isArray(salesOrders)) {
+          await db.collection('sales_orders').deleteMany({ userId });
+          if (salesOrders.length > 0) await chunkedInsertMany(db.collection('sales_orders'), salesOrders.map((o) => ({ ...o, userId })));
+        }
+        if (Array.isArray(refundRecords)) {
+          await db.collection('refund_records').deleteMany({ userId });
+          if (refundRecords.length > 0) await chunkedInsertMany(db.collection('refund_records'), refundRecords.map((r) => ({ ...r, userId })));
+        }
+        if (Array.isArray(zReports)) {
+          await db.collection('z_reports').deleteMany({ userId });
+          if (zReports.length > 0) await chunkedInsertMany(db.collection('z_reports'), zReports.map((z) => ({ ...z, userId })));
+        }
+        return NextResponse.json({ success: true, message: 'Chunked sync initialized' });
+      }
+
+      if (action === 'append_items' && Array.isArray(chunk) && chunk.length > 0) {
+        await chunkedInsertMany(db.collection('inventory_items'), chunk.map((it: any) => ({ ...it, userId })));
+        return NextResponse.json({ success: true, count: chunk.length });
+      }
+
+      if (action === 'finalize_sync') {
+        return NextResponse.json({ success: true, message: 'Chunked sync complete' });
+      }
+    }
+
+    // Standard Direct Sync Mode (For standard size datasets)
     const { 
       items, 
       suppliers, 
@@ -109,16 +200,7 @@ export async function POST(req: NextRequest) {
       isExplicitClear 
     } = body;
 
-    const db = await getDatabase();
-    if (!db) {
-      return NextResponse.json({
-        success: true,
-        isOfflineMode: true,
-        message: 'Saved to local workspace. Ensure IP is whitelisted in MongoDB Atlas Network Access.'
-      });
-    }
-
-    // 1. Update store settings (Only if non-empty or explicitly cleared)
+    // 1. Update store settings
     if (settings && typeof settings.storeName === 'string') {
       if (settings.storeName.trim() !== '' || isExplicitClear) {
         await db.collection('store_settings').updateOne(
@@ -129,12 +211,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Safeguarded Inventory Items Replacement
+    // 2. Safeguarded Inventory Items Replacement (Using chunked insertion)
     if (items !== undefined && Array.isArray(items)) {
       if (items.length > 0 || isExplicitClear === true) {
         await db.collection('inventory_items').deleteMany({ userId });
         if (items.length > 0) {
-          await db.collection('inventory_items').insertMany(items.map((i) => ({ ...i, userId })));
+          await chunkedInsertMany(db.collection('inventory_items'), items.map((i) => ({ ...i, userId })));
         }
       }
     }
@@ -144,7 +226,7 @@ export async function POST(req: NextRequest) {
       if (suppliers.length > 0 || isExplicitClear === true) {
         await db.collection('suppliers').deleteMany({ userId });
         if (suppliers.length > 0) {
-          await db.collection('suppliers').insertMany(suppliers.map((s) => ({ ...s, userId })));
+          await chunkedInsertMany(db.collection('suppliers'), suppliers.map((s) => ({ ...s, userId })));
         }
       }
     }
@@ -154,7 +236,7 @@ export async function POST(req: NextRequest) {
       if (purchaseOrders.length > 0 || isExplicitClear === true) {
         await db.collection('purchase_orders').deleteMany({ userId });
         if (purchaseOrders.length > 0) {
-          await db.collection('purchase_orders').insertMany(purchaseOrders.map((p) => ({ ...p, userId })));
+          await chunkedInsertMany(db.collection('purchase_orders'), purchaseOrders.map((p) => ({ ...p, userId })));
         }
       }
     }
@@ -164,7 +246,7 @@ export async function POST(req: NextRequest) {
       if (stockMovements.length > 0 || isExplicitClear === true) {
         await db.collection('stock_movements').deleteMany({ userId });
         if (stockMovements.length > 0) {
-          await db.collection('stock_movements').insertMany(stockMovements.map((m) => ({ ...m, userId })));
+          await chunkedInsertMany(db.collection('stock_movements'), stockMovements.map((m) => ({ ...m, userId })));
         }
       }
     }
@@ -174,7 +256,7 @@ export async function POST(req: NextRequest) {
       if (wastageLogs.length > 0 || isExplicitClear === true) {
         await db.collection('wastage_logs').deleteMany({ userId });
         if (wastageLogs.length > 0) {
-          await db.collection('wastage_logs').insertMany(wastageLogs.map((w) => ({ ...w, userId })));
+          await chunkedInsertMany(db.collection('wastage_logs'), wastageLogs.map((w) => ({ ...w, userId })));
         }
       }
     }
@@ -184,7 +266,7 @@ export async function POST(req: NextRequest) {
       if (customers.length > 0 || isExplicitClear === true) {
         await db.collection('customers').deleteMany({ userId });
         if (customers.length > 0) {
-          await db.collection('customers').insertMany(customers.map((c) => ({ ...c, userId })));
+          await chunkedInsertMany(db.collection('customers'), customers.map((c) => ({ ...c, userId })));
         }
       }
     }
@@ -194,7 +276,7 @@ export async function POST(req: NextRequest) {
       if (salesOrders.length > 0 || isExplicitClear === true) {
         await db.collection('sales_orders').deleteMany({ userId });
         if (salesOrders.length > 0) {
-          await db.collection('sales_orders').insertMany(salesOrders.map((o) => ({ ...o, userId })));
+          await chunkedInsertMany(db.collection('sales_orders'), salesOrders.map((o) => ({ ...o, userId })));
         }
       }
     }
@@ -204,7 +286,7 @@ export async function POST(req: NextRequest) {
       if (refundRecords.length > 0 || isExplicitClear === true) {
         await db.collection('refund_records').deleteMany({ userId });
         if (refundRecords.length > 0) {
-          await db.collection('refund_records').insertMany(refundRecords.map((r) => ({ ...r, userId })));
+          await chunkedInsertMany(db.collection('refund_records'), refundRecords.map((r) => ({ ...r, userId })));
         }
       }
     }
@@ -214,7 +296,7 @@ export async function POST(req: NextRequest) {
       if (zReports.length > 0 || isExplicitClear === true) {
         await db.collection('z_reports').deleteMany({ userId });
         if (zReports.length > 0) {
-          await db.collection('z_reports').insertMany(zReports.map((z) => ({ ...z, userId })));
+          await chunkedInsertMany(db.collection('z_reports'), zReports.map((z) => ({ ...z, userId })));
         }
       }
     }

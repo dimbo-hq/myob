@@ -29,6 +29,11 @@ import {
   INITIAL_WASTAGE_LOGS
 } from '@/data/initialData';
 import { getRelativeDate } from '@/lib/dateUtils';
+import { 
+  saveOfflineStoreData, 
+  getOfflineStoreData, 
+  clearOfflineStoreData 
+} from '@/lib/offlineStorage';
 
 interface InventoryContextType {
   items: InventoryItem[];
@@ -168,18 +173,18 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const isInitialLoadCompleteRef = useRef<boolean>(false);
   const hasUserMutatedRef = useRef<boolean>(false);
 
-  // Helper to save store data in user-specific local backup
-  const saveLocalBackup = useCallback((userIdKey: string, storeData: any) => {
+  // Helper to save store data in IndexedDB (handles 50,000+ items without 5MB quota errors)
+  const saveLocalBackup = useCallback(async (userIdKey: string, storeData: any) => {
     try {
       if (typeof window !== 'undefined' && userIdKey) {
-        localStorage.setItem('myob_store_' + userIdKey, JSON.stringify(storeData));
+        await saveOfflineStoreData(userIdKey, storeData);
       }
     } catch (e) {
-      console.warn('Local backup save warning:', e);
+      console.warn('IndexedDB backup save warning:', e);
     }
   }, []);
 
-  // 1. Fetch User Data with Local Cache Fallback & Zero Data Loss
+  // 1. Fetch User Data with IndexedDB Offline Fallback & Zero Data Loss
   useEffect(() => {
     if (!isAuthLoaded) return;
 
@@ -204,29 +209,26 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const fetchDatabaseStore = async () => {
       setIsLoadingData(true);
 
-      // Fast check: retrieve local cache first so UI never falls blank
+      // Fast check: retrieve IndexedDB offline cache first so UI never falls blank
       let cachedData: any = null;
       try {
-        const rawCache = localStorage.getItem('myob_store_' + userId);
-        if (rawCache) {
-          cachedData = JSON.parse(rawCache);
-          if (cachedData.items && cachedData.items.length > 0) {
-            setItems(cachedData.items);
-            setSuppliers(cachedData.suppliers || []);
-            setPurchaseOrders(cachedData.purchaseOrders || []);
-            setStockMovements(cachedData.stockMovements || []);
-            setWastageLogs(cachedData.wastageLogs || []);
-            setCustomers(cachedData.customers || []);
-            setSalesOrders(cachedData.salesOrders || []);
-            setRefundRecords(cachedData.refundRecords || []);
-            setZReports(cachedData.zReports || []);
-            if (cachedData.settings?.storeName) {
-              setStoreName(cachedData.settings.storeName);
-            }
+        cachedData = await getOfflineStoreData(userId);
+        if (cachedData && cachedData.items && cachedData.items.length > 0) {
+          setItems(cachedData.items);
+          setSuppliers(cachedData.suppliers || []);
+          setPurchaseOrders(cachedData.purchaseOrders || []);
+          setStockMovements(cachedData.stockMovements || []);
+          setWastageLogs(cachedData.wastageLogs || []);
+          setCustomers(cachedData.customers || []);
+          setSalesOrders(cachedData.salesOrders || []);
+          setRefundRecords(cachedData.refundRecords || []);
+          setZReports(cachedData.zReports || []);
+          if (cachedData.settings?.storeName) {
+            setStoreName(cachedData.settings.storeName);
           }
         }
       } catch (e) {
-        console.warn('Local cache read warning:', e);
+        console.warn('IndexedDB cache read warning:', e);
       }
 
       try {
@@ -279,7 +281,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     fetchDatabaseStore();
   }, [isAuthLoaded, isSignedIn, userId, saveLocalBackup]);
 
-  // 2. Real-Time Sync of User Mutations to MongoDB (Guarded Against Accidental Overwrites)
+  // 2. Real-Time Sync of User Mutations to MongoDB (Chunked Streaming for High-Scale Datasets)
   const syncToMongoDB = useCallback(
     async (
       newItems: InventoryItem[],
@@ -299,7 +301,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return;
       }
 
-      // Save local backup immediately
+      // Save to high-capacity IndexedDB immediately (non-blocking)
       saveLocalBackup(userId, {
         items: newItems,
         suppliers: newSuppliers,
@@ -318,23 +320,71 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       syncTimeoutRef.current = setTimeout(async () => {
         setIsSyncing(true);
         try {
-          await fetch('/api/store-data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              items: newItems,
-              suppliers: newSuppliers,
-              purchaseOrders: newPOs,
-              stockMovements: newMovements,
-              wastageLogs: newWastage,
-              customers: newCustomers,
-              salesOrders: newSalesOrders,
-              refundRecords: newRefunds,
-              zReports: newZReports,
-              settings: { storeName: currentStoreName },
-              isExplicitClear: isExplicitClear || false
-            })
-          });
+          // If dataset is massive (>2500 products), stream in chunks to stay well below 10MB HTTP limits
+          if (newItems.length > 2500) {
+            // Step 1: Initialize sync & store metadata
+            await fetch('/api/store-data', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                isChunked: true,
+                action: 'init_sync',
+                suppliers: newSuppliers,
+                purchaseOrders: newPOs,
+                stockMovements: newMovements,
+                wastageLogs: newWastage,
+                customers: newCustomers,
+                salesOrders: newSalesOrders,
+                refundRecords: newRefunds,
+                zReports: newZReports,
+                settings: { storeName: currentStoreName }
+              })
+            });
+
+            // Step 2: Stream product catalogue in 2,000 item chunks
+            const CHUNK_SIZE = 2000;
+            for (let i = 0; i < newItems.length; i += CHUNK_SIZE) {
+              const chunk = newItems.slice(i, i + CHUNK_SIZE);
+              await fetch('/api/store-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  isChunked: true,
+                  action: 'append_items',
+                  chunk
+                })
+              });
+            }
+
+            // Step 3: Finalize
+            await fetch('/api/store-data', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                isChunked: true,
+                action: 'finalize_sync'
+              })
+            });
+          } else {
+            // Standard single-request sync for normal datasets
+            await fetch('/api/store-data', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                items: newItems,
+                suppliers: newSuppliers,
+                purchaseOrders: newPOs,
+                stockMovements: newMovements,
+                wastageLogs: newWastage,
+                customers: newCustomers,
+                salesOrders: newSalesOrders,
+                refundRecords: newRefunds,
+                zReports: newZReports,
+                settings: { storeName: currentStoreName },
+                isExplicitClear: isExplicitClear || false
+              })
+            });
+          }
         } catch (err) {
           console.error('Failed to sync changes with MongoDB:', err);
         } finally {
@@ -1792,13 +1842,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setStoreName('');
       setSimulatedDateOffset(0);
 
-      // 2. Clear all local storage caches
+      // 2. Clear all local storage and IndexedDB caches
       if (typeof window !== 'undefined' && userId) {
         try {
+          await clearOfflineStoreData(userId);
+          localStorage.removeItem('myob_store_' + userId);
           localStorage.removeItem('myob_store_data_' + userId);
           localStorage.removeItem('myob_store_name_' + userId);
         } catch (e) {
-          console.warn('LocalStorage clear error:', e);
+          console.warn('Cache clear error:', e);
         }
       }
 
