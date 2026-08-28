@@ -52,6 +52,7 @@ interface InventoryContextType {
   // Customer Operations
   lookupCustomerByPhone: (phone: string) => Customer | undefined;
   addOrUpdateCustomer: (customerData: { phone: string; name: string; email?: string; address?: string; gstin?: string; notes?: string }) => Customer;
+  deleteCustomer: (phoneOrId: string) => void;
   
   // Expiry & Status Helpers
   getDaysUntilExpiry: (expiryDateStr: string) => number;
@@ -470,6 +471,43 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     return targetCustomer;
   }, [customers, user, normalizePhone]);
+
+  // Delete Customer
+  const deleteCustomer = useCallback((phoneOrId: string) => {
+    hasUserMutatedRef.current = true;
+    const clean = normalizePhone(phoneOrId);
+    
+    const target = customers.find((c) => c.id === phoneOrId || (clean && normalizePhone(c.phone) === clean) || c.phone === phoneOrId);
+    if (!target) return;
+
+    const nextCustomers = customers.filter((c) => c.id !== target.id);
+    setCustomers(nextCustomers);
+
+    const mov: StockMovement = {
+      id: 'mov-' + Math.random().toString(36).substring(2, 9),
+      timestamp: new Date().toISOString(),
+      itemId: target.id,
+      itemName: target.name,
+      sku: target.phone,
+      type: 'CUSTOMER_UPDATED',
+      quantityDelta: 0,
+      previousStock: 0,
+      newStock: 0,
+      reason: `Customer ${target.name} (${target.phone}) removed from directory`,
+      performedBy: user?.fullName || 'Store Manager',
+      unitCost: 0,
+      financialImpact: 0
+    };
+    setStockMovements((prev) => [mov, ...prev]);
+
+    syncToMongoDB(items, suppliers, purchaseOrders, [mov, ...stockMovements], wastageLogs, nextCustomers, salesOrders, refundRecords, zReports, storeName, true);
+
+    addToast({
+      type: 'info',
+      title: 'Customer Removed',
+      message: `Customer ${target.name} (${target.phone}) was deleted.`
+    });
+  }, [customers, items, suppliers, purchaseOrders, stockMovements, wastageLogs, salesOrders, refundRecords, zReports, storeName, syncToMongoDB, normalizePhone, user, addToast]);
 
   // Expiry Calculations considering simulated date offset
   const getDaysUntilExpiry = useCallback((expiryDateStr: string): number => {
@@ -1774,6 +1812,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateStoreName,
         lookupCustomerByPhone,
         addOrUpdateCustomer,
+        deleteCustomer,
         getDaysUntilExpiry,
         getEffectiveBatchStatus,
         getItemStatus,

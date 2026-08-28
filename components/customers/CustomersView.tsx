@@ -38,11 +38,12 @@ interface CustomersViewProps {
 }
 
 export const CustomersView: React.FC<CustomersViewProps> = ({ onOpenPOSForCustomer }) => {
-  const { customers, salesOrders, addOrUpdateCustomer, addToast } = useInventory();
+  const { customers, salesOrders, addOrUpdateCustomer, deleteCustomer, addToast } = useInventory();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'spent' | 'orders' | 'name'>('recent');
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<SalesOrder | null>(null);
@@ -455,6 +456,14 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ onOpenPOSForCustom
                         >
                           <Edit3 className="h-3.5 w-3.5" />
                         </button>
+
+                        <button
+                          onClick={() => setCustomerToDelete(cust)}
+                          className="rounded-lg border border-white/[0.06] bg-zinc-900/80 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-colors cursor-pointer"
+                          title="Delete Customer"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -721,22 +730,102 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ onOpenPOSForCustom
                 </div>
 
                 {/* Modal Buttons */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.06]">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="rounded-lg border border-white/[0.08] px-3 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-900"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 active:scale-95 transition-all shadow-md cursor-pointer"
-                  >
-                    {editingCustomer ? 'Update Profile' : 'Save & Register Customer'}
-                  </button>
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
+                  {editingCustomer ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = editingCustomer;
+                        setIsAddModalOpen(false);
+                        setCustomerToDelete(target);
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span>Delete Customer</span>
+                    </button>
+                  ) : <div />}
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddModalOpen(false)}
+                      className="rounded-lg border border-white/[0.08] px-3 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 active:scale-95 transition-all shadow-md cursor-pointer"
+                    >
+                      {editingCustomer ? 'Update Profile' : 'Save & Register Customer'}
+                    </button>
+                  </div>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Delete Modal */}
+      <AnimatePresence>
+        {customerToDelete && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setCustomerToDelete(null)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md rounded-2xl border border-rose-500/20 bg-zinc-950 p-5 shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Delete Customer Profile</h3>
+                  <p className="text-xs text-zinc-400">Are you sure you want to remove this customer record?</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-zinc-900/60 border border-white/[0.04] p-3 text-xs space-y-1">
+                <div className="font-semibold text-white">{customerToDelete.name}</div>
+                <div className="font-mono text-zinc-400">Phone: {customerToDelete.phone}</div>
+                <div className="text-[11px] text-zinc-500">
+                  Total Orders: <strong className="text-zinc-300 font-mono">{customerToDelete.totalOrders}</strong> • Lifetime Spend: <strong className="text-emerald-400 font-mono">{formatINR(customerToDelete.totalSpent)}</strong>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-zinc-500">
+                Past transaction receipts and audit trail history will be preserved as Walk-in records.
+              </p>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.06]">
+                <button
+                  type="button"
+                  onClick={() => setCustomerToDelete(null)}
+                  className="rounded-lg border border-white/[0.08] px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteCustomer(customerToDelete.id);
+                    setCustomerToDelete(null);
+                  }}
+                  className="rounded-lg bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-500 active:scale-95 transition-all shadow-md cursor-pointer"
+                >
+                  Confirm Delete
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
