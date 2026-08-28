@@ -120,8 +120,6 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     }
   }, [isOpen]);
 
-  if (!isOpen && !completedOrder) return null;
-
   const categories = ['All', 'Fresh Produce', 'Dairy & Eggs', 'Bakery & Deli', 'Meat & Seafood', 'Beverages', 'Pantry & Dry Goods', 'Frozen Foods', 'Snacks & Confectionery', 'Household & Personal Care'];
 
   // Lazy Loading State
@@ -408,6 +406,8 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
       handleClearCustomer();
     }
   };
+
+  if (!isOpen && !completedOrder) return null;
 
   return (
     <>
