@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { InventoryItem, POSCartItem, Customer } from '@/types/inventory';
 import { 
@@ -124,17 +124,41 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
   const categories = ['All', 'Fresh Produce', 'Dairy & Eggs', 'Bakery & Deli', 'Meat & Seafood', 'Beverages', 'Pantry & Dry Goods', 'Frozen Foods', 'Snacks & Confectionery', 'Household & Personal Care'];
 
-  // Filter items
-  const filteredItems = items.filter((item) => {
-    const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = item.name.toLowerCase().includes(query) ||
-      item.barcode.includes(query) ||
-      item.sku.toLowerCase().includes(query);
+  // Lazy Loading State
+  const [visibleCount, setVisibleCount] = useState(32);
 
-    if (!matchesSearch) return false;
-    if (selectedCategory !== 'All' && item.category !== selectedCategory) return false;
-    return true;
-  });
+  useEffect(() => {
+    setVisibleCount(32);
+  }, [searchQuery, selectedCategory]);
+
+  // Filter 100% of items in memory for search & barcode match
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    return items.filter((item) => {
+      const matchesSearch = !query || 
+        item.name.toLowerCase().includes(query) ||
+        item.barcode.toLowerCase().includes(query) ||
+        item.sku.toLowerCase().includes(query);
+
+      if (!matchesSearch) return false;
+      if (selectedCategory !== 'All' && item.category !== selectedCategory) return false;
+      return true;
+    });
+  }, [items, searchQuery, selectedCategory]);
+
+  // Displayed slice for 60fps DOM lazy rendering
+  const displayedItems = useMemo<InventoryItem[]>(() => {
+    return filteredItems.slice(0, visibleCount);
+  }, [filteredItems, visibleCount]);
+
+  const handleGridScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollTop + clientHeight >= scrollHeight - 200) {
+      if (visibleCount < filteredItems.length) {
+        setVisibleCount((prev) => Math.min(prev + 32, filteredItems.length));
+      }
+    }
+  };
 
   // Calculate pricing considering FIFO batch markdown
   const getItemEffectivePrice = (item: InventoryItem): {
@@ -478,73 +502,85 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
               </div>
 
               {/* Product Grid */}
-              <div className="flex-1 overflow-y-auto min-h-0 p-3.5">
+              <div 
+                onScroll={handleGridScroll}
+                className="flex-1 overflow-y-auto min-h-0 p-3.5 space-y-4"
+              >
                 {filteredItems.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center text-zinc-500">
                     <p className="text-xs">No products match your search.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5">
-                    {filteredItems.map((item) => {
-                      const priceInfo = getItemEffectivePrice(item);
-                      const isOutOfStock = item.currentStock <= 0;
-                      const hasMarkdown = priceInfo.discountPercentage > 0;
-                      const isWeighed = isWeighedItem(item);
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5">
+                      {displayedItems.map((item) => {
+                        const priceInfo = getItemEffectivePrice(item);
+                        const isOutOfStock = item.currentStock <= 0;
+                        const hasMarkdown = priceInfo.discountPercentage > 0;
+                        const isWeighed = isWeighedItem(item);
 
-                      return (
-                        <button
-                          key={item.id}
-                          disabled={isOutOfStock}
-                          onClick={() => handleAddToCart(item)}
-                          className={`flex flex-col text-left rounded-xl border p-3 transition-all relative overflow-hidden group cursor-pointer ${
-                            isOutOfStock
-                              ? 'border-white/[0.02] bg-zinc-900/20 opacity-40 cursor-not-allowed'
-                              : 'border-white/[0.05] bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-white/[0.1] active:scale-[0.98]'
-                          }`}
-                        >
-                          {hasMarkdown && (
-                            <span className="absolute top-2 right-2 flex items-center gap-0.5 rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30">
-                              <Tag className="h-2 w-2" />
-                              -{priceInfo.discountPercentage}%
-                            </span>
-                          )}
+                        return (
+                          <button
+                            key={item.id}
+                            disabled={isOutOfStock}
+                            onClick={() => handleAddToCart(item)}
+                            className={`flex flex-col text-left rounded-xl border p-3 transition-all relative overflow-hidden group cursor-pointer ${
+                              isOutOfStock
+                                ? 'border-white/[0.02] bg-zinc-900/20 opacity-40 cursor-not-allowed'
+                                : 'border-white/[0.05] bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-white/[0.1] active:scale-[0.98]'
+                            }`}
+                          >
+                            {hasMarkdown && (
+                              <span className="absolute top-2 right-2 flex items-center gap-0.5 rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30">
+                                <Tag className="h-2 w-2" />
+                                -{priceInfo.discountPercentage}%
+                              </span>
+                            )}
 
-                          {isWeighed && (
-                            <span className="absolute top-2 left-2 flex items-center gap-0.5 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-500/30 font-mono">
-                              <Scale className="h-2 w-2" />
-                              Weighed
-                            </span>
-                          )}
+                            {isWeighed && (
+                              <span className="absolute top-2 left-2 flex items-center gap-0.5 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-500/30 font-mono">
+                                <Scale className="h-2 w-2" />
+                                Weighed
+                              </span>
+                            )}
 
-                          <div className={`text-xs font-medium text-zinc-200 line-clamp-2 ${isWeighed ? 'mt-4' : ''}`}>
-                            {item.name}
-                          </div>
-                          
-                          <div className="text-[10px] text-zinc-500 font-mono mt-1">
-                            {item.sku}
-                          </div>
-
-                          <div className="mt-auto pt-2 flex items-end justify-between">
-                            <div>
-                              <div className="text-xs font-bold font-mono text-emerald-400">
-                                {formatINR(priceInfo.unitPrice)}
-                                <span className="text-[10px] text-zinc-500 font-normal"> / {item.unit}</span>
-                              </div>
-                              {hasMarkdown && (
-                                <div className="text-[10px] text-zinc-500 line-through font-mono">
-                                  {formatINR(priceInfo.originalPrice)}
-                                </div>
-                              )}
+                            <div className={`text-xs font-medium text-zinc-200 line-clamp-2 ${isWeighed ? 'mt-4' : ''}`}>
+                              {item.name}
+                            </div>
+                            
+                            <div className="text-[10px] text-zinc-500 font-mono mt-1">
+                              {item.sku}
                             </div>
 
-                            <span className="text-[10px] font-mono text-zinc-400">
-                              Stock: {item.currentStock}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                            <div className="mt-auto pt-2 flex items-end justify-between">
+                              <div>
+                                <div className="text-xs font-bold font-mono text-emerald-400">
+                                  {formatINR(priceInfo.unitPrice)}
+                                  <span className="text-[10px] text-zinc-500 font-normal"> / {item.unit}</span>
+                                </div>
+                                {hasMarkdown && (
+                                  <div className="text-[10px] text-zinc-500 line-through font-mono">
+                                    {formatINR(priceInfo.originalPrice)}
+                                  </div>
+                                )}
+                              </div>
+
+                              <span className="text-[10px] font-mono text-zinc-400">
+                                Stock: {item.currentStock}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {visibleCount < filteredItems.length && (
+                      <div className="py-2.5 text-center text-[11px] font-mono text-zinc-500 flex items-center justify-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Showing {displayedItems.length} of {filteredItems.length} products (Scroll down to load more)</span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

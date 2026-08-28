@@ -39,6 +39,17 @@ export const ReorderView: React.FC = () => {
 
   const itemsNeedingOrder = items.filter((item) => item.currentStock <= item.reorderPoint);
 
+  // Lazy Loading for Reorder Recommendations
+  const [visibleReorderCount, setVisibleReorderCount] = useState(30);
+
+  const displayedReorderItems = React.useMemo(() => {
+    return itemsNeedingOrder.slice(0, visibleReorderCount);
+  }, [itemsNeedingOrder, visibleReorderCount]);
+
+  const handleLoadMoreReorder = () => {
+    setVisibleReorderCount((prev) => Math.min(prev + 30, itemsNeedingOrder.length));
+  };
+
   const totalRecommendedCost = itemsNeedingOrder.reduce((acc, item) => {
     const qty = Math.max(10, item.optimalStockLevel - item.currentStock);
     return acc + qty * item.costPrice;
@@ -205,7 +216,7 @@ export const ReorderView: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  itemsNeedingOrder.map((item, idx) => {
+                  displayedReorderItems.map((item, idx) => {
                     const suggestedQty = Math.max(10, item.optimalStockLevel - item.currentStock);
                     const lineCost = suggestedQty * item.costPrice;
                     const isOut = item.currentStock === 0;
@@ -244,6 +255,21 @@ export const ReorderView: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Lazy Load Footer for Recommendations */}
+          {visibleReorderCount < itemsNeedingOrder.length && (
+            <div className="p-3.5 border-t border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+              <span className="font-mono text-[11px]">
+                Showing {displayedReorderItems.length} of {itemsNeedingOrder.length} replenishment recommendations
+              </span>
+              <button
+                onClick={handleLoadMoreReorder}
+                className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              >
+                Load More (+30 items)
+              </button>
+            </div>
+          )}
         </div>
       )}
 

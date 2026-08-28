@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { StockMovement, MovementType, SalesOrder, POSCartItem } from '@/types/inventory';
 import { 
@@ -106,6 +106,34 @@ export const AuditView: React.FC = () => {
       );
     });
   }, [stockMovements, searchQuery, selectedMovementType]);
+
+  // Lazy Loading States
+  const [visibleSalesCount, setVisibleSalesCount] = useState(30);
+  const [visibleMovementsCount, setVisibleMovementsCount] = useState(40);
+
+  useEffect(() => {
+    setVisibleSalesCount(30);
+  }, [searchQuery, selectedPaymentMethod]);
+
+  useEffect(() => {
+    setVisibleMovementsCount(40);
+  }, [searchQuery, selectedMovementType]);
+
+  const displayedSalesOrders = useMemo(() => {
+    return filteredSalesOrders.slice(0, visibleSalesCount);
+  }, [filteredSalesOrders, visibleSalesCount]);
+
+  const displayedMovements = useMemo(() => {
+    return filteredMovements.slice(0, visibleMovementsCount);
+  }, [filteredMovements, visibleMovementsCount]);
+
+  const handleLoadMoreSales = () => {
+    setVisibleSalesCount((prev) => Math.min(prev + 30, filteredSalesOrders.length));
+  };
+
+  const handleLoadMoreMovements = () => {
+    setVisibleMovementsCount((prev) => Math.min(prev + 40, filteredMovements.length));
+  };
 
   // Export Sales Orders to CSV
   const handleExportSalesOrdersCSV = () => {
@@ -450,7 +478,7 @@ export const AuditView: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredSalesOrders.map((order) => {
+              {displayedSalesOrders.map((order) => {
                 const isExpanded = expandedOrderId === order.id;
 
                 return (
@@ -526,77 +554,75 @@ export const AuditView: React.FC = () => {
                               e.stopPropagation();
                               setSelectedOrderForReceipt(order);
                             }}
-                            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-zinc-800 px-2.5 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 hover:text-white transition-all cursor-pointer"
-                            title="Re-open / Print Tax Invoice Receipt"
+                            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-zinc-800/80 px-2.5 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors cursor-pointer"
+                            title="View / Print Tax Invoice Receipt"
                           >
-                            <Printer className="h-3 w-3 text-emerald-400" />
-                            <span className="hidden md:inline">Print Bill</span>
+                            <Printer className="h-3.5 w-3.5 text-zinc-400" />
+                            <span className="hidden sm:inline">Receipt</span>
                           </button>
 
-                          <button
-                            className="rounded-lg p-1.5 text-zinc-400 hover:text-white transition-colors"
-                            aria-label="Expand order details"
-                          >
-                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                          </button>
+                          <div className="rounded-lg p-1.5 text-zinc-400 hover:text-white transition-transform">
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform duration-200 ${
+                                isExpanded ? 'rotate-180 text-emerald-400' : ''
+                              }`}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Expandable Breakdown Drawer */}
+                    {/* Accordion Content: Detailed Purchased Items Breakdown */}
                     <AnimatePresence>
                       {isExpanded && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.15 }}
+                          transition={{ duration: 0.2 }}
                           className="border-t border-white/[0.06] bg-zinc-950/60 p-4 space-y-3"
                         >
-                          <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 font-mono flex items-center justify-between">
-                            <span>Purchased Line Items Breakdown</span>
-                            <span>Cashier: {order.cashierName}</span>
+                          <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+                            <span>Itemized Invoice Breakdown ({order.items.length} line items)</span>
+                            <span className="text-zinc-500">VAT/GST applied at 5%</span>
                           </div>
 
-                          <div className="rounded-lg border border-white/[0.06] overflow-hidden">
+                          <div className="overflow-x-auto">
                             <table className="w-full text-left text-xs">
-                              <thead className="border-b border-white/[0.06] bg-zinc-900/60 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider font-mono">
+                              <thead className="border-b border-white/[0.06] text-zinc-500 font-mono text-[10px] uppercase">
                                 <tr>
-                                  <th className="px-3 py-2">Item / SKU</th>
-                                  <th className="px-3 py-2 text-center">Batch #</th>
-                                  <th className="px-3 py-2 text-center">Qty</th>
-                                  <th className="px-3 py-2 text-right">Unit Price</th>
-                                  <th className="px-3 py-2 text-right">Discount</th>
-                                  <th className="px-3 py-2 text-right">Total</th>
+                                  <th className="py-2 px-3">Item Description</th>
+                                  <th className="py-2 px-3">SKU</th>
+                                  <th className="py-2 px-3 text-center">Batch</th>
+                                  <th className="py-2 px-3 text-center">Qty</th>
+                                  <th className="py-2 px-3 text-right">Unit Price</th>
+                                  <th className="py-2 px-3 text-right">Discount</th>
+                                  <th className="py-2 px-3 text-right">Line Total</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-white/[0.04] text-zinc-300">
-                                {order.items.map((item, idx) => (
-                                  <tr key={idx} className="hover:bg-zinc-900/40">
-                                    <td className="px-3 py-2">
-                                      <div className="font-semibold text-zinc-100">{item.itemName}</div>
-                                      <div className="text-[10px] text-zinc-500 font-mono">{item.sku}</div>
+                              <tbody className="divide-y divide-white/[0.03] text-zinc-300 font-mono">
+                                {order.items.map((it, idx) => (
+                                  <tr key={`${it.itemId}-${idx}`} className="hover:bg-zinc-900/40">
+                                    <td className="py-2 px-3 font-sans font-medium text-white">
+                                      {it.itemName}
                                     </td>
-                                    <td className="px-3 py-2 text-center font-mono text-[11px] text-zinc-400">
-                                      {item.batchNumber || 'FIFO Auto'}
+                                    <td className="py-2 px-3 text-zinc-400 text-[11px]">
+                                      {it.sku}
                                     </td>
-                                    <td className="px-3 py-2 text-center font-mono font-semibold text-zinc-200">
-                                      {item.quantity} {item.unit}
+                                    <td className="py-2 px-3 text-center text-zinc-400 text-[11px]">
+                                      {it.batchNumber || '—'}
                                     </td>
-                                    <td className="px-3 py-2 text-right font-mono text-zinc-300">
-                                      {formatINR(item.unitPrice)}
+                                    <td className="py-2 px-3 text-center font-bold text-white">
+                                      {it.quantity} {it.unit}
                                     </td>
-                                    <td className="px-3 py-2 text-right font-mono">
-                                      {item.appliedDiscountPercentage > 0 ? (
-                                        <span className="text-amber-400 font-semibold">
-                                          -{item.appliedDiscountPercentage}%
-                                        </span>
-                                      ) : (
-                                        <span className="text-zinc-600">—</span>
-                                      )}
+                                    <td className="py-2 px-3 text-right text-zinc-300">
+                                      {formatINR(it.originalPrice || it.unitPrice)}
                                     </td>
-                                    <td className="px-3 py-2 text-right font-mono font-bold text-white">
-                                      {formatINR(item.total)}
+                                    <td className="py-2 px-3 text-right text-amber-400">
+                                      {it.appliedDiscountPercentage > 0 ? `-${it.appliedDiscountPercentage}%` : '—'}
+                                    </td>
+                                    <td className="py-2 px-3 text-right font-bold text-emerald-400">
+                                      {formatINR(it.total)}
                                     </td>
                                   </tr>
                                 ))}
@@ -638,6 +664,21 @@ export const AuditView: React.FC = () => {
                   </div>
                 );
               })}
+
+              {/* Lazy Load Footer for Sales Orders */}
+              {visibleSalesCount < filteredSalesOrders.length && (
+                <div className="p-3.5 rounded-xl border border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+                  <span className="font-mono text-[11px]">
+                    Showing {displayedSalesOrders.length} of {filteredSalesOrders.length} transactions
+                  </span>
+                  <button
+                    onClick={handleLoadMoreSales}
+                    className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+                  >
+                    Load More (+30 sales)
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -702,7 +743,7 @@ export const AuditView: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredMovements.map((mov) => {
+                    displayedMovements.map((mov) => {
                       const isPositive = mov.quantityDelta > 0;
                       const isNegative = mov.quantityDelta < 0;
 
@@ -774,6 +815,21 @@ export const AuditView: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Lazy Load Footer for Operations Movements */}
+            {visibleMovementsCount < filteredMovements.length && (
+              <div className="p-3.5 border-t border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-mono text-[11px]">
+                  Showing {displayedMovements.length} of {filteredMovements.length} ledger movements
+                </span>
+                <button
+                  onClick={handleLoadMoreMovements}
+                  className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+                >
+                  Load More (+40 movements)
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

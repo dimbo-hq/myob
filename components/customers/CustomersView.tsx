@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { Customer, SalesOrder, POSCartItem } from '@/types/inventory';
 import { 
@@ -134,6 +134,21 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ onOpenPOSForCustom
       return 0;
     });
   }, [customers, searchQuery, sortBy]);
+
+  // Lazy Loading for Customers Table
+  const [visibleCustomersCount, setVisibleCustomersCount] = useState(30);
+
+  useEffect(() => {
+    setVisibleCustomersCount(30);
+  }, [searchQuery, sortBy]);
+
+  const displayedCustomers = useMemo(() => {
+    return filteredCustomers.slice(0, visibleCustomersCount);
+  }, [filteredCustomers, visibleCustomersCount]);
+
+  const handleLoadMoreCustomers = () => {
+    setVisibleCustomersCount((prev) => Math.min(prev + 30, filteredCustomers.length));
+  };
 
   // Orders for History Customer
   const customerOrders = useMemo(() => {
@@ -366,7 +381,7 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ onOpenPOSForCustom
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04] text-zinc-300">
-                {filteredCustomers.map((cust) => (
+                {displayedCustomers.map((cust) => (
                   <tr key={cust.id} className="hover:bg-zinc-900/60 transition-colors">
                     {/* Mobile Phone (Primary Key) */}
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -471,6 +486,21 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ onOpenPOSForCustom
               </tbody>
             </table>
           </div>
+
+          {/* Lazy Load Footer for Customers */}
+          {visibleCustomersCount < filteredCustomers.length && (
+            <div className="p-3.5 border-t border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+              <span className="font-mono text-[11px]">
+                Showing {displayedCustomers.length} of {filteredCustomers.length} registered customers
+              </span>
+              <button
+                onClick={handleLoadMoreCustomers}
+                className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              >
+                Load More (+30 customers)
+              </button>
+            </div>
+          )}
         </div>
       )}
 

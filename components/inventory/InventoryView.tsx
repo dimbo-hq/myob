@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { InventoryItem } from '@/types/inventory';
 import { 
@@ -74,18 +74,21 @@ export const InventoryView: React.FC = () => {
     return true;
   });
 
-  // Sort items
-  filteredItems.sort((a, b) => {
-    if (sortBy === 'name') return a.name.localeCompare(b.name);
-    if (sortBy === 'stock_asc') return a.currentStock - b.currentStock;
-    if (sortBy === 'stock_desc') return b.currentStock - a.currentStock;
-    if (sortBy === 'margin') {
-      const marginA = (a.sellingPrice - a.costPrice) / a.sellingPrice;
-      const marginB = (b.sellingPrice - b.costPrice) / b.sellingPrice;
-      return marginB - marginA;
-    }
-    return 0;
-  });
+  // Lazy Loading State
+  const [visibleCount, setVisibleCount] = useState(40);
+
+  useEffect(() => {
+    setVisibleCount(40);
+  }, [searchQuery, selectedCategory, selectedTempZone, selectedStatus, sortBy]);
+
+  // Displayed slice for fast DOM rendering
+  const displayedItems = useMemo<InventoryItem[]>(() => {
+    return filteredItems.slice(0, visibleCount);
+  }, [filteredItems, visibleCount]);
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => Math.min(prev + 40, filteredItems.length));
+  };
 
   const handleCopyBarcode = (barcode: string) => {
     navigator.clipboard.writeText(barcode);
@@ -282,7 +285,7 @@ export const InventoryView: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredItems.map((item, idx) => {
+                  displayedItems.map((item, idx) => {
                     const status = getItemStatus(item);
                     const margin = item.sellingPrice > 0
                       ? Math.round(((item.sellingPrice - item.costPrice) / item.sellingPrice) * 100)
@@ -362,7 +365,7 @@ export const InventoryView: React.FC = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => setAdjustingItem(item)}
-                              className="rounded border border-white/[0.06] bg-zinc-900 px-2 py-1 text-[11px] text-zinc-300 hover:bg-zinc-800"
+                              className="rounded border border-white/[0.06] bg-zinc-900 px-2 py-1 text-[11px] text-zinc-300 hover:bg-zinc-800 cursor-pointer"
                               title="Quick Stock Adjust"
                             >
                               Count +/-
@@ -370,7 +373,7 @@ export const InventoryView: React.FC = () => {
 
                             <button
                               onClick={() => setEditingItem(item)}
-                              className="rounded border border-white/[0.06] bg-zinc-900 p-1 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                              className="rounded border border-white/[0.06] bg-zinc-900 p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
                               title="Edit Product"
                             >
                               <Edit3 className="h-3 w-3" />
@@ -378,7 +381,7 @@ export const InventoryView: React.FC = () => {
 
                             <button
                               onClick={() => deleteItem(item.id)}
-                              className="rounded border border-white/[0.06] bg-zinc-900 p-1 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800"
+                              className="rounded border border-white/[0.06] bg-zinc-900 p-1 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 cursor-pointer"
                               title="Delete Product"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -392,72 +395,104 @@ export const InventoryView: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Lazy Load Footer for Table */}
+          {visibleCount < filteredItems.length && (
+            <div className="p-3 border-t border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+              <span className="font-mono text-[11px]">
+                Showing {displayedItems.length} of {filteredItems.length} products
+              </span>
+              <button
+                onClick={handleLoadMore}
+                className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              >
+                Load More (+40 items)
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {filteredItems.map((item, idx) => {
-            const status = getItemStatus(item);
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {displayedItems.map((item, idx) => {
+              const status = getItemStatus(item);
 
-            return (
-              <div
-                key={`${item.id}-${idx}`}
-                className="surface-card rounded-xl p-4 flex flex-col justify-between"
-              >
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/50">
-                      {item.category}
-                    </span>
-                    <TempZoneBadge zone={item.location.tempZone} />
-                  </div>
-
-                  <div>
-                    <h4 className="text-xs font-medium text-white">{item.name}</h4>
-                    <div className="text-[11px] text-zinc-500 font-mono mt-0.5">
-                      {item.sku} • {item.location.aisle}
+              return (
+                <div
+                  key={`${item.id}-${idx}`}
+                  className="surface-card rounded-xl p-4 flex flex-col justify-between"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/50">
+                        {item.category}
+                      </span>
+                      <TempZoneBadge zone={item.location.tempZone} />
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between border-t border-white/[0.04] pt-2 text-xs">
                     <div>
-                      <div className="text-[10px] text-zinc-500">In Stock</div>
-                      <div className="font-mono text-zinc-200 font-medium">{item.currentStock} {item.unit}</div>
+                      <h4 className="text-xs font-medium text-white">{item.name}</h4>
+                      <div className="text-[11px] text-zinc-500 font-mono mt-0.5">
+                        {item.sku} • {item.location.aisle}
+                      </div>
                     </div>
-                    <StockStatusBadge
-                      status={status}
-                      currentStock={item.currentStock}
-                      unit={item.unit}
-                    />
+
+                    <div className="flex items-center justify-between border-t border-white/[0.04] pt-2 text-xs">
+                      <div>
+                        <div className="text-[10px] text-zinc-500">In Stock</div>
+                        <div className="font-mono text-zinc-200 font-medium">{item.currentStock} {item.unit}</div>
+                      </div>
+                      <StockStatusBadge
+                        status={status}
+                        currentStock={item.currentStock}
+                        unit={item.unit}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between">
+                    <button
+                      onClick={() => setBatchModalItem(item)}
+                      className="text-[11px] text-zinc-400 hover:text-white cursor-pointer"
+                    >
+                      {item.batches.length} Batches
+                    </button>
+
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => setAdjustingItem(item)}
+                        className="rounded border border-white/[0.06] bg-zinc-900 px-2 py-1 text-[11px] text-zinc-300 hover:bg-zinc-800 cursor-pointer"
+                      >
+                        Count +/-
+                      </button>
+                      <button
+                        onClick={() => setEditingItem(item)}
+                        className="rounded border border-white/[0.06] bg-zinc-900 p-1 text-zinc-400 hover:text-white cursor-pointer"
+                      >
+                        <Edit3 className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between">
-                  <button
-                    onClick={() => setBatchModalItem(item)}
-                    className="text-[11px] text-zinc-400 hover:text-white"
-                  >
-                    {item.batches.length} Batches
-                  </button>
-
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setAdjustingItem(item)}
-                      className="rounded border border-white/[0.06] bg-zinc-900 px-2 py-1 text-[11px] text-zinc-300 hover:bg-zinc-800"
-                    >
-                      Count +/-
-                    </button>
-                    <button
-                      onClick={() => setEditingItem(item)}
-                      className="rounded border border-white/[0.06] bg-zinc-900 p-1 text-zinc-400 hover:text-white"
-                    >
-                      <Edit3 className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {/* Lazy Load Footer for Grid */}
+          {visibleCount < filteredItems.length && (
+            <div className="p-4 rounded-xl border border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+              <span className="font-mono text-[11px]">
+                Showing {displayedItems.length} of {filteredItems.length} products
+              </span>
+              <button
+                onClick={handleLoadMore}
+                className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              >
+                Load More (+40 items)
+              </button>
+            </div>
+          )}
         </div>
       )}
 

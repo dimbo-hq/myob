@@ -74,6 +74,21 @@ export const ExpiryView: React.FC = () => {
     return true;
   });
 
+  // Lazy Loading for Batches Grid
+  const [visibleBatchesCount, setVisibleBatchesCount] = useState(36);
+
+  React.useEffect(() => {
+    setVisibleBatchesCount(36);
+  }, [searchFilter, activeTab]);
+
+  const displayedBatches = React.useMemo(() => {
+    return filteredBatches.slice(0, visibleBatchesCount);
+  }, [filteredBatches, visibleBatchesCount]);
+
+  const handleLoadMoreBatches = () => {
+    setVisibleBatchesCount((prev) => Math.min(prev + 36, filteredBatches.length));
+  };
+
   const criticalCount = allBatches.filter((b) => b.daysLeft >= 0 && b.daysLeft <= 2).length;
   const warningCount = allBatches.filter((b) => b.daysLeft > 2 && b.daysLeft <= 7).length;
   const expiredCount = allBatches.filter((b) => b.daysLeft < 0).length;
@@ -205,120 +220,137 @@ export const ExpiryView: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {filteredBatches.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-xs text-zinc-500 surface-card rounded-xl">
-              No batches match the selected filter.
-            </div>
-          ) : (
-            filteredBatches.map(({ item, batch, daysLeft, status }, index) => {
-              const originalPrice = item.sellingPrice;
-              const hasMarkdown = batch.markdownPercentage > 0;
-              const markdownPrice = batch.markdownPrice || (originalPrice * (1 - (batch.markdownPercentage || 0) / 100));
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {filteredBatches.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-xs text-zinc-500 surface-card rounded-xl">
+                No batches match the selected filter.
+              </div>
+            ) : (
+              displayedBatches.map(({ item, batch, daysLeft, status }, index) => {
+                const originalPrice = item.sellingPrice;
+                const hasMarkdown = batch.markdownPercentage > 0;
+                const markdownPrice = batch.markdownPrice || (originalPrice * (1 - (batch.markdownPercentage || 0) / 100));
 
-              return (
-                <div
-                  key={`${item.id}-${batch.id}-${index}`}
-                  className="surface-card rounded-xl p-4 flex flex-col justify-between"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/50 truncate">
-                        {item.category}
-                      </span>
-                      <TempZoneBadge zone={item.location.tempZone} />
-                    </div>
-
-                    <div>
-                      <h4 className="text-xs font-medium text-white">{item.name}</h4>
-                      <div className="flex items-center gap-2 text-[11px] text-zinc-500 mt-0.5">
-                        <span>Batch #{batch.batchNumber}</span>
-                        <span>•</span>
-                        <span>{batch.quantity} {item.unit}</span>
+                return (
+                  <div
+                    key={`${item.id}-${batch.id}-${index}`}
+                    className="surface-card rounded-xl p-4 flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/50 truncate">
+                          {item.category}
+                        </span>
+                        <TempZoneBadge zone={item.location.tempZone} />
                       </div>
-                    </div>
 
-                    {/* Expiry Pill */}
-                    <div className="rounded-lg border border-white/[0.04] bg-zinc-900/40 p-2.5 flex items-center justify-between text-xs">
                       <div>
-                        <div className="text-[10px] text-zinc-500">Expiry Date</div>
-                        <div className="font-mono text-zinc-200">{batch.expiryDate}</div>
-                      </div>
-                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${
-                        daysLeft < 0
-                          ? 'bg-rose-950/50 text-rose-400 border border-rose-800/40'
-                          : daysLeft <= 2
-                          ? 'bg-amber-950/50 text-amber-400 border border-amber-800/40'
-                          : 'bg-zinc-800 text-zinc-300'
-                      }`}>
-                        {daysLeft < 0 ? `Expired ${Math.abs(daysLeft)}d` : daysLeft === 0 ? 'Expires Today' : `${daysLeft}d left`}
-                      </span>
-                    </div>
-
-                    {/* Pricing */}
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <span className="text-[10px] text-zinc-500">Price</span>
-                        <div className={`font-mono ${hasMarkdown ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>
-                          {formatINR(originalPrice)}
+                        <h4 className="text-xs font-medium text-white">{item.name}</h4>
+                        <div className="flex items-center gap-2 text-[11px] text-zinc-500 mt-0.5">
+                          <span>Batch #{batch.batchNumber}</span>
+                          <span>•</span>
+                          <span>{batch.quantity} {item.unit}</span>
                         </div>
                       </div>
 
-                      {hasMarkdown && (
-                        <div className="text-right">
-                          <span className="text-[10px] text-amber-400 font-medium">-{batch.markdownPercentage}% Markdown</span>
-                          <div className="font-mono font-medium text-emerald-400">
-                            {formatINR(markdownPrice)}
+                      {/* Expiry Pill */}
+                      <div className="rounded-lg border border-white/[0.04] bg-zinc-900/40 p-2.5 flex items-center justify-between text-xs">
+                        <div>
+                          <div className="text-[10px] text-zinc-500">Expiry Date</div>
+                          <div className="font-mono text-zinc-200">{batch.expiryDate}</div>
+                        </div>
+                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${
+                          daysLeft < 0
+                            ? 'bg-rose-950/50 text-rose-400 border border-rose-800/40'
+                            : daysLeft <= 2
+                            ? 'bg-amber-950/50 text-amber-400 border border-amber-800/40'
+                            : 'bg-zinc-800 text-zinc-300'
+                        }`}>
+                          {daysLeft < 0 ? `Expired ${Math.abs(daysLeft)}d` : daysLeft === 0 ? 'Expires Today' : `${daysLeft}d left`}
+                        </span>
+                      </div>
+
+                      {/* Pricing */}
+                      <div className="flex items-center justify-between text-xs">
+                        <div>
+                          <span className="text-[10px] text-zinc-500">Price</span>
+                          <div className={`font-mono ${hasMarkdown ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>
+                            {formatINR(originalPrice)}
+                          </div>
+                        </div>
+
+                        {hasMarkdown && (
+                          <div className="text-right">
+                            <span className="text-[10px] text-amber-400 font-medium">-{batch.markdownPercentage}% Markdown</span>
+                            <div className="font-mono font-medium text-emerald-400">
+                              {formatINR(markdownPrice)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions & Presets */}
+                    <div className="mt-3.5 pt-3 border-t border-white/[0.04] space-y-2">
+                      {status !== 'expired' && (
+                        <div>
+                          <div className="text-[10px] text-zinc-500 mb-1 font-medium">Quick Markdown</div>
+                          <div className="grid grid-cols-4 gap-1">
+                            {[15, 30, 50, 75].map((pct) => (
+                              <button
+                                key={pct}
+                                onClick={() => applyBatchMarkdown(item.id, batch.id, pct)}
+                                className={`rounded py-1 text-[10px] font-mono font-semibold transition-all ${
+                                  batch.markdownPercentage === pct
+                                    ? 'bg-amber-500 text-zinc-950 shadow-sm'
+                                    : 'border border-white/[0.06] bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                                }`}
+                              >
+                                {pct}%
+                              </button>
+                            ))}
                           </div>
                         </div>
                       )}
-                    </div>
-                  </div>
 
-                  {/* Actions & Presets */}
-                  <div className="mt-3.5 pt-3 border-t border-white/[0.04] space-y-2">
-                    {status !== 'expired' && (
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-zinc-500">Clearance:</span>
-                        <div className="flex gap-1">
-                          {[0, 20, 35, 50].map((pct) => (
-                            <button
-                              key={pct}
-                              onClick={() => applyBatchMarkdown(item.id, batch.id, pct)}
-                              className={`rounded px-1.5 py-0.5 text-[10px] font-medium transition-all ${
-                                batch.markdownPercentage === pct
-                                  ? 'bg-zinc-200 text-zinc-900 font-semibold'
-                                  : 'bg-zinc-900 text-zinc-400 hover:text-white'
-                              }`}
-                            >
-                              {pct === 0 ? '0%' : `-${pct}%`}
-                            </button>
-                          ))}
-                        </div>
+                      <div className="flex items-center justify-between gap-1.5 pt-1">
+                        <button
+                          onClick={() => setSelectedLabelItem({ item, batch, days: daysLeft })}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900 py-1.5 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                          <span>Print Tag</span>
+                        </button>
+
+                        <button
+                          onClick={() => setSelectedWasteItem({ item, batch })}
+                          className="rounded-lg border border-white/[0.06] bg-zinc-900 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 cursor-pointer"
+                          title="Write off spoilage"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                    )}
-
-                    <div className="flex gap-1.5 pt-1">
-                      <button
-                        onClick={() => setSelectedLabelItem({ item, batch, days: daysLeft })}
-                        className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        <span>Print Tag</span>
-                      </button>
-
-                      <button
-                        onClick={() => setSelectedWasteItem({ item, batch })}
-                        className="rounded-lg border border-white/[0.06] bg-zinc-900 p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800"
-                        title="Write off spoilage"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
                     </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })
+            )}
+          </div>
+
+          {/* Lazy Load Footer for Batches */}
+          {visibleBatchesCount < filteredBatches.length && (
+            <div className="p-4 rounded-xl border border-white/[0.06] bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-400">
+              <span className="font-mono text-[11px]">
+                Showing {displayedBatches.length} of {filteredBatches.length} inventory batches
+              </span>
+              <button
+                onClick={handleLoadMoreBatches}
+                className="rounded-lg border border-white/[0.08] bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              >
+                Load More (+36 batches)
+              </button>
+            </div>
           )}
         </div>
       )}
