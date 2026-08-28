@@ -67,30 +67,32 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
 
   const [isWipeModalOpen, setIsWipeModalOpen] = useState(false);
 
-  if (!isOpen && !isWipeModalOpen) return null;
-
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-hidden">
-        {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm"
-        />
+    <>
+      <AnimatePresence>
+        {isOpen && (
+          <div key="operations-drawer-container" className="fixed inset-0 z-50 overflow-hidden">
+            {/* Backdrop */}
+            <motion.div
+              key="operations-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={onClose}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            />
 
-        {/* Slide-over Drawer Panel */}
-        <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="w-screen max-w-md border-l border-white/[0.08] bg-[#0c0c10] shadow-2xl flex flex-col"
-          >
+            {/* Slide-over Drawer Panel */}
+            <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
+              <motion.div
+                key="operations-drawer-panel"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="w-screen max-w-md border-l border-white/[0.08] bg-[#0c0c10] shadow-2xl flex flex-col"
+              >
             {/* Drawer Header */}
             <div className="flex items-center justify-between border-b border-white/[0.06] p-4 bg-zinc-950/80">
               <div className="flex items-center gap-3">
@@ -416,6 +418,8 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
           </motion.div>
         </div>
       </div>
+        )}
+      </AnimatePresence>
 
       {/* High-Security Wipe Modal */}
       {isWipeModalOpen && (
@@ -427,6 +431,6 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
           }}
         />
       )}
-    </AnimatePresence>
+    </>
   );
 };
