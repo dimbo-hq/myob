@@ -134,6 +134,7 @@ interface InventoryContextType {
   // Simulator & Utilities
   advanceSimulatedDays: (days: number) => void;
   resetSimulatedDate: () => void;
+  wipeAllStoreData: () => Promise<void>;
   resetToDemoData: () => void;
   seedSampleData: () => Promise<void>;
   
@@ -1773,24 +1774,63 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
   }, [addToast]);
 
-  const resetToDemoData = useCallback(() => {
-    setItems([]);
-    setSuppliers([]);
-    setPurchaseOrders([]);
-    setStockMovements([]);
-    setWastageLogs([]);
-    setCustomers([]);
-    setSalesOrders([]);
-    setRefundRecords([]);
-    setZReports([]);
-    setSimulatedDateOffset(0);
+  const wipeAllStoreData = useCallback(async () => {
+    hasUserMutatedRef.current = true;
+    setIsSyncing(true);
 
-    addToast({
-      type: 'info',
-      title: 'Store Cleared',
-      message: 'Store catalogue cleared. Ready for fresh import.'
-    });
-  }, [addToast]);
+    try {
+      // 1. Immediately wipe in-memory state
+      setItems([]);
+      setSuppliers([]);
+      setPurchaseOrders([]);
+      setStockMovements([]);
+      setWastageLogs([]);
+      setCustomers([]);
+      setSalesOrders([]);
+      setRefundRecords([]);
+      setZReports([]);
+      setStoreName('');
+      setSimulatedDateOffset(0);
+
+      // 2. Clear all local storage caches
+      if (typeof window !== 'undefined' && userId) {
+        try {
+          localStorage.removeItem('myob_store_data_' + userId);
+          localStorage.removeItem('myob_store_name_' + userId);
+        } catch (e) {
+          console.warn('LocalStorage clear error:', e);
+        }
+      }
+
+      // 3. Send DELETE request to MongoDB Atlas backend
+      const res = await fetch('/api/store-data', {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete cloud documents');
+      }
+
+      addToast({
+        type: 'success',
+        title: 'Store Data Permanently Wiped',
+        message: 'All inventory, customers, purchase orders, sales history, and store settings were deleted.'
+      });
+    } catch (err: any) {
+      console.error('Error wiping store data from database:', err);
+      addToast({
+        type: 'info',
+        title: 'Store Cleared Locally',
+        message: 'Store catalogue cleared. Backend will refresh on next connect.'
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [userId, addToast]);
+
+  const resetToDemoData = useCallback(() => {
+    wipeAllStoreData();
+  }, [wipeAllStoreData]);
 
   return (
     <InventoryContext.Provider
@@ -1835,6 +1875,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         generateZReport,
         advanceSimulatedDays,
         resetSimulatedDate,
+        wipeAllStoreData,
         resetToDemoData,
         seedSampleData,
         addToast,

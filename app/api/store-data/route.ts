@@ -229,3 +229,43 @@ export async function POST(req: NextRequest) {
     });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized. Please sign in.' }, { status: 401 });
+    }
+
+    const db = await getDatabase();
+    if (!db) {
+      return NextResponse.json({
+        success: true,
+        isOfflineMode: true,
+        message: 'Deleted in offline local mode.'
+      });
+    }
+
+    // Completely wipe all collections for this tenant userId
+    await Promise.all([
+      db.collection('inventory_items').deleteMany({ userId }),
+      db.collection('suppliers').deleteMany({ userId }),
+      db.collection('purchase_orders').deleteMany({ userId }),
+      db.collection('stock_movements').deleteMany({ userId }),
+      db.collection('wastage_logs').deleteMany({ userId }),
+      db.collection('customers').deleteMany({ userId }),
+      db.collection('sales_orders').deleteMany({ userId }),
+      db.collection('refund_records').deleteMany({ userId }),
+      db.collection('z_reports').deleteMany({ userId }),
+      db.collection('store_settings').deleteMany({ userId })
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      message: 'All tenant store data, items, customers, orders, and settings permanently deleted.'
+    });
+  } catch (error: any) {
+    console.error('Store data wipe error:', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

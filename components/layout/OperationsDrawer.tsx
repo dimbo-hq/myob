@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { 
   X, 
@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatINR } from '@/lib/currency';
+import { WipeStoreModal } from '../common/WipeStoreModal';
 
 interface OperationsDrawerProps {
   isOpen: boolean;
@@ -59,13 +60,14 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
     storeName,
     summary,
     simulatedDateOffset,
-    resetToDemoData,
     isSyncing,
     customers,
     items
   } = useInventory();
 
-  if (!isOpen) return null;
+  const [isWipeModalOpen, setIsWipeModalOpen] = useState(false);
+
+  if (!isOpen && !isWipeModalOpen) return null;
 
   return (
     <AnimatePresence>
@@ -374,30 +376,28 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
                     <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
                   </button>
 
-                  {/* Clear Store Data */}
+                  {/* Danger Zone: Permanent Store Wipe */}
                   <button
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to clear all store catalogue and transaction data? This cannot be undone.')) {
-                        onClose();
-                        resetToDemoData();
-                      }
-                    }}
-                    className="w-full flex items-center justify-between rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 text-left hover:bg-rose-500/10 transition-all group cursor-pointer"
+                    onClick={() => setIsWipeModalOpen(true)}
+                    className="w-full flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-left hover:bg-rose-500/15 hover:border-rose-500/50 transition-all group cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30">
                         <Trash2 className="h-4 w-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-rose-300 group-hover:text-rose-200">
-                          Clear Store Catalogue
+                        <div className="text-xs font-bold text-rose-300 group-hover:text-rose-200 flex items-center gap-1.5">
+                          <span>Permanent Store Wipe</span>
+                          <span className="rounded bg-rose-950 px-1.5 py-0.2 text-[9px] font-mono font-bold text-rose-400 border border-rose-800/60 uppercase">
+                            Danger
+                          </span>
                         </div>
-                        <div className="text-[11px] text-zinc-400">
-                          Wipe store products and logs to start fresh with a new import
+                        <div className="text-[11px] text-zinc-400 mt-0.5">
+                          Erase all cloud products, customers, orders & registers
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-rose-500/60 group-hover:text-rose-400 transition-colors" />
+                    <ChevronRight className="h-4 w-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </div>
               </div>
@@ -416,6 +416,17 @@ export const OperationsDrawer: React.FC<OperationsDrawerProps> = ({
           </motion.div>
         </div>
       </div>
+
+      {/* High-Security Wipe Modal */}
+      {isWipeModalOpen && (
+        <WipeStoreModal
+          isOpen={isWipeModalOpen}
+          onClose={() => {
+            setIsWipeModalOpen(false);
+            onClose();
+          }}
+        />
+      )}
     </AnimatePresence>
   );
 };
