@@ -587,24 +587,123 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                   </div>
 
                   {matchedCustomer ? (
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2 flex items-center justify-between text-xs">
-                      <div>
-                        <div className="font-semibold text-emerald-300">{matchedCustomer.name}</div>
-                        <div className="text-[10px] text-zinc-400">
-                          {matchedCustomer.gstin ? `GST: ${matchedCustomer.gstin}` : 'Retail Member'} • Lifetime: {formatINR(matchedCustomer.totalSpent)}
+                    <div className="space-y-1.5">
+                      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2 flex items-center justify-between text-xs">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <div className="font-semibold text-emerald-300 truncate">{matchedCustomer.name}</div>
+                          <div className="text-[10px] text-zinc-400 truncate">
+                            {matchedCustomer.gstin ? `GST: ${matchedCustomer.gstin}` : 'Retail Member'} • Lifetime: {formatINR(matchedCustomer.totalSpent)}
+                          </div>
+                          {matchedCustomer.address && (
+                            <div className="text-[10px] text-zinc-500 truncate mt-0.5">
+                              📍 {matchedCustomer.address}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setShowCustomerForm(!showCustomerForm)}
+                            className="rounded px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 hover:text-white bg-zinc-900 border border-white/[0.08] cursor-pointer"
+                            title="Edit customer details"
+                          >
+                            {showCustomerForm ? 'Hide' : 'Edit'}
+                          </button>
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                         </div>
                       </div>
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+
+                      {/* Expanded Editable Fields for Existing Customer */}
+                      {showCustomerForm && (
+                        <div className="rounded-lg border border-white/[0.08] bg-zinc-950 p-2 space-y-1.5 text-xs animate-fadeIn">
+                          <div className="text-[10px] font-semibold text-zinc-400 font-mono">
+                            Update Customer Profile:
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Customer Full Name"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                          />
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <input
+                              type="text"
+                              placeholder="GSTIN (e.g. 29ABCDE...)"
+                              value={customerGstin}
+                              onChange={(e) => setCustomerGstin(e.target.value.toUpperCase())}
+                              className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none font-mono"
+                            />
+                            <input
+                              type="email"
+                              placeholder="Email (for e-receipt)"
+                              value={customerEmail}
+                              onChange={(e) => setCustomerEmail(e.target.value)}
+                              className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Billing Address / City (Optional)"
+                            value={customerAddress}
+                            onChange={(e) => setCustomerAddress(e.target.value)}
+                            className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                          />
+                        </div>
+                      )}
                     </div>
                   ) : customerPhone.trim().length >= 4 && (
-                    <div className="space-y-1.5 pt-1">
+                    <div className="space-y-1.5 pt-0.5">
                       <input
                         type="text"
                         placeholder="Customer Full Name (New Member)"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full rounded-lg border border-white/[0.08] bg-zinc-950 px-2.5 py-1 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-white/[0.08] bg-zinc-950 px-2.5 py-1.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
                       />
+
+                      {/* Additional Details Toggle for New Customer */}
+                      <div className="pt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomerForm(!showCustomerForm)}
+                          className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-emerald-400 font-medium transition-colors cursor-pointer"
+                        >
+                          <ChevronDown className={`h-3 w-3 transition-transform ${showCustomerForm ? 'rotate-180 text-emerald-400' : ''}`} />
+                          <span>{showCustomerForm ? 'Hide Additional Details' : '+ Add GSTIN, Email & Address'}</span>
+                          {(customerGstin || customerEmail || customerAddress) && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          )}
+                        </button>
+
+                        {(showCustomerForm || customerGstin || customerEmail || customerAddress) && (
+                          <div className="rounded-lg border border-white/[0.06] bg-zinc-950 p-2 space-y-1.5 mt-1.5 animate-fadeIn">
+                            <div className="grid grid-cols-2 gap-1.5">
+                              <input
+                                type="text"
+                                placeholder="GSTIN (B2B Tax)"
+                                value={customerGstin}
+                                onChange={(e) => setCustomerGstin(e.target.value.toUpperCase())}
+                                className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none font-mono"
+                              />
+                              <input
+                                type="email"
+                                placeholder="Email (E-Receipt)"
+                                value={customerEmail}
+                                onChange={(e) => setCustomerEmail(e.target.value)}
+                                className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Billing Address / City (Optional)"
+                              value={customerAddress}
+                              onChange={(e) => setCustomerAddress(e.target.value)}
+                              className="w-full rounded border border-white/[0.08] bg-zinc-900 px-2 py-1 text-[11px] text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
