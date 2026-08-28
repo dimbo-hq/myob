@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { InventoryItem, MovementType } from '@/types/inventory';
 import { SlidersHorizontal, Plus, Minus, X, Check } from 'lucide-react';
@@ -22,7 +22,13 @@ export const QuickAdjustModal: React.FC<QuickAdjustModalProps> = ({
   const [mode, setMode] = useState<'add' | 'remove'>('add');
   const [amount, setAmount] = useState<number>(5);
   const [reason, setReason] = useState('Store Cycle Count Audit');
-  const [selectedBatch, setSelectedBatch] = useState<string>(item.batches[0]?.batchNumber || '');
+  const [selectedBatch, setSelectedBatch] = useState<string>(item?.batches[0]?.batchNumber || '');
+
+  useEffect(() => {
+    if (item) {
+      setSelectedBatch(item.batches[0]?.batchNumber || '');
+    }
+  }, [item, isOpen]);
 
   if (!isOpen) return null;
 

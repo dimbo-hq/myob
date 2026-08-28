@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { PurchaseOrder } from '@/types/inventory';
 import { CheckCircle2, PackageCheck, X } from 'lucide-react';
@@ -26,6 +26,16 @@ export const GoodsReceiptModal: React.FC<GoodsReceiptModalProps> = ({
     });
     return initial;
   });
+
+  useEffect(() => {
+    if (po) {
+      const initial: Record<string, number> = {};
+      po.items.forEach((item) => {
+        initial[item.itemId] = item.orderedQty;
+      });
+      setReceivedMap(initial);
+    }
+  }, [po, isOpen]);
 
   if (!isOpen) return null;
 

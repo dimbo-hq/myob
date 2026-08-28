@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { InventoryItem, CategoryType, UnitType, TempZone } from '@/types/inventory';
 import { getRelativeDate } from '@/lib/dateUtils';
@@ -53,6 +53,51 @@ export const AddEditItemModal: React.FC<AddEditItemModalProps> = ({
 
   // Initial Batch
   const [initialBatchExpiry, setInitialBatchExpiry] = useState(getRelativeDate(14));
+
+  useEffect(() => {
+    if (itemToEdit) {
+      setName(itemToEdit.name);
+      setBrand(itemToEdit.brand || '');
+      setSku(itemToEdit.sku);
+      setBarcode(itemToEdit.barcode);
+      setCategory(itemToEdit.category);
+      setSubcategory(itemToEdit.subcategory || 'General');
+      setUnit(itemToEdit.unit);
+      setTempZone(itemToEdit.location.tempZone);
+      setCurrentStock(itemToEdit.currentStock);
+      setMinStockLevel(itemToEdit.minStockLevel);
+      setReorderPoint(itemToEdit.reorderPoint);
+      setOptimalStockLevel(itemToEdit.optimalStockLevel);
+      setCostPrice(itemToEdit.costPrice);
+      setSellingPrice(itemToEdit.sellingPrice);
+      setVatRate(itemToEdit.vatRate);
+      setAisle(itemToEdit.location.aisle);
+      setShelf(itemToEdit.location.shelf);
+      setSection(itemToEdit.location.section);
+      setSupplierId(itemToEdit.supplierId);
+    } else {
+      setName('');
+      setBrand('');
+      setSku(`SKU-${Math.floor(1000 + Math.random() * 9000)}`);
+      setBarcode(`890100${Math.floor(100000 + Math.random() * 900000)}`);
+      setCategory('Fresh Produce');
+      setSubcategory('General');
+      setUnit('pcs');
+      setTempZone('ambient');
+      setCurrentStock(30);
+      setMinStockLevel(10);
+      setReorderPoint(15);
+      setOptimalStockLevel(50);
+      setCostPrice(2.50);
+      setSellingPrice(4.99);
+      setVatRate(0.0);
+      setAisle('Aisle 01');
+      setShelf('Bay 01');
+      setSection('General Shelving');
+      setSupplierId(suppliers[0]?.id || 'sup-1');
+      setInitialBatchExpiry(getRelativeDate(14));
+    }
+  }, [itemToEdit, isOpen, suppliers]);
 
   if (!isOpen) return null;
 
