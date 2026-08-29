@@ -14,27 +14,33 @@ import {
   Smartphone, 
   X, 
   Check, 
-  Tag,
-  QrCode,
-  Store,
-  Layers,
-  User,
-  UserPlus,
-  Phone,
-  Sparkles,
-  Building2,
-  MapPin,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle2,
-  Scale,
-  Split,
-  Coins,
-  AlertCircle
+  Tag, 
+  QrCode, 
+  Store, 
+  Layers, 
+  User, 
+  UserPlus, 
+  Phone, 
+  Sparkles, 
+  Building2, 
+  MapPin, 
+  ChevronDown, 
+  ChevronUp, 
+  CheckCircle2, 
+  Scale, 
+  Split, 
+  Coins, 
+  AlertCircle,
+  Monitor,
+  Flame,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ReceiptModal } from './ReceiptModal';
+import { CustomerDisplayModal } from './CustomerDisplayModal';
 import { formatINR } from '@/lib/currency';
+import { soundFx } from '@/lib/soundEffects';
 
 interface ExpressPOSModalProps {
   isOpen: boolean;
@@ -50,6 +56,8 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     storeName,
     addToast
   } = useInventory();
+  
+  const [isCustomerDisplayOpen, setIsCustomerDisplayOpen] = useState(false);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -216,10 +224,14 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     const priceInfo = getItemEffectivePrice(item);
     const existingIndex = cart.findIndex((c) => c.item.id === item.id);
 
+    // Audio feedback
+    soundFx.playScanBeep();
+
     if (existingIndex !== -1) {
       const existing = cart[existingIndex];
       const newQty = Math.round((existing.quantity + qtyToAdd) * 1000) / 1000;
       if (newQty > item.currentStock) {
+        soundFx.playErrorThud();
         addToast({
           type: 'warning',
           title: 'Max Stock Exceeded',
@@ -259,6 +271,8 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
       if (exactMatch) {
         handleAddToCart(exactMatch);
         setSearchQuery('');
+      } else {
+        soundFx.playErrorThud();
       }
     }
   };
@@ -270,11 +284,16 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
     if (newQty <= 0) {
       handleRemoveFromCart(index);
+      soundFx.playCartTick();
       return;
     }
 
-    if (newQty > target.item.currentStock) return;
+    if (newQty > target.item.currentStock) {
+      soundFx.playErrorThud();
+      return;
+    }
 
+    soundFx.playCartTick();
     const updatedCart = [...cart];
     updatedCart[index] = {
       ...target,
@@ -301,6 +320,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
   const handleRemoveFromCart = (index: number) => {
     setCart(cart.filter((_, i) => i !== index));
+    soundFx.playCartTick();
   };
 
   const handleClearCart = () => {
@@ -320,6 +340,15 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
     setMatchedCustomer(null);
     setShowCustomerForm(false);
   };
+
+  // Smart Upsell Recommendations (Complementary fast-moving items not in cart)
+  const upsellRecommendations = useMemo(() => {
+    if (cart.length === 0) return [];
+    const inCartIds = new Set(cart.map((c) => c.item.id));
+    return items
+      .filter((it) => !inCartIds.has(it.id) && it.currentStock > 0)
+      .slice(0, 5);
+  }, [cart, items]);
 
   // Calculations
   const subtotal = cart.reduce((acc, curr) => acc + (curr.quantity * curr.item.sellingPrice), 0);
@@ -344,6 +373,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
     // Validate Cash Tender
     if (paymentMethod === 'cash' && parsedCashTendered < grandTotal && parsedCashTendered > 0) {
+      soundFx.playErrorThud();
       addToast({
         type: 'warning',
         title: 'Insufficient Cash Tendered',
@@ -354,6 +384,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
     // Validate Split Tender
     if (paymentMethod === 'split' && splitRemainingBalance !== 0) {
+      soundFx.playErrorThud();
       addToast({
         type: 'warning',
         title: 'Split Payment Unbalanced',
@@ -388,6 +419,7 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
 
     const result = processPOSSale(cart, paymentMethod.toUpperCase(), customerPayload, paymentDetails);
     if (result.success) {
+      soundFx.playCheckoutChime();
       setCompletedOrder({
         orderId: result.orderId,
         items: [...cart],
@@ -404,6 +436,8 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
       setSplitUpi('');
       setSplitCard('');
       handleClearCustomer();
+    } else {
+      soundFx.playErrorThud();
     }
   };
 
@@ -449,6 +483,16 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomerDisplayOpen(true)}
+                    className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-2.5 py-1.5 text-xs font-heading font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer shadow-sm"
+                    title="Open Customer-Facing Dual Screen with Live UPI QR"
+                  >
+                    <Monitor className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="hidden md:inline">Customer Display</span>
+                  </button>
+
                   <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md border border-white/[0.04]">
                     <span>Enter ➔ Auto-Add</span>
                   </span>
@@ -824,6 +868,33 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
                 )}
               </div>
 
+              {/* Smart Upsell Recommendations Bar */}
+              {cart.length > 0 && upsellRecommendations.length > 0 && (
+                <div className="border-t border-white/[0.04] bg-zinc-950/60 p-2.5 space-y-1.5 shrink-0">
+                  <div className="flex items-center justify-between text-[11px] font-heading font-semibold text-amber-300">
+                    <span className="flex items-center gap-1">
+                      <Sparkles className="h-3 w-3 text-amber-400" />
+                      Frequently Paired with Basket
+                    </span>
+                    <span className="text-[9px] font-mono text-zinc-500 uppercase">AI Upsell</span>
+                  </div>
+                  <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+                    {upsellRecommendations.map((up) => (
+                      <button
+                        key={up.id}
+                        type="button"
+                        onClick={() => handleAddToCart(up)}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-900/90 px-2.5 py-1 text-[11px] text-zinc-200 hover:bg-zinc-800 hover:border-amber-500/30 transition-all shrink-0 cursor-pointer shadow-sm group"
+                      >
+                        <span className="truncate max-w-[110px] font-medium">{up.name}</span>
+                        <span className="font-mono font-bold text-amber-400">{formatINR(up.sellingPrice)}</span>
+                        <Plus className="h-3 w-3 text-zinc-400 group-hover:text-white" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Checkout Controls (Pinned Bottom) */}
               <div className="border-t border-white/[0.08] bg-zinc-950 p-3.5 space-y-2.5 shrink-0">
                 {/* Financial Breakdown */}
@@ -1076,6 +1147,21 @@ export const ExpressPOSModal: React.FC<ExpressPOSModalProps> = ({ isOpen, onClos
           </div>
         )}
       </AnimatePresence>
+
+      {/* Customer-Facing Live Display */}
+      {isCustomerDisplayOpen && (
+        <CustomerDisplayModal
+          isOpen={isCustomerDisplayOpen}
+          onClose={() => setIsCustomerDisplayOpen(false)}
+          cart={cart}
+          subtotal={subtotal}
+          discountTotal={discountTotal}
+          tax={tax}
+          total={grandTotal}
+          customer={matchedCustomer || (customerPhone ? { name: customerName || 'Valued Customer', phone: customerPhone } : null)}
+          storeName={storeName}
+        />
+      )}
 
       {completedOrder && (
         <ReceiptModal

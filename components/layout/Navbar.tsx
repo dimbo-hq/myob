@@ -33,6 +33,7 @@ interface NavbarProps {
   onNavigateCustomers: () => void;
   onOpenZReport: () => void;
   onOpenReturns: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -44,7 +45,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateExpiry,
   onNavigateCustomers,
   onOpenZReport,
-  onOpenReturns
+  onOpenReturns,
+  onOpenCommandPalette
 }) => {
   const {
     storeName,
@@ -122,6 +124,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <Clock className="h-3 w-3 text-cyan-400" />
                 <span>+{simulatedDateOffset}d Sim</span>
+              </button>
+            )}
+
+            {/* Global Spotlight ⌘K Button */}
+            {onOpenCommandPalette && (
+              <button
+                onClick={onOpenCommandPalette}
+                className="hidden md:flex items-center gap-2 rounded-xl border border-white/[0.08] bg-zinc-900/60 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/80 transition-all cursor-pointer shadow-sm group"
+                title="Open Global Command Palette (⌘K / Ctrl+K)"
+              >
+                <span className="font-sans text-[11px]">Search</span>
+                <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 border border-zinc-700 group-hover:border-zinc-500">⌘K</kbd>
               </button>
             )}
 

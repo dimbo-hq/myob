@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useInventory } from '@/context/InventoryContext';
 import { POSCartItem, Customer } from '@/types/inventory';
-import { Printer, CheckCircle2, X, Download, Loader2, User, Phone, MapPin, ReceiptText } from 'lucide-react';
+import { Printer, CheckCircle2, X, Download, Loader2, User, Phone, MapPin, ReceiptText, MessageSquare, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatINR } from '@/lib/currency';
 import jsPDF from 'jspdf';
@@ -270,6 +270,18 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     }, 2000);
   };
 
+  const handleShareWhatsApp = () => {
+    const itemLines = items.map((ci) => `• ${ci.item.name} (${ci.quantity} ${ci.item.unit}) - ₹${ci.total}`).join('\n');
+    const message = `🧾 *${displayName}* - Receipt #${orderId}\n\n📅 Date: ${new Date().toLocaleDateString()}\n💳 Payment: ${paymentMethod}\n\n*Items Purchased:*\n${itemLines}\n\nSubtotal: ₹${subtotal}\n${discountTotal > 0 ? `💰 Clearance Savings: -₹${discountTotal}\n` : ''}GST (5%): ₹${tax}\n*TOTAL PAID: ₹${total}*\n\nThank you for shopping with us!`;
+    
+    const phone = customer?.phone ? customer.phone.replace(/\D/g, '') : '';
+    const url = phone 
+      ? `https://wa.me/${phone.length === 10 ? '91' + phone : phone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    window.open(url, '_blank');
+  };
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
@@ -318,98 +330,81 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               {/* Order Meta info */}
               <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 text-slate-600 text-[11px]">
                 <div className="flex justify-between">
-                  <span>Receipt #:</span>
+                  <span>RECEIPT NO:</span>
                   <span className="font-bold text-slate-900">{orderId}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Date & Time:</span>
-                  <span>{new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+                  <span>DATE & TIME:</span>
+                  <span>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Payment Mode:</span>
-                  <span className="font-bold text-slate-900">{paymentMethod.toUpperCase()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Terminal:</span>
-                  <span>POS-01 (Express Lane)</span>
+                  <span>PAYMENT MODE:</span>
+                  <span className="font-bold uppercase text-slate-900">{paymentMethod}</span>
                 </div>
               </div>
 
-              {/* Customer Information Section (If Provided) */}
+              {/* Customer Profile if attached */}
               {customer && (
-                <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 bg-slate-50 p-2 rounded-lg text-slate-700 text-[11px]">
-                  <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-200 pb-1 mb-1">
-                    <span className="flex items-center gap-1">
-                      <User className="h-3 w-3 text-slate-600" /> Billed To:
-                    </span>
-                    <span className="text-emerald-700 font-semibold">{customer.name}</span>
+                <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 text-[11px] bg-slate-50 p-2 rounded">
+                  <div className="flex items-center gap-1 font-bold text-slate-900">
+                    <User className="h-3 w-3 text-slate-500" />
+                    <span>CUSTOMER: {customer.name}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Mobile No:</span>
-                    <span className="font-semibold text-slate-900">{customer.phone}</span>
+                  <div className="flex justify-between text-slate-600">
+                    <span>PHONE: {customer.phone}</span>
+                    {customer.totalSpent > 5000 && (
+                      <span className="font-bold text-emerald-700">★ VIP</span>
+                    )}
                   </div>
                   {customer.gstin && (
-                    <div className="flex justify-between">
-                      <span>GSTIN:</span>
-                      <span className="font-mono text-slate-900">{customer.gstin}</span>
-                    </div>
-                  )}
-                  {customer.address && (
-                    <div className="flex justify-between">
-                      <span>Address:</span>
-                      <span className="text-slate-600 truncate max-w-[170px]">{customer.address}</span>
-                    </div>
-                  )}
-                  {customer.totalOrders > 1 && (
-                    <div className="flex justify-between text-[10px] text-emerald-600 font-sans pt-0.5">
-                      <span>Loyalty Visit:</span>
-                      <span>#{customer.totalOrders} order</span>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      GSTIN: {customer.gstin}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Line Items */}
-              <div className="space-y-1.5 border-b border-dashed border-slate-300 pb-2.5 max-h-48 overflow-y-auto">
-                {items.map((cartItem, idx) => (
-                  <div key={idx} className="space-y-0.5 text-xs">
-                    <div className="flex justify-between font-bold text-slate-800">
-                      <span className="truncate pr-2">{cartItem.item.name}</span>
-                      <span className="shrink-0">{formatINR(cartItem.total)}</span>
-                    </div>
-                    <div className="flex justify-between text-[11px] text-slate-500">
-                      <span>
-                        {cartItem.quantity} x {formatINR(cartItem.unitPrice)}
-                        {cartItem.appliedDiscountPercentage > 0 && (
-                          <span className="text-amber-700 font-bold ml-1">
-                            (-{cartItem.appliedDiscountPercentage}% OFF)
+              {/* Itemized product breakdown */}
+              <div className="space-y-2 py-1">
+                <div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200 pb-1">
+                  <span>Item</span>
+                  <span>Qty × Price = Total</span>
+                </div>
+
+                {items.map((ci, idx) => (
+                  <div key={idx} className="flex justify-between items-start text-[11px] leading-tight">
+                    <div className="flex-1 pr-2">
+                      <div className="font-bold text-slate-900">{ci.item.name}</div>
+                      <div className="text-[10px] text-slate-500">
+                        {ci.quantity} {ci.item.unit} @ {formatINR(ci.unitPrice)}
+                        {ci.appliedDiscountPercentage > 0 && (
+                          <span className="text-amber-600 font-semibold ml-1">
+                            ({ci.appliedDiscountPercentage}% OFF)
                           </span>
                         )}
-                      </span>
-                      {cartItem.appliedDiscountPercentage > 0 && (
-                        <span className="line-through">
-                          {formatINR(cartItem.quantity * cartItem.item.sellingPrice)}
-                        </span>
-                      )}
+                      </div>
+                    </div>
+                    <div className="text-right font-bold text-slate-900">
+                      {formatINR(ci.total)}
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Financial Calculations */}
-              <div className="space-y-1 text-slate-700 text-xs">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
+              {/* Financial Calculation */}
+              <div className="border-t border-dashed border-slate-300 pt-2 space-y-1 text-[11px]">
+                <div className="flex justify-between text-slate-600">
+                  <span>Gross Subtotal:</span>
                   <span>{formatINR(subtotal)}</span>
                 </div>
                 {discountTotal > 0 && (
-                  <div className="flex justify-between text-amber-800 font-bold">
-                    <span>Total Savings:</span>
+                  <div className="flex justify-between text-amber-700 font-bold">
+                    <span>Clearance Markdown Savings:</span>
                     <span>-{formatINR(discountTotal)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[11px] text-slate-500">
-                  <span>GST (5%):</span>
+                <div className="flex justify-between text-slate-600">
+                  <span>GST (5% Included):</span>
                   <span>{formatINR(tax)}</span>
                 </div>
                 <div className="flex justify-between text-sm font-extrabold text-slate-950 border-t-2 border-slate-900 pt-1.5 mt-1.5">
@@ -428,40 +423,52 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons (Download PDF & Direct Print) */}
-          <div className="bg-slate-50 border-t border-slate-200 p-3.5 flex items-center gap-2 font-sans">
-            <button
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPDF}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-bold text-white hover:bg-emerald-500 active:scale-95 transition-all shadow-sm cursor-pointer disabled:opacity-50"
-            >
-              {isGeneratingPDF ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span>Generating PDF...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="h-3.5 w-3.5" />
-                  <span>Download PDF</span>
-                </>
-              )}
-            </button>
+          {/* Action Buttons (Download PDF, Print, WhatsApp) */}
+          <div className="bg-slate-50 border-t border-slate-200 p-3 flex flex-col gap-2 font-sans">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDownloadPDF}
+                disabled={isGeneratingPDF}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-500 active:scale-95 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {isGeneratingPDF ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Download PDF</span>
+                  </>
+                )}
+              </button>
 
-            <button
-              onClick={handlePrint}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2.5 text-xs font-bold text-white hover:bg-slate-800 active:scale-95 transition-all shadow-sm cursor-pointer"
-            >
-              <Printer className="h-3.5 w-3.5" />
-              <span>Print 1-Page</span>
-            </button>
+              <button
+                onClick={handlePrint}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800 active:scale-95 transition-all shadow-sm cursor-pointer"
+              >
+                <Printer className="h-3.5 w-3.5" />
+                <span>Print</span>
+              </button>
+            </div>
 
-            <button
-              onClick={onClose}
-              className="rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer"
-            >
-              Close
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleShareWhatsApp}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all cursor-pointer"
+              >
+                <MessageSquare className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Share on WhatsApp</span>
+              </button>
+
+              <button
+                onClick={onClose}
+                className="rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>

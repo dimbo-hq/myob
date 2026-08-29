@@ -18,6 +18,7 @@ import { TimeSimulatorModal } from '@/components/common/TimeSimulatorModal';
 import { AddEditItemModal } from '@/components/inventory/AddEditItemModal';
 import { ImportModal } from '@/components/inventory/ImportModal';
 import { StoreNameModal } from '@/components/common/StoreNameModal';
+import { CommandPaletteModal } from '@/components/common/CommandPaletteModal';
 import { EmptyStoreOnboarding } from '@/components/common/EmptyStoreOnboarding';
 import { ToastContainer } from '@/components/common/ToastContainer';
 import { DashboardSkeleton } from '@/components/common/DashboardSkeleton';
@@ -32,9 +33,9 @@ import {
   Package, 
   Clock, 
   Truck, 
-  Users,
-  Activity,
-  Boxes
+  Users, 
+  Activity, 
+  Boxes 
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -52,9 +53,22 @@ function AuthenticatedStoreApp() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isStoreNameModalOpen, setIsStoreNameModalOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [hasPromptedStoreName, setHasPromptedStoreName] = useState(false);
 
   const { items, customers, summary, storeName, isLoadingData } = useInventory();
+
+  // Global ⌘K / Ctrl+K keyboard shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Prompt for store name on first login if not set yet
   useEffect(() => {
@@ -133,6 +147,7 @@ function AuthenticatedStoreApp() {
         onNavigateCustomers={() => handleTabChange('customers')}
         onOpenZReport={() => setIsZReportOpen(true)}
         onOpenReturns={() => setIsReturnsOpen(true)}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -276,6 +291,18 @@ function AuthenticatedStoreApp() {
       <StoreNameModal
         isOpen={isStoreNameModalOpen}
         onClose={() => setIsStoreNameModalOpen(false)}
+      />
+
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onOpenPOS={() => setIsPOSOpen(true)}
+        onOpenReturns={() => setIsReturnsOpen(true)}
+        onOpenZReport={() => setIsZReportOpen(true)}
+        onOpenAddProduct={() => setIsAddProductOpen(true)}
+        onOpenImport={() => setIsImportOpen(true)}
+        onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
+        onNavigate={(tab) => handleTabChange(tab)}
       />
 
       <ToastContainer />
