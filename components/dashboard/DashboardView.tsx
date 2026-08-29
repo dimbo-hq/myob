@@ -358,32 +358,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 2. TOP 4 KPI STAT STRIP WITH DYNAMIC METRICS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatCard
-          title="Total Store Valuation"
+          title="Store Valuation"
           value={formatINR(summary.totalRetailValuation, false)}
           subtitle={`Wholesale Cost: ${formatINR(summary.totalCostValuation, false)}`}
-          trend={{ value: `${summary.averageMarginPercent}% Avg Margin`, isPositive: true }}
+          trend={{ value: `${summary.averageMarginPercent}% Margin`, isPositive: true }}
           onClick={() => onNavigate('inventory')}
         />
 
         <StatCard
-          title="Inventory Stock Health"
+          title="Stock Health"
           value={`${inStockPct}% In-Stock`}
-          subtitle={`${summary.outOfStockCount} out of stock • ${summary.lowStockCount} low buffer`}
-          trend={summary.outOfStockCount > 0 ? { value: `${summary.outOfStockCount} Stockouts`, isPositive: false } : { value: 'Well Balanced', isPositive: true }}
+          subtitle={`${summary.outOfStockCount} stockouts • ${summary.lowStockCount} low buffer`}
+          trend={summary.outOfStockCount > 0 ? { value: `${summary.outOfStockCount} Out`, isPositive: false } : { value: 'Balanced', isPositive: true }}
           onClick={() => onNavigate('reorder')}
         />
 
         <StatCard
-          title="At-Risk Perishable Value"
+          title="Perishable At-Risk"
           value={formatINR(summary.atRiskLossValue)}
-          subtitle={`${summary.expiringSoonCount + summary.expiredCount} batches near or past date`}
-          trend={summary.expiringSoonCount > 0 ? { value: 'Markdowns Active', isNeutral: true } : { value: 'Zero Spoilage', isPositive: true }}
+          subtitle={`${summary.expiringSoonCount + summary.expiredCount} batches near/past date`}
+          trend={summary.expiringSoonCount > 0 ? { value: 'Markdowns Active', isNeutral: true } : { value: 'Zero Waste', isPositive: true }}
           onClick={() => onNavigate('expiry')}
         />
 
         <StatCard
-          title="Replenishment Orders"
-          value={`${summary.pendingOrdersCount} In Transit`}
+          title="Replenishment"
+          value={`${summary.pendingOrdersCount} In-Transit`}
           subtitle="Loading bay shipment pipeline"
           trend={{ value: 'Vendor Active', isPositive: true }}
           onClick={() => onNavigate('reorder')}
