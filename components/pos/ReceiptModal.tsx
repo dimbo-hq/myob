@@ -301,31 +301,29 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           className="relative w-full max-w-sm max-h-[90vh] flex flex-col overflow-hidden rounded-3xl border border-slate-700 bg-white text-slate-900 shadow-2xl z-10 font-mono"
         >
-          {/* Top Receipt header (Pinned) */}
-          <div className="bg-zinc-900 px-5 py-3 text-center text-white font-sans border-b border-zinc-800 shrink-0">
-            <div className="flex justify-between items-center mb-1">
-              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Tax Invoice / Receipt
-              </span>
-              <button
-                onClick={onClose}
-                className="text-white/80 hover:text-white transition-colors cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-center gap-2">
-              <h2 className="text-base font-black tracking-tight uppercase text-white">{displayName}</h2>
-            </div>
-            <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
-              Mind Your Own Business (myob)
-            </p>
+          {/* Top Modal Window Controls (Pinned) */}
+          <div className="bg-zinc-900 px-4 py-2.5 flex items-center justify-between text-white font-sans border-b border-zinc-800 shrink-0">
+            <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400 font-heading">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Order Completed
+            </span>
+            <button
+              onClick={onClose}
+              className="text-zinc-400 hover:text-white transition-colors cursor-pointer p-1 rounded-lg hover:bg-zinc-800"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Printable & Downloadable Receipt Container (Scrollable Middle Section) */}
           <div className="flex-1 overflow-y-auto min-h-0 bg-white">
             <div ref={receiptRef} className="bg-white text-slate-900 p-5 text-xs space-y-3 font-mono">
+              {/* Store Brand Header for PDF & Print Receipt */}
+              <div className="text-center pb-3 border-b border-dashed border-slate-300 space-y-1">
+                <h2 className="text-base font-black tracking-tight uppercase text-slate-900">{displayName}</h2>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Tax Invoice / Cash Memo</div>
+                <div className="text-[9px] text-slate-400 font-mono">Mind Your Own Business (myob)</div>
+              </div>
+
               {/* Order Meta info */}
               <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 text-slate-600 text-[11px]">
                 <div className="flex justify-between">
