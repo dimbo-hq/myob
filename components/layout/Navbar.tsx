@@ -63,16 +63,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Left: Brand & Dynamic Store Name */}
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 overflow-hidden shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-zinc-900 overflow-hidden shadow-sm">
               <img src="/logo.png" alt="myob" className="h-full w-full object-contain p-0.5" />
             </div>
             
             <div className="flex items-center gap-2">
               <div className="flex flex-col">
-                <span className="text-sm font-bold tracking-tight text-white lowercase leading-tight">
+                <span className="text-base font-extrabold tracking-tight text-white font-heading lowercase leading-tight">
                   myob
                 </span>
-                <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest leading-none hidden sm:block">
+                <span className="text-[9px] font-mono font-semibold text-zinc-500 uppercase tracking-widest leading-none hidden sm:block">
                   Retail OS
                 </span>
               </div>
@@ -80,11 +80,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Clickable Store Name */}
               <button
                 onClick={onOpenStoreNameModal}
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white font-normal pl-2.5 border-l border-zinc-800 transition-colors group cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white pl-2.5 border-l border-zinc-800 transition-colors group cursor-pointer"
                 title="Click to rename store"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span className="font-medium text-zinc-200 group-hover:text-white truncate max-w-[170px]">
+                <span className="font-heading font-semibold text-zinc-200 group-hover:text-white truncate max-w-[170px]">
                   {storeName || 'Name Your Store'}
                 </span>
                 <Edit2 className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-zinc-400 transition-opacity" />
@@ -103,11 +103,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           {totalExpiryAlerts > 0 && (
             <button
               onClick={onNavigateExpiry}
-              className="hidden lg:flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/30 transition-all cursor-pointer shadow-sm"
+              className="hidden lg:flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/30 transition-all cursor-pointer shadow-sm font-sans"
               title="Click to manage clearance discounts"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span className="font-medium">{totalExpiryAlerts} clearance markdowns required</span>
+              <span className="font-medium font-heading">{totalExpiryAlerts} clearance markdowns required</span>
             </button>
           )}
 
@@ -117,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {simulatedDateOffset > 0 && (
               <button
                 onClick={onOpenTimeSimulator}
-                className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-cyan-500/30 bg-cyan-950/30 px-2.5 py-1 text-[11px] font-mono text-cyan-300 hover:bg-cyan-900/40 transition-colors cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1 rounded-xl border border-cyan-500/30 bg-cyan-950/30 px-2.5 py-1 text-[11px] font-mono font-semibold text-cyan-300 hover:bg-cyan-900/40 transition-colors cursor-pointer"
                 title="Simulated store date is active. Click to adjust."
               >
                 <Clock className="h-3 w-3 text-cyan-400" />
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Quick Add Product Button */}
             <button
               onClick={onOpenAddProduct}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-zinc-900/80 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900/80 px-2.5 py-1.5 text-xs font-heading font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5 text-zinc-400" />
               <span>Product</span>
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* POS Checkout Button */}
             <button
               onClick={onOpenPOS}
-              className="flex items-center gap-1.5 rounded-xl bg-zinc-100 px-3.5 py-1.5 text-xs font-bold text-zinc-950 hover:bg-white active:scale-95 transition-all shadow-md cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl bg-zinc-100 px-3.5 py-1.5 text-xs font-heading font-extrabold text-zinc-950 hover:bg-white active:scale-95 transition-all shadow-md cursor-pointer"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               <span>POS</span>
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Operations & Control Hub Drawer Trigger */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900/90 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer group"
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900/90 px-3 py-1.5 text-xs font-heading font-bold text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer group"
               title="Open Operations Hub (Z-Report, Returns, Import, Customers, Utilities)"
             >
               <LayoutGrid className="h-3.5 w-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />

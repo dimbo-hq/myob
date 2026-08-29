@@ -42,11 +42,11 @@ export const StatCard: React.FC<StatCardProps> = ({
       <div>
         {/* Card Header */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-zinc-400 tracking-tight">
+          <span className="text-xs font-semibold text-zinc-400 font-heading tracking-wider uppercase">
             {title}
           </span>
           {badge && (
-            <span className="text-[10px] font-semibold text-zinc-300 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
+            <span className="text-[10px] font-bold text-zinc-300 bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-700/60 font-mono tracking-tight">
               {badge}
             </span>
           )}
@@ -57,19 +57,12 @@ export const StatCard: React.FC<StatCardProps> = ({
 
         {/* Large Value */}
         <div className="mt-2.5 flex items-baseline gap-2">
-          <span className="text-2xl font-semibold tracking-tight text-white">
+          <span className="text-2xl font-bold tracking-tight text-white font-mono tabular-nums">
             {value}
           </span>
-        </div>
-      </div>
-
-      {/* Subtitle / Footer */}
-      {(subtitle || trend) && (
-        <div className="mt-3 flex items-center justify-between border-t border-white/[0.04] pt-2.5 text-xs text-zinc-500">
-          {subtitle && <span className="truncate pr-2">{subtitle}</span>}
           {trend && (
             <span
-              className={`font-medium whitespace-nowrap ${
+              className={`flex items-center text-xs font-mono font-semibold ${
                 trend.isNeutral
                   ? 'text-zinc-400'
                   : trend.isPositive
@@ -80,6 +73,12 @@ export const StatCard: React.FC<StatCardProps> = ({
               {trend.value}
             </span>
           )}
+        </div>
+      </div>
+
+      {subtitle && (
+        <div className="mt-3 text-[11px] text-zinc-400 font-sans tracking-normal">
+          {subtitle}
         </div>
       )}
     </motion.div>

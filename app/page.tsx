@@ -154,7 +154,7 @@ function AuthenticatedStoreApp() {
                   <button
                     key={tab.id}
                     onClick={() => handleTabChange(tab.id)}
-                    className={`relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
+                    className={`relative flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-heading font-semibold transition-all whitespace-nowrap cursor-pointer ${
                       isActive
                         ? 'text-white'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
@@ -163,7 +163,7 @@ function AuthenticatedStoreApp() {
                     {isActive && (
                       <motion.div
                         layoutId="activeTabPill"
-                        className="absolute inset-0 rounded-lg bg-zinc-800 border border-white/[0.08] shadow-sm"
+                        className="absolute inset-0 rounded-xl bg-zinc-800/90 border border-white/[0.09] shadow-sm"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
@@ -172,12 +172,12 @@ function AuthenticatedStoreApp() {
                       <span className={isActive ? 'text-white' : 'text-zinc-500'}>
                         {tab.icon}
                       </span>
-                      <span>{tab.label}</span>
+                      <span className="tracking-tight">{tab.label}</span>
                       {tab.badge && (
                         <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                          className={`text-[9px] px-1.5 py-0.5 rounded-md font-mono font-bold ${
                             tab.isWarning
-                              ? 'bg-amber-950/60 text-amber-400 border border-amber-800/40'
+                              ? 'bg-amber-950/80 text-amber-300 border border-amber-800/50'
                               : 'bg-zinc-900 text-zinc-400 border border-zinc-800'
                           }`}
                         >

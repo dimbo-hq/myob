@@ -15,8 +15,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: var(--font-sans), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-heading), "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-heading), "Outfit", sans-serif;
+  --font-mono: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 body {
@@ -26,7 +28,28 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-sans), sans-serif;
+  letter-spacing: -0.015em;
+}
+
+.font-heading {
+  font-family: var(--font-heading), var(--font-sans), sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.font-display {
+  font-family: var(--font-heading), var(--font-sans), sans-serif;
+  letter-spacing: -0.035em;
+}
+
+.font-mono {
+  font-family: var(--font-mono), monospace;
+  font-feature-settings: "tnum" 1, "zero" 1;
   letter-spacing: -0.01em;
+}
+
+.font-sans {
+  font-family: var(--font-sans), sans-serif;
 }
 
 /* Subtle, calm background texture */

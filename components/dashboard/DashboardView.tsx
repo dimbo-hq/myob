@@ -263,17 +263,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                <span className="lowercase font-extrabold text-white">myob</span>
-                <span className="text-xs font-mono font-normal text-zinc-400">• Mind Your Own Business</span>
+              <span className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2 font-heading">
+                <span className="lowercase font-extrabold text-white text-xl">myob</span>
+                <span className="text-xs font-mono font-medium text-zinc-400">• Retail Intelligence OS</span>
               </span>
-              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 flex items-center gap-1.5">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/50 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Active Store OS</span>
+                <span>Active Store</span>
               </span>
             </div>
-            <p className="text-xs text-zinc-400 max-w-2xl">
-              Real-time supermarket intelligence, automated FIFO batch clearance, multi-tenant inventory control & express POS for <span className="font-semibold text-zinc-200">{storeName || 'Your Store'}</span>.
+            <p className="text-xs text-zinc-400 max-w-2xl font-sans">
+              Real-time supermarket intelligence, automated FIFO batch clearance, multi-tenant inventory control & express POS for <span className="font-heading font-semibold text-zinc-100">{storeName || 'Your Store'}</span>.
             </p>
           </div>
 
@@ -281,7 +281,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={onOpenPOS}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-2 text-xs font-bold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-2 text-xs font-heading font-extrabold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               <span>Express POS</span>
@@ -289,7 +289,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <button
               onClick={() => onNavigate('customers')}
-              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-heading font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
             >
               <Users className="h-3.5 w-3.5 text-emerald-400" />
               <span>Customers ({summary.totalCustomersCount})</span>
@@ -297,7 +297,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <button
               onClick={onOpenAddProduct}
-              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-heading font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5 text-zinc-400" />
               <span>+ Product</span>
@@ -306,7 +306,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               onClick={handleTriggerAIMarkdown}
               disabled={hasAppliedAI}
-              className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-950/30 px-3 py-2 text-xs font-medium text-amber-400 hover:bg-amber-950/60 active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-950/30 px-3 py-2 text-xs font-heading font-semibold text-amber-300 hover:bg-amber-950/60 active:scale-95 transition-all cursor-pointer"
             >
               {hasAppliedAI ? (
                 <>
@@ -324,7 +324,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {onOpenReturns && (
               <button
                 onClick={onOpenReturns}
-                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-zinc-900 px-3 py-2 text-xs font-heading font-semibold text-zinc-200 hover:bg-zinc-800 hover:text-white active:scale-95 transition-all cursor-pointer"
                 title="1-Click Return / Refund by Receipt"
               >
                 <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
@@ -335,7 +335,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {onOpenZReport && (
               <button
                 onClick={onOpenZReport}
-                className="flex items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-950/30 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-950/60 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-950/30 px-3 py-2 text-xs font-heading font-semibold text-indigo-300 hover:bg-indigo-950/60 active:scale-95 transition-all cursor-pointer"
                 title="End-of-Day Shift Close & Cash Drawer Reconciliation"
               >
                 <Moon className="h-3.5 w-3.5 text-indigo-400" />
@@ -345,11 +345,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <button
               onClick={onOpenTimeSimulator}
-              className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-900/60 px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-white/[0.06] bg-zinc-900/60 px-3 py-2 text-xs font-mono font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-all cursor-pointer"
               title="Fast forward or rewind simulated store calendar"
             >
               <FastForward className="h-3.5 w-3.5" />
-              <span>Sim Date ({simulatedDateOffset > 0 ? `+${simulatedDateOffset}d` : 'Today'})</span>
+              <span>Sim ({simulatedDateOffset > 0 ? `+${simulatedDateOffset}d` : 'Today'})</span>
             </button>
           </div>
         </div>

@@ -39,13 +39,13 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const sizeStyles = {
-    sm: 'px-2 py-0.5 text-[11px] gap-1.5 font-medium',
-    md: 'px-2.5 py-1 text-xs gap-1.5 font-medium'
+    sm: 'px-2 py-0.5 text-[10px] gap-1.5 font-mono font-semibold tracking-wide uppercase',
+    md: 'px-2.5 py-1 text-xs gap-1.5 font-heading font-semibold tracking-tight'
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-md border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center rounded-lg border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
     >
       {dot && (
         <span className={`h-1.5 w-1.5 rounded-full ${dotColors[variant]}`} />
