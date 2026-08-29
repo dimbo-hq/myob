@@ -299,34 +299,33 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-slate-700 bg-white text-slate-900 shadow-2xl z-10 font-mono"
+          className="relative w-full max-w-sm max-h-[90vh] flex flex-col overflow-hidden rounded-3xl border border-slate-700 bg-white text-slate-900 shadow-2xl z-10 font-mono"
         >
-          {/* Printable & Downloadable Receipt Container */}
-          <div ref={receiptRef} className="bg-white text-slate-900">
-            {/* Top Receipt header */}
-            <div className="bg-zinc-900 px-5 py-3.5 text-center text-white font-sans border-b border-zinc-800">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Tax Invoice / Receipt
-                </span>
-                <button
-                  onClick={onClose}
-                  className="text-white/80 hover:text-white transition-colors cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-center gap-2">
-                <h2 className="text-base font-black tracking-tight uppercase text-white">{displayName}</h2>
-              </div>
-              <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
-                Mind Your Own Business (myob)
-              </p>
+          {/* Top Receipt header (Pinned) */}
+          <div className="bg-zinc-900 px-5 py-3 text-center text-white font-sans border-b border-zinc-800 shrink-0">
+            <div className="flex justify-between items-center mb-1">
+              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Tax Invoice / Receipt
+              </span>
+              <button
+                onClick={onClose}
+                className="text-white/80 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* Receipt Body */}
-            <div className="p-5 text-xs space-y-3 font-mono">
+            <div className="flex items-center justify-center gap-2">
+              <h2 className="text-base font-black tracking-tight uppercase text-white">{displayName}</h2>
+            </div>
+            <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+              Mind Your Own Business (myob)
+            </p>
+          </div>
+
+          {/* Printable & Downloadable Receipt Container (Scrollable Middle Section) */}
+          <div className="flex-1 overflow-y-auto min-h-0 bg-white">
+            <div ref={receiptRef} className="bg-white text-slate-900 p-5 text-xs space-y-3 font-mono">
               {/* Order Meta info */}
               <div className="border-b border-dashed border-slate-300 pb-2.5 space-y-1 text-slate-600 text-[11px]">
                 <div className="flex justify-between">
@@ -423,8 +422,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons (Download PDF, Print, WhatsApp) */}
-          <div className="bg-slate-50 border-t border-slate-200 p-3 flex flex-col gap-2 font-sans">
+          {/* Action Buttons (Download PDF, Print, WhatsApp) (Pinned Bottom) */}
+          <div className="bg-slate-50 border-t border-slate-200 p-3 flex flex-col gap-2 font-sans shrink-0">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleDownloadPDF}
