@@ -34,6 +34,7 @@ interface NavbarProps {
   onOpenZReport: () => void;
   onOpenReturns: () => void;
   onOpenCommandPalette?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -46,7 +47,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateCustomers,
   onOpenZReport,
   onOpenReturns,
-  onOpenCommandPalette
+  onOpenCommandPalette,
+  onOpenShortcuts
 }) => {
   const {
     storeName,
@@ -61,43 +63,39 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#09090b]/85 backdrop-blur-xl transition-all">
+      <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#09090b]/80 backdrop-blur-xl transition-all">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Left: Brand & Dynamic Store Name */}
+          {/* Left: Brand Identity & Live Multi-Tenant Store Badge */}
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-zinc-900 overflow-hidden shadow-sm">
-              <img src="/logo.png" alt="myob" className="h-full w-full object-contain p-0.5" />
-            </div>
-            
             <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <span className="text-base font-extrabold tracking-tight text-white font-heading lowercase leading-tight">
-                  myob
-                </span>
-                <span className="text-[9px] font-mono font-semibold text-zinc-500 uppercase tracking-widest leading-none hidden sm:block">
-                  Retail OS
-                </span>
-              </div>
+              <span className="text-base font-black tracking-tight text-white font-heading">
+                myob
+              </span>
+              <span className="rounded-md bg-zinc-800/80 px-1.5 py-0.5 text-[10px] font-mono font-bold text-zinc-400 border border-zinc-700/60">
+                v2.1
+              </span>
+            </div>
 
-              {/* Clickable Store Name */}
-              <button
-                onClick={onOpenStoreNameModal}
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white pl-2.5 border-l border-zinc-800 transition-colors group cursor-pointer"
-                title="Click to rename store"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span className="font-heading font-semibold text-zinc-200 group-hover:text-white truncate max-w-[170px]">
-                  {storeName || 'Name Your Store'}
-                </span>
-                <Edit2 className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-zinc-400 transition-opacity" />
-              </button>
+            <div className="h-4 w-px bg-zinc-800 hidden sm:block" />
 
-              {isSyncing && (
-                <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-zinc-500 font-mono pl-1">
-                  <RefreshCw className="h-3 w-3 animate-spin text-zinc-500" />
-                  <span>Syncing</span>
-                </span>
-              )}
+            {/* Active Store Name Selector */}
+            <button
+              onClick={onOpenStoreNameModal}
+              className="hidden sm:flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-800/60 hover:text-white transition-colors cursor-pointer group"
+              title="Click to rename store"
+            >
+              <span className="font-semibold text-zinc-200 group-hover:text-white truncate max-w-[140px] md:max-w-[220px] font-heading">
+                {storeName || 'My Supermarket'}
+              </span>
+              <Edit2 className="h-2.5 w-2.5 text-zinc-500 group-hover:text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            {/* Cloud Sync Status Pulse */}
+            <div className="flex items-center gap-1.5 pl-1" title={isSyncing ? 'Syncing to Cloud MongoDB...' : 'Cloud Database Synced'}>
+              <span className={`h-2 w-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-ping' : 'bg-emerald-500 led-glow-emerald'}`} />
+              <span className="text-[10px] font-mono text-zinc-500 hidden md:inline">
+                {isSyncing ? 'Syncing...' : 'MongoDB Cloud'}
+              </span>
             </div>
           </div>
 
@@ -136,6 +134,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span className="font-sans text-[11px]">Search</span>
                 <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 border border-zinc-700 group-hover:border-zinc-500">⌘K</kbd>
+              </button>
+            )}
+
+            {/* Keyboard Shortcuts Trigger Button */}
+            {onOpenShortcuts && (
+              <button
+                onClick={onOpenShortcuts}
+                className="hidden lg:flex items-center justify-center rounded-xl border border-white/[0.08] bg-zinc-900/60 h-8 w-8 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/80 transition-all cursor-pointer shadow-sm"
+                title="Keyboard Shortcuts Cheat Sheet (Press ?)"
+              >
+                <span className="font-mono text-xs font-bold">?</span>
               </button>
             )}
 

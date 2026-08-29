@@ -19,6 +19,7 @@ import { AddEditItemModal } from '@/components/inventory/AddEditItemModal';
 import { ImportModal } from '@/components/inventory/ImportModal';
 import { StoreNameModal } from '@/components/common/StoreNameModal';
 import { CommandPaletteModal } from '@/components/common/CommandPaletteModal';
+import { KeyboardShortcutsModal } from '@/components/common/KeyboardShortcutsModal';
 import { EmptyStoreOnboarding } from '@/components/common/EmptyStoreOnboarding';
 import { ToastContainer } from '@/components/common/ToastContainer';
 import { DashboardSkeleton } from '@/components/common/DashboardSkeleton';
@@ -54,29 +55,10 @@ function AuthenticatedStoreApp() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isStoreNameModalOpen, setIsStoreNameModalOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [hasPromptedStoreName, setHasPromptedStoreName] = useState(false);
 
   const { items, customers, summary, storeName, isLoadingData } = useInventory();
-
-  // Global ⌘K / Ctrl+K keyboard shortcut listener
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen((prev) => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Prompt for store name on first login if not set yet
-  useEffect(() => {
-    if (!isLoadingData && !storeName && !hasPromptedStoreName) {
-      setIsStoreNameModalOpen(true);
-      setHasPromptedStoreName(true);
-    }
-  }, [isLoadingData, storeName, hasPromptedStoreName]);
 
   const handleTabChange = (tab: TabKey) => {
     if (tab === activeTab) return;
@@ -85,6 +67,68 @@ function AuthenticatedStoreApp() {
       setActiveTab(tab);
     });
   };
+
+  // Global Keyboard Shortcuts Listener (? , ⌘K, ⌘P, ⌘Z, ⌘N, ⌘R, 1-6)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || (activeEl as HTMLElement).isContentEditable);
+
+      // Meta / Ctrl combinations
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === 'k' || e.key === 'K') {
+          e.preventDefault();
+          setIsCommandPaletteOpen((prev) => !prev);
+          return;
+        }
+        if (e.key === 'p' || e.key === 'P') {
+          e.preventDefault();
+          setIsPOSOpen(true);
+          return;
+        }
+        if (e.key === 'z' || e.key === 'Z') {
+          e.preventDefault();
+          setIsZReportOpen(true);
+          return;
+        }
+        if (e.key === 'n' || e.key === 'N') {
+          e.preventDefault();
+          setIsAddProductOpen(true);
+          return;
+        }
+        if (e.key === 'r' || e.key === 'R') {
+          e.preventDefault();
+          setIsReturnsOpen(true);
+          return;
+        }
+      }
+
+      // Single-key shortcuts (only when not typing in form inputs)
+      if (!isInput) {
+        if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+          e.preventDefault();
+          setIsShortcutsOpen((prev) => !prev);
+          return;
+        }
+        if (e.key === '1') handleTabChange('dashboard');
+        if (e.key === '2') handleTabChange('inventory');
+        if (e.key === '3') handleTabChange('expiry');
+        if (e.key === '4') handleTabChange('reorder');
+        if (e.key === '5') handleTabChange('customers');
+        if (e.key === '6') handleTabChange('audit');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab]);
+
+  // Prompt for store name on first login if not set yet
+  useEffect(() => {
+    if (!isLoadingData && !storeName && !hasPromptedStoreName) {
+      setIsStoreNameModalOpen(true);
+      setHasPromptedStoreName(true);
+    }
+  }, [isLoadingData, storeName, hasPromptedStoreName]);
 
   const navigationTabs = [
     {
@@ -148,6 +192,7 @@ function AuthenticatedStoreApp() {
         onOpenZReport={() => setIsZReportOpen(true)}
         onOpenReturns={() => setIsReturnsOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -302,6 +347,17 @@ function AuthenticatedStoreApp() {
         onOpenAddProduct={() => setIsAddProductOpen(true)}
         onOpenImport={() => setIsImportOpen(true)}
         onOpenTimeSimulator={() => setIsTimeSimOpen(true)}
+        onNavigate={(tab) => handleTabChange(tab)}
+      />
+
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+        onOpenPOS={() => setIsPOSOpen(true)}
+        onOpenZReport={() => setIsZReportOpen(true)}
+        onOpenAddProduct={() => setIsAddProductOpen(true)}
+        onOpenReturns={() => setIsReturnsOpen(true)}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onNavigate={(tab) => handleTabChange(tab)}
       />
 
