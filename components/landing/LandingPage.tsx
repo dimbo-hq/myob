@@ -130,18 +130,18 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* 3. HERO SECTION */}
-      <section className="relative z-10 min-h-[84vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-16 pb-24 max-w-5xl mx-auto space-y-6">
+      <section className="relative z-10 min-h-[84vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-16 pb-24 max-w-5xl mx-auto space-y-7">
         {/* Release Pill Badge */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] backdrop-blur-md px-4 py-1 text-xs text-zinc-300 shadow-lg"
+          className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.12] bg-white/[0.06] backdrop-blur-md px-4 py-1.5 text-xs text-zinc-300 shadow-xl"
         >
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-bold text-white font-mono uppercase tracking-wider">myob</span>
+          <span className="font-bold text-white font-mono uppercase tracking-[0.14em] text-[11px]">myob</span>
           <span className="text-zinc-500">•</span>
-          <span className="text-zinc-300 font-sans">Next-Gen Retail & Supermarket OS</span>
+          <span className="text-zinc-300 font-sans tracking-[-0.01em]">Next-Gen Retail & Supermarket OS</span>
         </motion.div>
 
         {/* Main Tagline Headline with Editorial Italic Serif */}
@@ -149,10 +149,10 @@ export const LandingPage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-          className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight text-white leading-[1.04]"
+          className="text-6xl sm:text-7xl md:text-8xl lg:text-[104px] font-black tracking-[-0.035em] text-white leading-[0.98] select-none"
         >
           Mind.{' '}
-          <span className="font-serif italic font-normal text-white">Your Own.</span>{' '}
+          <span className="font-serif italic font-normal text-zinc-100 tracking-[-0.01em] pr-1">Your Own.</span>{' '}
           Business.
         </motion.h1>
 
@@ -161,7 +161,7 @@ export const LandingPage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-          className="text-sm sm:text-base md:text-lg text-zinc-300/90 max-w-2xl mx-auto font-normal leading-relaxed"
+          className="text-base sm:text-lg md:text-xl text-zinc-300 font-normal leading-[1.65] max-w-2xl mx-auto tracking-[-0.015em]"
         >
           Stop losing money to expired supermarket stock and slow checkout counters. <span className="text-white font-semibold">myob</span> auto-calculates clearance markdowns before goods spoil, tracks 50,000+ SKUs in real time, and bills shoppers on UPI in seconds.
         </motion.p>
@@ -174,21 +174,21 @@ export const LandingPage: React.FC = () => {
           className="pt-2 flex flex-col items-center gap-4"
         >
           <SignUpButton mode="modal">
-            <button className="hero-glow-btn px-8 py-3.5 rounded-full text-xs sm:text-sm font-bold tracking-wider text-white uppercase cursor-pointer flex items-center gap-2.5 shadow-2xl">
+            <button className="hero-glow-btn px-8 py-3.5 rounded-full text-xs sm:text-sm font-bold tracking-[0.08em] text-white uppercase cursor-pointer flex items-center gap-2.5 shadow-2xl font-heading">
               <span>LAUNCH YOUR STORE WORKSPACE</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </SignUpButton>
 
           {/* Social Proof Feature Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-[11px] text-zinc-400 font-mono pt-1">
-            <span>✓ Perishable FIFO Clearance AI</span>
-            <span>•</span>
-            <span>✓ Optical Barcode & UPI POS</span>
-            <span>•</span>
-            <span>✓ Up to 50k SKU Scale</span>
-            <span>•</span>
-            <span>✓ Multi-Tenant Cloud Sync</span>
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-400 font-mono tracking-tight pt-1">
+            <span className="hover:text-zinc-200 transition-colors">✓ Perishable FIFO Clearance AI</span>
+            <span className="text-zinc-600">•</span>
+            <span className="hover:text-zinc-200 transition-colors">✓ Optical Barcode & UPI POS</span>
+            <span className="text-zinc-600">•</span>
+            <span className="hover:text-zinc-200 transition-colors">✓ Up to 50k SKU Scale</span>
+            <span className="text-zinc-600">•</span>
+            <span className="hover:text-zinc-200 transition-colors">✓ Multi-Tenant Cloud Sync</span>
           </div>
         </motion.div>
       </section>
@@ -196,10 +196,10 @@ export const LandingPage: React.FC = () => {
       {/* 4. FEATURES SECTION (INTERACTIVE LIVE SUPERMARKET CORE) */}
       <section id="features" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20 scroll-mt-24">
         <div className="text-center space-y-3 mb-12">
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-[-0.035em] font-heading">
             Engineered for Retail Operations
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-zinc-300/90 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed tracking-[-0.01em]">
             Generic inventory tools don&apos;t understand perishable batch shelf-life. myob was built from day one around perishable turnover, automated stepped markdowns, and lightning-fast cashiering.
           </p>
         </div>
@@ -424,10 +424,10 @@ export const LandingPage: React.FC = () => {
       <section id="pricing" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20 scroll-mt-24">
         {/* Section Header */}
         <div className="text-center space-y-3 mb-12">
-          <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-[-0.035em] font-heading">
             Plans and Pricing
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-zinc-300/90 max-w-xl mx-auto font-normal leading-relaxed">
+          <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto font-normal leading-relaxed tracking-[-0.01em]">
             From independent single-counter grocery stores to high-volume multi-register supermarket chains. Flexible pricing built for retail margins.
           </p>
         </div>
@@ -437,23 +437,23 @@ export const LandingPage: React.FC = () => {
           {/* Top Row: 2 Primary Cards (Pro Store & Starter Free) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 1: PRO STORE (Popular) */}
-            <div className="relative rounded-2xl border border-white/[0.14] bg-black/45 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.22]">
+            <div className="relative rounded-2xl border border-white/[0.14] bg-black/45 backdrop-blur-xl bg-dot-grid p-6 sm:p-7 space-y-6 shadow-2xl transition-all hover:border-white/[0.22]">
               <div className="flex items-center justify-between">
-                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white border border-white/15">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[10.5px] font-bold font-mono uppercase tracking-[0.14em] text-white border border-white/15">
                   PRO STORE
                 </span>
-                <span className="flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300 border border-amber-500/30">
+                <span className="flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300 border border-amber-500/30">
                   <Sparkles className="h-3 w-3 text-amber-300" />
                   <span>Popular Choice</span>
                 </span>
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black text-white font-mono">₹1,499</span>
-                <span className="text-xs text-zinc-400 font-mono">/month</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-4xl sm:text-5xl font-black text-white font-heading tracking-[-0.03em]">₹1,499</span>
+                <span className="text-xs text-zinc-400 font-mono font-medium">/month</span>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-zinc-200">
+              <ul className="space-y-2.5 text-[13px] text-zinc-200 tracking-[-0.005em] leading-snug">
                 <li className="flex items-start gap-2.5">
                   <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span>Up to 10,000 SKUs with automated batch tracking</span>
@@ -477,26 +477,26 @@ export const LandingPage: React.FC = () => {
               </ul>
 
               <SignUpButton mode="modal">
-                <button className="w-full rounded-xl bg-white py-2.5 text-xs font-bold text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-md cursor-pointer">
+                <button className="w-full rounded-xl bg-white py-2.5 text-xs font-bold text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-md cursor-pointer font-heading tracking-wide">
                   Upgrade to Pro Store
                 </button>
               </SignUpButton>
             </div>
 
             {/* Card 2: STARTER (Free) */}
-            <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
+            <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 sm:p-7 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
               <div className="flex items-center justify-between">
-                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[10.5px] font-bold font-mono uppercase tracking-[0.14em] text-zinc-300 border border-white/10">
                   STARTER FREE
                 </span>
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black text-white font-mono">₹0</span>
-                <span className="text-xs text-zinc-400 font-mono">/month</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-4xl sm:text-5xl font-black text-white font-heading tracking-[-0.03em]">₹0</span>
+                <span className="text-xs text-zinc-400 font-mono font-medium">/month</span>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-zinc-300">
+              <ul className="space-y-2.5 text-[13px] text-zinc-300 tracking-[-0.005em] leading-snug">
                 <li className="flex items-start gap-2.5">
                   <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
                   <span>Up to 500 catalog inventory items</span>
@@ -520,7 +520,7 @@ export const LandingPage: React.FC = () => {
               </ul>
 
               <SignUpButton mode="modal">
-                <button className="w-full rounded-xl border border-white/[0.15] bg-white/[0.05] py-2.5 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer">
+                <button className="w-full rounded-xl border border-white/[0.15] bg-white/[0.05] py-2.5 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer font-heading tracking-wide">
                   Start Free Store
                 </button>
               </SignUpButton>
@@ -530,24 +530,24 @@ export const LandingPage: React.FC = () => {
           {/* Middle Row: 2 Secondary Cards (Retail Team & Supermarket Business) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 3: RETAIL TEAM */}
-            <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
+            <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 sm:p-7 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
               <div className="flex items-center justify-between">
-                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[10.5px] font-bold font-mono uppercase tracking-[0.14em] text-zinc-300 border border-white/10">
                   RETAIL TEAM
                 </span>
                 <SignUpButton mode="modal">
-                  <button className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-3.5 py-1 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer">
+                  <button className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-3.5 py-1 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer font-heading">
                     Select Plan
                   </button>
                 </SignUpButton>
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-white font-mono">₹2,999</span>
-                <span className="text-xs text-zinc-400 font-mono">/month</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-3xl sm:text-4xl font-black text-white font-heading tracking-[-0.03em]">₹2,999</span>
+                <span className="text-xs text-zinc-400 font-mono font-medium">/month</span>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-zinc-300">
+              <ul className="space-y-2.5 text-[13px] text-zinc-300 tracking-[-0.005em] leading-snug">
                 <li className="flex items-start gap-2.5">
                   <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
                   <span>Up to 35,000 SKUs across multiple checkout lanes</span>
@@ -568,24 +568,24 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Card 4: SUPERMARKET BUSINESS */}
-            <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
+            <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 sm:p-7 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
               <div className="flex items-center justify-between">
-                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[10.5px] font-bold font-mono uppercase tracking-[0.14em] text-zinc-300 border border-white/10">
                   SUPERMARKET BUSINESS
                 </span>
                 <SignUpButton mode="modal">
-                  <button className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-3.5 py-1 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer">
+                  <button className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-3.5 py-1 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer font-heading">
                     Select Plan
                   </button>
                 </SignUpButton>
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-white font-mono">₹6,999</span>
-                <span className="text-xs text-zinc-400 font-mono">/month</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-3xl sm:text-4xl font-black text-white font-heading tracking-[-0.03em]">₹6,999</span>
+                <span className="text-xs text-zinc-400 font-mono font-medium">/month</span>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-zinc-300">
+              <ul className="space-y-2.5 text-[13px] text-zinc-300 tracking-[-0.005em] leading-snug">
                 <li className="flex items-start gap-2.5">
                   <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
                   <span>Up to 100,000 SKUs with Chunked Cloud Streaming</span>
@@ -607,24 +607,24 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Bottom Row: Full-Width Enterprise Card */}
-          <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 space-y-4 shadow-2xl transition-all hover:border-white/[0.16]">
+          <div className="relative rounded-2xl border border-white/[0.08] bg-black/35 backdrop-blur-xl bg-dot-grid p-6 sm:p-7 space-y-4 shadow-2xl transition-all hover:border-white/[0.16]">
             <div className="flex items-center justify-between">
-              <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+              <span className="rounded-md bg-white/10 px-2.5 py-1 text-[10.5px] font-bold font-mono uppercase tracking-[0.14em] text-zinc-300 border border-white/10">
                 ENTERPRISE CHAIN
               </span>
               <button 
                 onClick={() => scrollTo('contact')}
-                className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-4 py-1.5 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer"
+                className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-4 py-1.5 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer font-heading"
               >
                 Contact Sales
               </button>
             </div>
 
-            <div className="text-3xl font-black text-white font-heading">
+            <div className="text-3xl sm:text-4xl font-black text-white font-heading tracking-[-0.03em]">
               Custom Quote
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-zinc-300 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[13px] text-zinc-300 pt-1 tracking-[-0.005em]">
               <div className="flex items-center gap-2.5">
                 <Check className="h-4 w-4 text-zinc-400 shrink-0" />
                 <span>Multi-outlet centralized warehouse distribution</span>
@@ -650,10 +650,10 @@ export const LandingPage: React.FC = () => {
       <section id="about" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-20 scroll-mt-24">
         {/* Section Header */}
         <div className="text-center space-y-3 mb-12">
-          <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-[-0.035em] font-heading">
             About myob
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-zinc-300/90 max-w-xl mx-auto font-normal leading-relaxed">
+          <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto font-normal leading-relaxed tracking-[-0.01em]">
             Why we built Mind Your Own Business for modern retail.
           </p>
         </div>
@@ -666,11 +666,11 @@ export const LandingPage: React.FC = () => {
           <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white shadow-sm pointer-events-none" />
           <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white shadow-sm pointer-events-none" />
 
-          <p className="text-base sm:text-xl font-medium text-zinc-100 leading-relaxed font-sans">
+          <p className="text-lg sm:text-2xl font-normal text-zinc-100 leading-[1.65] tracking-[-0.015em] font-sans">
             We believe independent supermarkets, grocery stores, and retail businesses deserve software that actually protects their bottom line. Traditional retail software is notoriously clunky, slow, and completely blind to perishable shelf-life.
           </p>
 
-          <p className="text-base sm:text-xl font-medium text-zinc-300 leading-relaxed font-sans">
+          <p className="text-lg sm:text-2xl font-normal text-zinc-300 leading-[1.65] tracking-[-0.015em] font-sans">
             <span className="text-white font-bold">myob (Mind Your Own Business)</span> replaces legacy desktop billing with an ultra-fast retail operating system. By combining predictive FIFO expiry clearance markdowns, instant optical barcode cashiering, and automated vendor purchase orders, myob empowers store owners to run with speed, clarity, and zero stock waste.
           </p>
         </div>
@@ -690,10 +690,10 @@ export const LandingPage: React.FC = () => {
             {/* Left Column: Contact Information */}
             <div className="md:col-span-6 space-y-6">
               <div>
-                <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">
+                <h3 className="text-3xl sm:text-4xl font-black text-white tracking-[-0.03em] font-heading">
                   Get in touch
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-300/90 mt-2.5 leading-relaxed">
+                <p className="text-sm text-zinc-300/90 mt-2.5 leading-relaxed tracking-[-0.01em]">
                   Have questions about migrating your store catalog, connecting barcode hardware, or setting up multi-lane POS? We do our best to respond within 1 business day.
                 </p>
               </div>

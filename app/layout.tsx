@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Outfit, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -15,6 +15,14 @@ const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-heading",
   weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -51,7 +59,7 @@ export default function RootLayout({
     >
       <html 
         lang="en" 
-        className={`h-full antialiased dark ${plusJakartaSans.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+        className={`h-full antialiased dark ${plusJakartaSans.variable} ${outfit.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
       >
         <body className="min-h-full flex flex-col bg-[#09090b] text-zinc-100 font-sans selection:bg-emerald-500/20 selection:text-emerald-300">
           {children}
