@@ -706,7 +706,9 @@ export const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-xs font-medium text-zinc-400 font-heading">Email</div>
-                    <div className="text-sm font-semibold text-white font-mono">hello@myob.store</div>
+                    <a href="mailto:bratikmkj@gmail.com" className="text-sm font-semibold text-white font-mono hover:underline">
+                      bratikmkj@gmail.com
+                    </a>
                   </div>
                 </div>
 
@@ -716,8 +718,10 @@ export const LandingPage: React.FC = () => {
                     <Phone className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-medium text-zinc-400 font-heading">Support Hotline</div>
-                    <div className="text-sm font-semibold text-white font-mono">+91 (022) 2854-9000</div>
+                    <div className="text-xs font-medium text-zinc-400 font-heading">Direct / WhatsApp</div>
+                    <a href="tel:+919883593295" className="text-sm font-semibold text-white font-mono hover:underline">
+                      +91 98835 93295
+                    </a>
                   </div>
                 </div>
 
@@ -727,8 +731,8 @@ export const LandingPage: React.FC = () => {
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-medium text-zinc-400 font-heading">HQ Locations</div>
-                    <div className="text-sm font-semibold text-white">Mumbai & Bengaluru, India</div>
+                    <div className="text-xs font-medium text-zinc-400 font-heading">Location</div>
+                    <div className="text-sm font-semibold text-white">Kolkata, India</div>
                   </div>
                 </div>
               </div>
