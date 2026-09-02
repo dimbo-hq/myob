@@ -811,24 +811,27 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. MINIMALIST FOOTER */}
-      <footer className="relative z-10 border-t border-white/[0.08] bg-black/50 backdrop-blur-xl py-8">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-white lowercase">myob</span>
-            <span>•</span>
-            <span>Mind Your Own Business (Retail Intelligence OS)</span>
+      {/* 8. FLOATING PILL-SHAPED FOOTER */}
+      <footer className="relative z-10 max-w-5xl mx-auto px-4 pb-10 pt-4 w-full">
+        <div className="rounded-full border border-white/[0.12] bg-black/45 backdrop-blur-2xl px-6 sm:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400 shadow-2xl transition-all">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/[0.08] border border-white/10 text-[9px] font-mono font-bold text-white">
+              my
+            </div>
+            <span className="font-bold text-white lowercase font-heading">myob</span>
+            <span className="text-zinc-600">•</span>
+            <span className="text-zinc-400 font-sans">Mind Your Own Business</span>
           </div>
 
-          <div className="flex items-center gap-6 text-zinc-400">
+          <div className="flex items-center gap-6 text-zinc-300">
             <button onClick={() => scrollTo('features')} className="hover:text-white transition-colors cursor-pointer">Features</button>
             <button onClick={() => scrollTo('pricing')} className="hover:text-white transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => scrollTo('about')} className="hover:text-white transition-colors cursor-pointer">About</button>
             <button onClick={() => scrollTo('contact')} className="hover:text-white transition-colors cursor-pointer">Contact</button>
           </div>
 
-          <div className="text-[11px] font-mono text-zinc-500">
-            India Edition (INR ₹) • Multi-Tenant Atlas
+          <div className="text-[11px] font-mono text-zinc-500 hidden md:block">
+            India Edition (INR ₹)
           </div>
         </div>
       </footer>
