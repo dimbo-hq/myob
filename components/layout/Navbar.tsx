@@ -67,6 +67,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Left: Brand Identity & Live Multi-Tenant Store Badge */}
           <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl overflow-hidden border border-white/10 bg-black/50 shadow-sm shrink-0">
+              <img src="/logo.png" alt="myob logo" className="h-full w-full object-cover" />
+            </div>
+
             <div className="flex items-center gap-2">
               <span className="text-base font-black tracking-tight text-white font-heading">
                 myob

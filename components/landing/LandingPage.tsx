@@ -71,8 +71,8 @@ export const LandingPage: React.FC = () => {
             className="flex items-center gap-2.5 cursor-pointer group" 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.15] bg-white/[0.08] backdrop-blur-md group-hover:border-white/30 transition-colors">
-              <Store className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl overflow-hidden border border-white/15 bg-black/50 shadow-sm shrink-0 group-hover:border-white/30 transition-all">
+              <img src="/logo.png" alt="myob logo" className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="text-base font-black tracking-tight text-white lowercase font-heading leading-tight">
@@ -815,8 +815,8 @@ export const LandingPage: React.FC = () => {
       <footer className="relative z-10 max-w-5xl mx-auto px-4 pb-10 pt-4 w-full">
         <div className="rounded-full border border-white/[0.12] bg-black/45 backdrop-blur-2xl px-6 sm:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400 shadow-2xl transition-all">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/[0.08] border border-white/10 text-[9px] font-mono font-bold text-white">
-              my
+            <div className="flex h-6 w-6 items-center justify-center rounded-full overflow-hidden border border-white/15 bg-black/50 shadow-sm shrink-0">
+              <img src="/logo.png" alt="myob logo" className="h-full w-full object-cover" />
             </div>
             <span className="font-bold text-white lowercase font-heading">myob</span>
             <span className="text-zinc-600">•</span>
