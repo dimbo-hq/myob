@@ -8,178 +8,226 @@ import {
 import { 
   ArrowRight, 
   Check, 
-  Clock, 
-  Database, 
-  FileSpreadsheet, 
-  Layers, 
-  Package, 
-  QrCode, 
-  Receipt, 
-  ShieldCheck, 
-  ShoppingCart, 
   Sparkles, 
-  Store, 
-  Truck, 
-  Zap,
-  TrendingDown,
-  Activity,
-  AlertTriangle,
-  ArrowUpRight,
-  Boxes,
-  Minus,
-  Plus
+  Mail, 
+  Phone, 
+  MapPin, 
+  Send, 
+  CheckCircle2, 
+  QrCode, 
+  Layers, 
+  ShieldCheck, 
+  Database,
+  ArrowUpRight
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { formatINR } from '@/lib/currency';
 
 export const LandingPage: React.FC = () => {
-  const [demoTab, setDemoTab] = useState<'inventory' | 'expiry' | 'pos'>('expiry');
+  const [demoTab, setDemoTab] = useState<'expiry' | 'inventory' | 'pos'>('expiry');
   const [demoDiscount, setDemoDiscount] = useState<number>(30);
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactSubmitted(true);
+    setTimeout(() => {
+      setContactForm({ name: '', email: '', phone: '', message: '' });
+      setContactSubmitted(false);
+    }, 4000);
+  };
+
+  const scrollTo = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-zinc-800 selection:text-white">
-      {/* 1. TOP HEADER */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#09090b]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 overflow-hidden shadow-sm">
-              <img src="/logo.png" alt="myob" className="h-full w-full object-contain p-0.5" />
+    <div className="relative min-h-screen text-zinc-100 font-sans selection:bg-white/20 selection:text-white overflow-x-hidden">
+      {/* 1. FIXED ULTRA-HD DARK CHROMATIC IRIDESCENT BACKGROUND */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none" 
+        style={{ backgroundImage: `url('/images/landing-bg.jpg')` }}
+      />
+      {/* Subtle depth gradient overlay to ensure razor-sharp typography contrast */}
+      <div className="fixed inset-0 z-0 bg-black/25 pointer-events-none" />
+
+      {/* 2. FLOATING FROSTED GLASS NAVBAR */}
+      <header className="sticky top-4 z-50 max-w-5xl mx-auto px-4 w-full">
+        <nav className="rounded-2xl border border-white/[0.1] bg-black/35 backdrop-blur-xl px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-2xl transition-all">
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.15] bg-white/[0.06] backdrop-blur-md">
+              <span className="text-xs font-black tracking-tight text-white lowercase font-mono">my</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white lowercase">
-                myob
-              </span>
-              <span className="text-[11px] text-zinc-500 font-mono hidden sm:inline-block border-l border-zinc-800 pl-2">
-                Mind Your Own Business
-              </span>
-            </div>
+            <span className="text-base font-black tracking-tight text-white lowercase font-heading">
+              myob
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-7 text-xs font-medium text-zinc-300">
+            <button 
+              onClick={() => scrollTo('features')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Features
+            </button>
+            <button 
+              onClick={() => scrollTo('pricing')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => scrollTo('about')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => scrollTo('contact')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Contact
+            </button>
+          </div>
+
+          {/* Auth Action Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <SignInButton mode="modal">
-              <button className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer">
+              <button className="text-xs font-medium text-zinc-300 hover:text-white transition-colors px-2 py-1 cursor-pointer">
                 Sign In
               </button>
             </SignInButton>
+
             <SignUpButton mode="modal">
-              <button className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3.5 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-white active:scale-95 transition-all shadow-sm cursor-pointer">
-                <span>Open Store</span>
-                <ArrowRight className="h-3.5 w-3.5" />
+              <button className="rounded-xl bg-white px-3.5 sm:px-4 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-md cursor-pointer">
+                Get Started
               </button>
             </SignUpButton>
           </div>
-        </div>
+        </nav>
       </header>
 
-      {/* 2. HERO SECTION */}
-      <section className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center space-y-6">
-        {/* Release Tag */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900/80 px-3.5 py-1 text-xs text-zinc-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          <span className="font-medium text-white">myob Retail OS</span>
-          <span className="text-zinc-600">•</span>
-          <span className="text-zinc-400">India INR (₹) Edition</span>
-        </div>
+      {/* 3. HERO SECTION */}
+      <section className="relative z-10 min-h-[82vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-16 pb-24 max-w-5xl mx-auto space-y-7">
+        {/* Main Headline with Editorial Italic Serif */}
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tight text-white leading-[1.05]"
+        >
+          Ideate.{' '}
+          <span className="font-serif italic font-normal text-white">Prompt.</span>{' '}
+          Build.
+        </motion.h1>
 
-        {/* Hero Title & Subhead */}
-        <div className="space-y-3.5 max-w-3xl mx-auto">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]">
-            Retail inventory that stops you from losing money on expired stock.
-          </h1>
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            <span className="text-zinc-200 font-semibold">myob</span> (Mind Your Own Business) tracks supermarket batches in Indian Rupees, auto-calculates clearance markdowns before goods spoil, and rings up sales on UPI in seconds.
+        {/* Subtitle */}
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
+          className="text-sm sm:text-base md:text-lg text-zinc-300/90 max-w-2xl mx-auto font-normal leading-relaxed lowercase"
+        >
+          whether you are a designer, a developer, or just curious, take an idea,{' '}
+          <span className="font-serif italic text-white">prompt</span> it, and watch it come alive
+        </motion.p>
+
+        {/* Hero CTA Button with Glowing Halo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+          className="pt-2"
+        >
+          <SignUpButton mode="modal">
+            <button className="hero-glow-btn px-7 py-3 rounded-full text-xs sm:text-sm font-bold tracking-wider text-white uppercase cursor-pointer">
+              START BUILDING
+            </button>
+          </SignUpButton>
+        </motion.div>
+      </section>
+
+      {/* 4. FEATURES SECTION (INTERACTIVE STORE DEMO) */}
+      <section id="features" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-16 scroll-mt-24">
+        <div className="text-center space-y-2 mb-10">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">
+            Live Interactive Core
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
+            Experience the sub-second inventory clearance radar, stock catalog, and express checkout terminal.
           </p>
         </div>
 
-        {/* Hero CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
-          <SignUpButton mode="modal">
-            <button className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-zinc-100 px-5 py-2.5 text-xs font-semibold text-zinc-950 hover:bg-white active:scale-95 transition-all shadow-md cursor-pointer">
-              <span>Start Free Store Workspace</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </SignUpButton>
-
-          <SignInButton mode="modal">
-            <button className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-zinc-900 px-5 py-2.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer">
-              <span>Sign In to Your Store</span>
-            </button>
-          </SignInButton>
-        </div>
-
-        {/* Feature badges */}
-        <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] text-zinc-500 pt-2 font-mono">
-          <span>✓ Multi-Tenant MongoDB Atlas</span>
-          <span>•</span>
-          <span>✓ Up to 50,000 SKU Scale</span>
-          <span>•</span>
-          <span>✓ GS1 890 Barcode Ready</span>
-          <span>•</span>
-          <span>✓ Instant UPI QR POS</span>
-        </div>
-      </section>
-
-      {/* 3. INTERACTIVE PRODUCT UI SHOWCASE (THE MAIN HERO VISUAL) */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full">
-        <div className="rounded-2xl border border-white/[0.08] bg-[#0d0d10] overflow-hidden shadow-2xl">
-          {/* Browser Window Chrome */}
-          <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5 bg-[#09090b]">
+        {/* Interactive Glassmorphic Demo Window */}
+        <div className="relative rounded-3xl border border-white/[0.1] bg-black/40 backdrop-blur-2xl overflow-hidden shadow-2xl">
+          {/* Header tab controls */}
+          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-white/[0.08] px-5 py-3 bg-zinc-950/60 gap-3">
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-zinc-800" />
-                <div className="h-2.5 w-2.5 rounded-full bg-zinc-800" />
-                <div className="h-2.5 w-2.5 rounded-full bg-zinc-800" />
+                <div className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
+                <div className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
+                <div className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
               </div>
-              <span className="text-[11px] text-zinc-500 font-mono ml-2">myob • Pratik General Store (Mumbai)</span>
+              <span className="text-[11px] text-zinc-400 font-mono ml-2">myob • Retail OS Live Simulator</span>
             </div>
 
-            {/* Interactive Tab Switcher */}
-            <div className="flex gap-1 bg-zinc-900/80 p-0.5 rounded-lg border border-white/[0.04]">
+            {/* Tab switcher */}
+            <div className="flex gap-1 bg-zinc-900/90 p-1 rounded-xl border border-white/[0.06]">
               <button
                 onClick={() => setDemoTab('expiry')}
-                className={`px-2.5 py-1 text-[11px] font-medium rounded transition-all cursor-pointer ${
-                  demoTab === 'expiry' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-500 hover:text-zinc-300'
+                className={`px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
+                  demoTab === 'expiry' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                Expiry Radar & Markdowns
+                Expiry Radar
               </button>
               <button
                 onClick={() => setDemoTab('inventory')}
-                className={`px-2.5 py-1 text-[11px] font-medium rounded transition-all cursor-pointer ${
-                  demoTab === 'inventory' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-500 hover:text-zinc-300'
+                className={`px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
+                  demoTab === 'inventory' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                Inventory Catalogue
+                Inventory
               </button>
               <button
                 onClick={() => setDemoTab('pos')}
-                className={`px-2.5 py-1 text-[11px] font-medium rounded transition-all cursor-pointer ${
-                  demoTab === 'pos' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-500 hover:text-zinc-300'
+                className={`px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
+                  demoTab === 'pos' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                Express POS Checkout
+                Express POS
               </button>
             </div>
           </div>
 
-          {/* Tab Content: Expiry Radar */}
+          {/* Demo Content: Expiry Radar */}
           {demoTab === 'expiry' && (
-            <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
+            <div className="p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/[0.06] pb-3 gap-2">
                 <div>
-                  <div className="text-xs font-semibold text-white">Dynamic Clearance Engine</div>
-                  <div className="text-[11px] text-zinc-500">Automated stepped markdowns based on batch shelf-life countdown</div>
+                  <div className="text-xs font-bold text-white font-heading">Automated Stepped Clearance Markdowns</div>
+                  <div className="text-[11px] text-zinc-400">Dynamic discounting engine protects gross margins before batch expiration</div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-zinc-400 font-mono">Simulate Markdown:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-zinc-400 font-mono">Test Markdown:</span>
                   {[20, 30, 50].map((pct) => (
                     <button
                       key={pct}
                       onClick={() => setDemoDiscount(pct)}
-                      className={`px-2 py-0.5 text-[11px] font-mono rounded border transition-all cursor-pointer ${
+                      className={`px-2.5 py-0.5 text-xs font-mono rounded-lg border transition-all cursor-pointer ${
                         demoDiscount === pct
-                          ? 'border-amber-500/40 bg-amber-950/40 text-amber-300 font-bold'
-                          : 'border-white/[0.04] bg-zinc-900 text-zinc-400 hover:text-zinc-200'
+                          ? 'border-amber-400/50 bg-amber-500/20 text-amber-300 font-bold'
+                          : 'border-white/[0.06] bg-zinc-900/60 text-zinc-400 hover:text-white'
                       }`}
                     >
                       -{pct}%
@@ -188,18 +236,17 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Item 1 */}
-                <div className="rounded-xl border border-white/[0.04] bg-zinc-900/30 p-3.5 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div className="rounded-2xl border border-white/[0.06] bg-zinc-900/50 p-4 space-y-3">
                   <div className="flex justify-between items-center text-[10px]">
-                    <span className="text-zinc-400 bg-zinc-800 px-1.5 py-0.2 rounded font-mono">DAIR-000102</span>
-                    <span className="text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded font-medium border border-rose-800/40">Expires in 1d</span>
+                    <span className="text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded font-mono">DAIR-00102</span>
+                    <span className="text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded-full font-medium border border-rose-800/40">Expires in 1d</span>
                   </div>
                   <div>
-                    <h4 className="text-xs font-medium text-white">Amul Desi Cow Milk 1L</h4>
-                    <div className="text-[11px] text-zinc-500 font-mono">Batch #BAT-402 • 35 bottles</div>
+                    <h4 className="text-xs font-bold text-white font-heading">Amul Desi Cow Milk 1L</h4>
+                    <div className="text-[11px] text-zinc-400 font-mono">Batch #BAT-402 • 35 bottles</div>
                   </div>
-                  <div className="rounded-lg bg-zinc-950/80 p-2.5 flex items-center justify-between text-xs font-mono">
+                  <div className="rounded-xl bg-zinc-950/80 p-3 flex items-center justify-between text-xs font-mono">
                     <div>
                       <span className="text-[10px] text-zinc-500 block">Retail MRP</span>
                       <span className="line-through text-zinc-500">₹65.00</span>
@@ -211,17 +258,16 @@ export const LandingPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Item 2 */}
-                <div className="rounded-xl border border-white/[0.04] bg-zinc-900/30 p-3.5 space-y-3">
+                <div className="rounded-2xl border border-white/[0.06] bg-zinc-900/50 p-4 space-y-3">
                   <div className="flex justify-between items-center text-[10px]">
-                    <span className="text-zinc-400 bg-zinc-800 px-1.5 py-0.2 rounded font-mono">BAKE-000214</span>
-                    <span className="text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded font-medium border border-amber-800/40">Expires in 2d</span>
+                    <span className="text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded font-mono">BAKE-00214</span>
+                    <span className="text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-full font-medium border border-amber-800/40">Expires in 2d</span>
                   </div>
                   <div>
-                    <h4 className="text-xs font-medium text-white">Whole Wheat Atta Bread 400g</h4>
-                    <div className="text-[11px] text-zinc-500 font-mono">Batch #BAT-881 • 18 loaves</div>
+                    <h4 className="text-xs font-bold text-white font-heading">Whole Wheat Atta Bread 400g</h4>
+                    <div className="text-[11px] text-zinc-400 font-mono">Batch #BAT-881 • 18 loaves</div>
                   </div>
-                  <div className="rounded-lg bg-zinc-950/80 p-2.5 flex items-center justify-between text-xs font-mono">
+                  <div className="rounded-xl bg-zinc-950/80 p-3 flex items-center justify-between text-xs font-mono">
                     <div>
                       <span className="text-[10px] text-zinc-500 block">Retail MRP</span>
                       <span className="line-through text-zinc-500">₹45.00</span>
@@ -233,17 +279,16 @@ export const LandingPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Item 3 */}
-                <div className="rounded-xl border border-white/[0.04] bg-zinc-900/30 p-3.5 space-y-3">
+                <div className="rounded-2xl border border-white/[0.06] bg-zinc-900/50 p-4 space-y-3">
                   <div className="flex justify-between items-center text-[10px]">
-                    <span className="text-zinc-400 bg-zinc-800 px-1.5 py-0.2 rounded font-mono">PROD-000045</span>
-                    <span className="text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded font-medium border border-amber-800/40">Expires in 3d</span>
+                    <span className="text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded font-mono">PROD-00045</span>
+                    <span className="text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-full font-medium border border-amber-800/40">Expires in 3d</span>
                   </div>
                   <div>
-                    <h4 className="text-xs font-medium text-white">Alphonso Mangoes 1kg Pack</h4>
-                    <div className="text-[11px] text-zinc-500 font-mono">Batch #BAT-119 • 24 kg</div>
+                    <h4 className="text-xs font-bold text-white font-heading">Alphonso Mangoes 1kg Pack</h4>
+                    <div className="text-[11px] text-zinc-400 font-mono">Batch #BAT-119 • 24 kg</div>
                   </div>
-                  <div className="rounded-lg bg-zinc-950/80 p-2.5 flex items-center justify-between text-xs font-mono">
+                  <div className="rounded-xl bg-zinc-950/80 p-3 flex items-center justify-between text-xs font-mono">
                     <div>
                       <span className="text-[10px] text-zinc-500 block">Retail MRP</span>
                       <span className="line-through text-zinc-500">₹450.00</span>
@@ -258,182 +303,480 @@ export const LandingPage: React.FC = () => {
             </div>
           )}
 
-          {/* Tab Content: Inventory Catalogue */}
+          {/* Demo Content: Inventory Catalogue */}
           {demoTab === 'inventory' && (
-            <div className="p-4 overflow-x-auto">
+            <div className="p-5 overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-white/[0.06] text-zinc-500 text-[11px] font-mono uppercase">
+                <thead className="border-b border-white/[0.08] text-zinc-400 text-[11px] font-mono uppercase">
                   <tr>
-                    <th className="pb-2 px-3">Product</th>
-                    <th className="pb-2 px-3">Category</th>
-                    <th className="pb-2 px-3">Stock Level</th>
-                    <th className="pb-2 px-3">Wholesale Cost</th>
-                    <th className="pb-2 px-3">Selling Price</th>
-                    <th className="pb-2 px-3 text-right">Margin</th>
+                    <th className="pb-2.5 px-3">Product</th>
+                    <th className="pb-2.5 px-3">Category</th>
+                    <th className="pb-2.5 px-3">Stock Level</th>
+                    <th className="pb-2.5 px-3">Wholesale</th>
+                    <th className="pb-2.5 px-3">Selling Price</th>
+                    <th className="pb-2.5 px-3 text-right">Margin</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.03] text-zinc-300 text-xs">
+                <tbody className="divide-y divide-white/[0.04] text-zinc-300">
                   <tr>
-                    <td className="py-2.5 px-3 font-medium text-white">Tata Royal Basmati Rice 5kg</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Pantry & Dry Goods</td>
-                    <td className="py-2.5 px-3 font-mono text-emerald-400">42 bags (In Stock)</td>
-                    <td className="py-2.5 px-3 font-mono">₹380.00</td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-white">₹540.00</td>
-                    <td className="py-2.5 px-3 font-mono text-emerald-400 text-right font-medium">42%</td>
+                    <td className="py-3 px-3 font-semibold text-white">Tata Royal Basmati Rice 5kg</td>
+                    <td className="py-3 px-3 text-zinc-400">Pantry & Grains</td>
+                    <td className="py-3 px-3 font-mono text-emerald-400">42 bags (Optimal)</td>
+                    <td className="py-3 px-3 font-mono">₹380.00</td>
+                    <td className="py-3 px-3 font-mono font-bold text-white">₹540.00</td>
+                    <td className="py-3 px-3 font-mono text-emerald-400 text-right font-bold">42%</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-medium text-white">Amul Pure Desi Ghee 1L Tin</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Dairy & Eggs</td>
-                    <td className="py-2.5 px-3 font-mono text-amber-400">6 tins (Low Buffer)</td>
-                    <td className="py-2.5 px-3 font-mono">₹540.00</td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-white">₹680.00</td>
-                    <td className="py-2.5 px-3 font-mono text-emerald-400 text-right font-medium">26%</td>
+                    <td className="py-3 px-3 font-semibold text-white">Amul Pure Desi Ghee 1L Tin</td>
+                    <td className="py-3 px-3 text-zinc-400">Dairy & Spreads</td>
+                    <td className="py-3 px-3 font-mono text-amber-400">6 tins (Low Stock)</td>
+                    <td className="py-3 px-3 font-mono">₹540.00</td>
+                    <td className="py-3 px-3 font-mono font-bold text-white">₹680.00</td>
+                    <td className="py-3 px-3 font-mono text-emerald-400 text-right font-bold">26%</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-medium text-white">Patanjali Pure Honey 500g</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Pantry & Dry Goods</td>
-                    <td className="py-2.5 px-3 font-mono text-emerald-400">28 jars (In Stock)</td>
-                    <td className="py-2.5 px-3 font-mono">₹145.00</td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-white">₹210.00</td>
-                    <td className="py-2.5 px-3 font-mono text-emerald-400 text-right font-medium">45%</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-medium text-white">Atlantic Fresh Salmon 500g</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Meat & Seafood</td>
-                    <td className="py-2.5 px-3 font-mono text-rose-400">0 packs (Out of Stock)</td>
-                    <td className="py-2.5 px-3 font-mono">₹620.00</td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-white">₹890.00</td>
-                    <td className="py-2.5 px-3 font-mono text-zinc-500 text-right font-medium">Restock PO Active</td>
+                    <td className="py-3 px-3 font-semibold text-white">Organic Himalayan Walnuts 500g</td>
+                    <td className="py-3 px-3 text-zinc-400">Dry Fruits</td>
+                    <td className="py-3 px-3 font-mono text-emerald-400">28 packs (Optimal)</td>
+                    <td className="py-3 px-3 font-mono">₹390.00</td>
+                    <td className="py-3 px-3 font-mono font-bold text-white">₹590.00</td>
+                    <td className="py-3 px-3 font-mono text-emerald-400 text-right font-bold">51%</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           )}
 
-          {/* Tab Content: Express POS */}
+          {/* Demo Content: Express POS */}
           {demoTab === 'pos' && (
-            <div className="p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
               <div className="sm:col-span-7 space-y-3">
-                <div className="text-xs font-semibold text-white">Express Register #1</div>
-                <div className="rounded-xl border border-white/[0.04] bg-zinc-900/40 p-3 space-y-2 text-xs">
+                <div className="text-xs font-bold text-white font-heading">Active Checkout Ticket #88204</div>
+                <div className="rounded-2xl border border-white/[0.08] bg-zinc-900/60 p-4 space-y-2.5 text-xs">
                   <div className="flex justify-between items-center text-zinc-300">
-                    <span>1x Amul Desi Cow Milk 1L (Batch #402 • -30% Exp)</span>
-                    <span className="font-mono text-white">₹45.50</span>
+                    <span>1x Amul Desi Cow Milk 1L (-30% Clearance)</span>
+                    <span className="font-mono font-semibold text-white">₹45.50</span>
                   </div>
                   <div className="flex justify-between items-center text-zinc-300">
-                    <span>1x Tata Basmati Rice 5kg</span>
-                    <span className="font-mono text-white">₹540.00</span>
+                    <span>1x Tata Royal Basmati Rice 5kg</span>
+                    <span className="font-mono font-semibold text-white">₹540.00</span>
                   </div>
                   <div className="flex justify-between items-center text-zinc-300">
-                    <span>2x Sourdough Bread Loaf (-20% Exp)</span>
-                    <span className="font-mono text-white">₹192.00</span>
+                    <span>2x Whole Wheat Sourdough (-20% Markdown)</span>
+                    <span className="font-mono font-semibold text-white">₹192.00</span>
                   </div>
-                  <div className="border-t border-white/[0.06] pt-2 flex justify-between items-center font-bold text-sm text-white">
-                    <span>Total Due (GST Included)</span>
-                    <span className="font-mono text-emerald-400">₹777.50</span>
+                  <div className="border-t border-white/[0.08] pt-2.5 flex justify-between items-center font-bold text-sm text-white">
+                    <span>Total Payable (GST Included)</span>
+                    <span className="font-mono text-emerald-400 text-base">₹777.50</span>
                   </div>
                 </div>
               </div>
 
-              <div className="sm:col-span-5 rounded-xl border border-white/[0.06] bg-zinc-950 p-4 text-center space-y-2">
-                <div className="text-[11px] text-zinc-400 font-mono">Scan UPI QR to Pay</div>
-                <div className="h-28 w-28 mx-auto bg-white rounded-lg p-2 flex items-center justify-center">
+              <div className="sm:col-span-5 rounded-2xl border border-white/[0.08] bg-zinc-950/90 p-5 text-center space-y-2.5">
+                <div className="text-xs text-zinc-300 font-mono font-semibold">Dynamic UPI QR Code</div>
+                <div className="h-28 w-28 mx-auto bg-white rounded-xl p-2 flex items-center justify-center shadow-lg">
                   <QrCode className="h-24 w-24 text-zinc-950" />
                 </div>
-                <div className="text-[10px] text-zinc-500 font-mono">Google Pay • PhonePe • Paytm • BHIM</div>
+                <div className="text-[10px] text-zinc-400 font-mono">Google Pay • PhonePe • Paytm • BHIM</div>
               </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* 4. REAL PROBLEMS SOLVED (THE 3 BIG PAIN POINTS) */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-8">
-        <div className="border-t border-white/[0.06] pt-12">
-          <div className="max-w-xl">
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              Built for real supermarket operations, not spreadsheets.
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-              Generic inventory tools don&apos;t know what a batch expiry is. myob was built from day one around perishable turnover and cash flow.
-            </p>
-          </div>
+      {/* 5. PLANS AND PRICING SECTION (MATCHING VIDEO FRAME 10) */}
+      <section id="pricing" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20 scroll-mt-24">
+        {/* Section Header */}
+        <div className="text-center space-y-3 mb-12">
+          <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight font-heading">
+            Plans and Pricing
+          </h2>
+          <p className="text-xs sm:text-sm md:text-base text-zinc-300/90 max-w-xl mx-auto font-normal leading-relaxed">
+            Choose the perfect plan for your needs. From individual creators to enterprise teams, we have flexible pricing options to help you succeed.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1 */}
-          <div className="rounded-2xl border border-white/[0.06] bg-[#111114] p-5 space-y-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400">
-              <Clock className="h-4 w-4" />
+        {/* 5-Plan Grid */}
+        <div className="space-y-4">
+          {/* Top Row: 2 Primary Cards (Premium & Free) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Card 1: PREMIUM (Popular) */}
+            <div className="relative rounded-2xl border border-white/[0.12] bg-black/40 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.2]">
+              <div className="flex items-center justify-between">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white border border-white/15">
+                  PREMIUM
+                </span>
+                <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-zinc-200 border border-white/15">
+                  <Sparkles className="h-3 w-3 text-amber-300" />
+                  <span>Popular</span>
+                </span>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-black text-white font-mono">$20</span>
+                <span className="text-xs text-zinc-400 font-mono">/month</span>
+              </div>
+
+              <ul className="space-y-2.5 text-xs text-zinc-200">
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span>$20 of included monthly credits</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span>Purchase additional credits outside of your monthly usage</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span>5x higher attachment size limits</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span>Import from Figma & CSV Catalogs</span>
+                </li>
+              </ul>
+
+              <SignUpButton mode="modal">
+                <button className="w-full rounded-xl bg-white py-2.5 text-xs font-bold text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-md cursor-pointer">
+                  Subscribe
+                </button>
+              </SignUpButton>
             </div>
-            <h3 className="text-sm font-semibold text-white">Eradicate Dumpster Spoilage</h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Supermarkets lose thousands every month to unnoticed expired inventory. myob alerts you days in advance and triggers stepped markdowns so stock sells before it spoils.
-            </p>
+
+            {/* Card 2: FREE */}
+            <div className="relative rounded-2xl border border-white/[0.08] bg-black/30 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
+              <div className="flex items-center justify-between">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                  FREE
+                </span>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-black text-white font-mono">$0</span>
+                <span className="text-xs text-zinc-400 font-mono">/month</span>
+              </div>
+
+              <ul className="space-y-2.5 text-xs text-zinc-300">
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>$5 of included monthly credits</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Deploy apps to Vercel & Web</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Edit visually with Design Mode</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Sync with GitHub & MongoDB</span>
+                </li>
+              </ul>
+
+              <SignUpButton mode="modal">
+                <button className="w-full rounded-xl border border-white/[0.15] bg-white/[0.05] py-2.5 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer">
+                  Get Started
+                </button>
+              </SignUpButton>
+            </div>
           </div>
 
-          {/* Card 2 */}
-          <div className="rounded-2xl border border-white/[0.06] bg-[#111114] p-5 space-y-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
-              <Truck className="h-4 w-4" />
+          {/* Middle Row: 2 Secondary Cards (Team & Business) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Card 3: TEAM */}
+            <div className="relative rounded-2xl border border-white/[0.08] bg-black/30 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
+              <div className="flex items-center justify-between">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                  TEAM
+                </span>
+                <SignUpButton mode="modal">
+                  <button className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-3.5 py-1 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer">
+                    Subscribe
+                  </button>
+                </SignUpButton>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black text-white font-mono">$30</span>
+                <span className="text-xs text-zinc-400 font-mono">/user/month</span>
+              </div>
+
+              <ul className="space-y-2.5 text-xs text-zinc-300">
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>$30 of included monthly credits per user</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Centralized billing on vercel.com</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Share chats and collaborate with your team</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm font-semibold text-white">Never Run Out of Top Sellers</h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Stockouts kill customer trust. When staples dip below your safety threshold, myob drafts ready-to-order purchase orders grouped by vendor with 1 click.
-            </p>
+
+            {/* Card 4: BUSINESS */}
+            <div className="relative rounded-2xl border border-white/[0.08] bg-black/30 backdrop-blur-xl bg-dot-grid p-6 space-y-6 shadow-2xl transition-all hover:border-white/[0.16]">
+              <div className="flex items-center justify-between">
+                <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                  BUSINESS
+                </span>
+                <SignUpButton mode="modal">
+                  <button className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-3.5 py-1 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer">
+                    Subscribe
+                  </button>
+                </SignUpButton>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black text-white font-mono">$100</span>
+                <span className="text-xs text-zinc-400 font-mono">/user/month</span>
+              </div>
+
+              <ul className="space-y-2.5 text-xs text-zinc-300">
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>$30 of included monthly credits per user</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Training opt-out by default</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>Access to v0 API & Multi-Tenant Partitioning</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Card 3 */}
-          <div className="rounded-2xl border border-white/[0.06] bg-[#111114] p-5 space-y-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-              <ShoppingCart className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-semibold text-white">Sub-Second Counter Checkout</h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Fast barcode recognition, live stock deduction, automatic discount application, and seamless UPI QR / Cash settlement with instant itemized receipts.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. DATA SOVEREIGNTY & SPEED */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="rounded-2xl border border-white/[0.06] bg-zinc-950 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 max-w-lg">
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-cyan-400">
-              <Database className="h-3.5 w-3.5" />
-              <span>Multi-Tenant Architecture</span>
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-              Your store data stays strictly yours.
-            </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Every store account gets an encrypted, isolated database partition in MongoDB Atlas. Import up to 50,000 products from CSV in seconds with zero lag.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2 w-full sm:w-auto">
-            <SignUpButton mode="modal">
-              <button className="flex items-center justify-center gap-1.5 rounded-xl bg-zinc-100 px-5 py-2.5 text-xs font-semibold text-zinc-950 hover:bg-white active:scale-95 transition-all shadow-sm cursor-pointer">
-                <span>Create Free Store</span>
-                <ArrowRight className="h-3.5 w-3.5" />
+          {/* Bottom Row: Full-Width Enterprise Card */}
+          <div className="relative rounded-2xl border border-white/[0.08] bg-black/30 backdrop-blur-xl bg-dot-grid p-6 space-y-4 shadow-2xl transition-all hover:border-white/[0.16]">
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-300 border border-white/10">
+                ENTERPRISE
+              </span>
+              <button 
+                onClick={() => scrollTo('contact')}
+                className="rounded-xl border border-white/[0.15] bg-white/[0.05] px-4 py-1.5 text-xs font-semibold text-white hover:bg-white/[0.1] active:scale-95 transition-all cursor-pointer"
+              >
+                Contact Sales
               </button>
-            </SignUpButton>
-            <span className="text-[10px] text-zinc-500 text-center font-mono">No credit card required</span>
+            </div>
+
+            <div className="text-3xl font-black text-white font-heading">
+              Custom
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-zinc-300 pt-1">
+              <div className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-zinc-400 shrink-0" />
+                <span>Training opt-out by default</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-zinc-400 shrink-0" />
+                <span>SAML SSO & Custom Identity Providers</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-zinc-400 shrink-0" />
+                <span>Priority access for better performance</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="h-4 w-4 text-zinc-400 shrink-0" />
+                <span>Dedicated customer support & custom SLA</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 6. FOOTER */}
-      <footer className="mt-auto border-t border-white/[0.06] py-6 bg-[#09090b]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-500">
-          <div className="flex items-center gap-2">
-            <span className="lowercase font-bold text-white">myob</span>
-            <span>•</span>
-            <span className="text-zinc-400">Mind Your Own Business (Retail OS)</span>
+      {/* 6. ABOUT US SECTION (MATCHING VIDEO FRAME 12 WITH CANVAS CORNER HANDLES) */}
+      <section id="about" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-20 scroll-mt-24">
+        {/* Section Header */}
+        <div className="text-center space-y-3 mb-12">
+          <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight font-heading">
+            About Us
+          </h2>
+          <p className="text-xs sm:text-sm md:text-base text-zinc-300/90 max-w-xl mx-auto font-normal leading-relaxed">
+            Learn more about our mission, vision, and the values that drive us forward.
+          </p>
+        </div>
+
+        {/* Card with 4 White Corner Selection Bounding Box Handles */}
+        <div className="relative rounded-3xl border border-white/[0.15] bg-black/40 backdrop-blur-2xl bg-dot-grid p-8 sm:p-12 shadow-2xl space-y-6">
+          {/* 4 White Corner Square Handles (Canvas Style) */}
+          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white shadow-sm pointer-events-none" />
+          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white shadow-sm pointer-events-none" />
+          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white shadow-sm pointer-events-none" />
+          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white shadow-sm pointer-events-none" />
+
+          <p className="text-base sm:text-xl font-medium text-zinc-100 leading-relaxed font-sans">
+            We believe building beautiful, functional products should be simple. This template shows how AI and smart prompting make it easy to turn ideas into clean, professional interfaces.
+          </p>
+
+          <p className="text-base sm:text-xl font-medium text-zinc-300 leading-relaxed font-sans">
+            It&apos;s designed to highlight key features, scale with your content, and let your AI-powered product shine - without extra setup or complexity.
+          </p>
+        </div>
+      </section>
+
+      {/* 7. GET IN TOUCH (CONTACT) SECTION (MATCHING VIDEO FRAME 14 WITH CORNER CROSSHAIRS) */}
+      <section id="contact" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20 pb-32 scroll-mt-24">
+        {/* Card with 4 Corner Crosshairs */}
+        <div className="relative rounded-3xl border border-white/[0.15] bg-black/40 backdrop-blur-2xl bg-dot-grid p-8 sm:p-12 shadow-2xl">
+          {/* 4 White Crosshair '+' Markers at the Corners */}
+          <span className="absolute -top-3 -left-3 text-white text-lg font-mono select-none font-light leading-none pointer-events-none">+</span>
+          <span className="absolute -top-3 -right-3 text-white text-lg font-mono select-none font-light leading-none pointer-events-none">+</span>
+          <span className="absolute -bottom-3 -left-3 text-white text-lg font-mono select-none font-light leading-none pointer-events-none">+</span>
+          <span className="absolute -bottom-3 -right-3 text-white text-lg font-mono select-none font-light leading-none pointer-events-none">+</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+            {/* Left Column: Contact Information */}
+            <div className="md:col-span-6 space-y-6">
+              <div>
+                <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">
+                  Get in touch
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-300/90 mt-2.5 leading-relaxed">
+                  If you have any questions regarding our Services or need help, please fill out the form here. We do our best to respond within 1 business day.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                {/* Email Item */}
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-zinc-300">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-zinc-400 font-heading">Email</div>
+                    <div className="text-sm font-semibold text-white font-mono">contact@21st.dev</div>
+                  </div>
+                </div>
+
+                {/* Phone Item */}
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-zinc-300">
+                    <Phone className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-zinc-400 font-heading">Phone</div>
+                    <div className="text-sm font-semibold text-white font-mono">+92 312 1234567</div>
+                  </div>
+                </div>
+
+                {/* Address Item */}
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-zinc-300">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-zinc-400 font-heading">Address</div>
+                    <div className="text-sm font-semibold text-white">Faisalabad, Pakistan</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Contact Form */}
+            <div className="md:col-span-6">
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1.5 font-heading">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans"
+                    placeholder="Your name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1.5 font-heading">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans"
+                    placeholder="you@domain.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1.5 font-heading">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={contactForm.phone}
+                    onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans"
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1.5 font-heading">
+                    Message
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans resize-none"
+                    placeholder="How can we help you?"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-xl bg-white py-2.5 text-xs sm:text-sm font-bold text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {contactSubmitted ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      <span>Message Received!</span>
+                    </>
+                  ) : (
+                    <span>Submit</span>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
-          <div className="font-mono text-[11px]">
-            Protected by Clerk Auth • MongoDB Atlas • India INR (₹)
+        </div>
+      </section>
+
+      {/* 8. MINIMALIST FOOTER */}
+      <footer className="relative z-10 border-t border-white/[0.08] bg-black/40 backdrop-blur-xl py-8">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-white lowercase">myob</span>
+            <span>•</span>
+            <span>Mind Your Own Business</span>
+          </div>
+
+          <div className="flex items-center gap-6 text-zinc-400">
+            <button onClick={() => scrollTo('features')} className="hover:text-white transition-colors cursor-pointer">Features</button>
+            <button onClick={() => scrollTo('pricing')} className="hover:text-white transition-colors cursor-pointer">Pricing</button>
+            <button onClick={() => scrollTo('about')} className="hover:text-white transition-colors cursor-pointer">About</button>
+            <button onClick={() => scrollTo('contact')} className="hover:text-white transition-colors cursor-pointer">Contact</button>
+          </div>
+
+          <div className="text-[11px] font-mono text-zinc-500">
+            Protected by Clerk Auth
           </div>
         </div>
       </footer>
