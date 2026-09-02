@@ -751,7 +751,7 @@ export const LandingPage: React.FC = () => {
                     value={contactForm.name}
                     onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                     className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans"
-                    placeholder="e.g. Rahul Sharma (Metro Supermarket)"
+                    placeholder="Debasish Das"
                   />
                 </div>
 
@@ -765,7 +765,7 @@ export const LandingPage: React.FC = () => {
                     value={contactForm.email}
                     onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                     className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans"
-                    placeholder="rahul@metrosupermarket.in"
+                    placeholder="debasish.das@gmail.com"
                   />
                 </div>
 
